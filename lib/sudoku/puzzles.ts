@@ -1,0 +1,47 @@
+import type { Board, Difficulty } from "./types";
+import { parsePuzzle } from "./solver";
+
+const BASE_PUZZLES: Record<Difficulty, string[]> = {
+  easy: [
+    "530070000600195000098000060800060003400803001700020006060000280000419005000080079",
+    "200080300060070084030500209000105408000000000402706000301007040720040060004010003",
+    "000260701680070090190004500820100040004602900050003028009300074040050036703018000",
+    "000000907000420180000705026100904000050000040000507009920108000034059000507000000",
+  ],
+  medium: [
+    "000260701680070090190004500820100040004602900050003028009300074040050036703018000",
+    "300000000005009000200504000020000700160000058704310600000890100000067080000005437",
+    "000000907000420180000705026100904000050000040000507009920108000034059000507000000",
+    "030050040008010500460000012070502080000603000040109030250000098001020600080060020",
+  ],
+  hard: [
+    "000000010400000000020000000000050407008000300001090000300400200050100000000806000",
+    "005300000800000020070010500400005300010070006003200080060500009004000030000009700",
+    "000900002050123400030000160908000000070000090000000205091000050007439020400007000",
+    "600120384008459072000006005000264030070080006940003000310000050089700000502000190",
+  ],
+};
+
+export const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
+export const ARCHIVE_DAYS = 28;
+
+function hashDate(date: string): number {
+  return [...date].reduce((hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0, 17);
+}
+
+export function getDailyPuzzle(date: string, difficulty: Difficulty): Board {
+  const bank = BASE_PUZZLES[difficulty];
+  return parsePuzzle(bank[hashDate(`${date}-${difficulty}`) % bank.length]);
+}
+
+export function getArchiveDates(today: string): string[] {
+  const cursor = new Date(`${today}T12:00:00`);
+  return Array.from({ length: ARCHIVE_DAYS }, (_, index) => {
+    const date = new Date(cursor);
+    date.setDate(cursor.getDate() - index);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  });
+}

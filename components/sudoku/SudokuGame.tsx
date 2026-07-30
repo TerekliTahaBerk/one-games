@@ -8,6 +8,7 @@ import { DIFFICULTIES } from "@/lib/sudoku/puzzles";
 import type { Difficulty } from "@/lib/sudoku/types";
 import { useSudokuGame } from "@/hooks/useSudokuGame";
 import { BrandLogo } from "@/components/BrandLogo";
+import { GameLogo } from "@/components/GameLogo";
 import { GameControls } from "./GameControls";
 import { SudokuBoard } from "./SudokuBoard";
 import { SettingsPanel } from "./SettingsPanel";
@@ -58,9 +59,12 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
         </header>
 
         <div className="game-title-row">
-          <div>
-            <p className="eyebrow">Daily puzzle · {formatLongDate(date)}</p>
-            <h1>OneSudoku</h1>
+          <div className="game-title-lockup">
+            <GameLogo game="sudoku" decorative />
+            <div>
+              <p className="eyebrow">Daily puzzle · {formatLongDate(date)}</p>
+              <h1>OneSudoku</h1>
+            </div>
           </div>
           <div className="timer-group">
             <span className="timer" aria-label={`Elapsed time ${formatTimer(game.game.elapsed)}`}>{formatTimer(game.game.elapsed)}</span>

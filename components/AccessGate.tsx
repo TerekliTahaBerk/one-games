@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { BrandLogo } from "./BrandLogo";
+import { GameLogo } from "./GameLogo";
 import { SimpleFooter } from "./SimpleFooter";
 
 type Step = "email" | "code" | "payment" | "checking";
@@ -117,6 +118,7 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
         <div className="access-copy">
           {step === "email" && (
             <>
+              <GameLogo game="sudoku" decorative className="access-game-logo" />
               <p className="one-eyebrow">One membership · Every game</p>
               <h1>Start OneGames.</h1>
               <p>Enter your email and we’ll send a six-digit code. No password, no noise.</p>
@@ -136,6 +138,7 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
           )}
           {step === "code" && (
             <>
+              <GameLogo game="sudoku" decorative className="access-game-logo" />
               <p className="one-eyebrow">Email verification</p>
               <h1>Check your inbox.</h1>
               <p>We sent a six-digit code to <strong>{email}</strong>. It expires in ten minutes.</p>
@@ -157,6 +160,12 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
           )}
           {step === "payment" && (
             <>
+              <div className="membership-logo-row" aria-hidden="true">
+                <GameLogo game="sudoku" decorative />
+                <GameLogo game="word" decorative />
+                <GameLogo game="match" decorative />
+                <GameLogo game="numbers" decorative />
+              </div>
               <p className="one-eyebrow">Your email is verified</p>
               <h1>Every daily game.<br />One subscription.</h1>
               <p>Today’s Easy, Medium, and Hard chapters—and every new game that joins the family.</p>
@@ -176,6 +185,7 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
           )}
           {step === "checking" && (
             <>
+              <GameLogo game="sudoku" decorative className="access-game-logo" />
               <p className="one-eyebrow">OneGames membership</p>
               <h1>Checking your access.</h1>
               <p>Polar is confirming your subscription. This usually takes only a moment.</p>

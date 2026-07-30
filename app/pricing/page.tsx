@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
+import { GameLogo } from "@/components/GameLogo";
 import { Header } from "@/components/Header";
 
 export const metadata: Metadata = {
@@ -19,6 +20,12 @@ export default function PricingPage() {
           <p>Daily play without ads, bundles, or complicated plans.</p>
         </div>
         <div className="pricing-lockup">
+          <div className="membership-logo-row" aria-label="Games included">
+            <GameLogo game="sudoku" />
+            <GameLogo game="word" />
+            <GameLogo game="match" />
+            <GameLogo game="numbers" />
+          </div>
           <div className="pricing-number"><sup>$</sup><strong>1</strong><span>/ month</span></div>
           <p>OneSudoku today, every new OneGames title tomorrow.</p>
           <ul>

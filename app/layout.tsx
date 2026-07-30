@@ -31,13 +31,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "OneGames — One thoughtful game at a time",
       description: "A small daily collection for your attention, not an endless feed.",
       siteName: "OneGames",
-      images: [{ url: "/og-v3.png", width: 1568, height: 1003, alt: "OneGames — One thoughtful game at a time" }],
+      images: [{ url: "/og-v4.png", width: 1610, height: 977, alt: "OneGames — One thoughtful game at a time" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "OneGames — One thoughtful game at a time",
       description: "A small daily collection for your attention, not an endless feed.",
-      images: ["/og-v3.png"],
+      images: ["/og-v4.png"],
     },
   };
 }

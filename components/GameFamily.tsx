@@ -1,32 +1,28 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { GameLogo } from "./GameLogo";
 
 const games = [
   {
     name: "OneSudoku",
     description: "A clear grid for a clear mind",
-    tone: "blue",
     prop: "sudoku",
     active: true,
   },
   {
     name: "OneWord",
     description: "One word, carefully found",
-    tone: "lilac",
     prop: "word",
     active: false,
   },
   {
     name: "OneMatch",
     description: "Quiet connections",
-    tone: "rose",
     prop: "match",
     active: false,
   },
   {
     name: "OneNumbers",
     description: "A little arithmetic",
-    tone: "green",
     prop: "numbers",
     active: false,
   },
@@ -40,24 +36,10 @@ export function GameFamily() {
         <p>Small daily games, all under one roof.</p>
       </div>
       <div className="family-grid">
-        {games.map((game, index) => {
+        {games.map((game) => {
           const content = (
             <>
-              <div
-                className={`game-mascot mascot-${game.prop} ${game.tone}`}
-                style={{ "--mascot-delay": `${index * -1.3}s` } as CSSProperties}
-                aria-hidden="true"
-              >
-                <div className="mascot-body">
-                  <span className="mascot-face"><i /><i /></span>
-                </div>
-                <div className={`mascot-prop prop-${game.prop}`}>
-                  {game.prop === "sudoku" && Array.from({ length: 9 }, (_, cell) => <i key={cell}>{cell === 4 ? "1" : ""}</i>)}
-                  {game.prop === "word" && <><i>W</i><i>O</i><i>R</i><i>D</i></>}
-                  {game.prop === "match" && <><i /><i /><i /><i /></>}
-                  {game.prop === "numbers" && <><i>2</i><b>+</b><i>3</i></>}
-                </div>
-              </div>
+              <GameLogo game={game.prop} decorative />
               <h3>{game.name}</h3>
               <p>{game.description}</p>
               <small>{game.active ? "Play today" : "Coming soon"}</small>

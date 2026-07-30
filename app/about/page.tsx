@@ -4,47 +4,40 @@ import { Header } from "@/components/Header";
 
 export default function AboutPage() {
   return (
-    <>
+    <main className="ecosystem-page">
       <Header />
-      <main className="about-page">
-        <section className="shell about-hero">
-          <p className="eyebrow">About OneGames</p>
-          <h1>A little space<br />to think.</h1>
+      <section className="centered-page about-page">
+        <div className="centered-heading">
+          <p className="one-eyebrow">About OneGames</p>
+          <h1>A little space to think.</h1>
           <p>
-            OneGames is a home for small daily puzzles—made with care, respectful
-            of your attention, and finished when you are.
+            OneGames is a family of small daily games—made with care,
+            respectful of your attention, and complete when you are.
           </p>
-        </section>
-        <section className="about-story">
-          <div className="shell two-column">
-            <h2>One clear job.</h2>
-            <div>
-              <p>
-                It began with a simple belief: digital products can be useful
-                without asking for more of your day. Our sibling, OneRead, puts
-                one worthwhile read in your inbox. OneGames brings the same
-                restraint to play.
-              </p>
-              <p>
-                The first game is OneSudoku—a precise, familiar grid designed
-                for a few focused minutes. More games may follow, but each must
-                earn its place.
-              </p>
-              <Link className="text-link" href="/sudoku">Play today’s OneSudoku <b aria-hidden="true">→</b></Link>
-            </div>
-          </div>
-        </section>
-        <section className="shell values">
+        </div>
+        <div className="manifesto-copy">
+          <h2>One clear job.</h2>
+          <p>
+            OneRead delivers one worthwhile read. OneGames brings the same
+            restraint to play: no feeds, no streak pressure, no attention traps.
+          </p>
+          <p>
+            Each game publishes one Easy, one Medium, and one Hard chapter each
+            day. Finish one, finish all three, or simply come back tomorrow.
+          </p>
+        </div>
+        <div className="values">
           {[
             ["01", "Calm by design", "No streak anxiety, noisy rewards, or endless loops."],
-            ["02", "Local by default", "Your progress stays on your device. No account required."],
-            ["03", "Finished is good", "Complete the puzzle, enjoy the moment, and carry on."],
+            ["02", "One membership", "A single $1 plan opens every game in the family."],
+            ["03", "Finished is good", "Complete today’s chapter, enjoy the moment, and carry on."],
           ].map(([number, title, text]) => (
             <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>
           ))}
-        </section>
-      </main>
+        </div>
+        <Link className="pill-primary" href="/play">Play OneGames</Link>
+      </section>
       <Footer />
-    </>
+    </main>
   );
 }

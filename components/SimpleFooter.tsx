@@ -6,10 +6,11 @@ export function SimpleFooter({ tagline }: { tagline: string }) {
       <p>{tagline}</p>
       <nav aria-label="Footer">
         <Link href="/about">About</Link>
+        <Link href="/pricing">Pricing</Link>
         <Link href="/sudoku/archive">Archive</Link>
         <a href="https://www.oneread.email/">OneRead</a>
-        <span>Privacy</span>
-        <span>Terms</span>
+        <Link href="/privacy">Privacy</Link>
+        <Link href="/terms">Terms</Link>
       </nav>
     </footer>
   );

@@ -7,6 +7,7 @@ import { clearAllData } from "@/lib/sudoku/persistence";
 import { DIFFICULTIES } from "@/lib/sudoku/puzzles";
 import type { Difficulty } from "@/lib/sudoku/types";
 import { useSudokuGame } from "@/hooks/useSudokuGame";
+import { BrandLogo } from "@/components/BrandLogo";
 import { GameControls } from "./GameControls";
 import { SudokuBoard } from "./SudokuBoard";
 import { SettingsPanel } from "./SettingsPanel";
@@ -48,7 +49,8 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
     <main className={`game-page ${game.settings.reducedMotion ? "reduce-motion" : ""}`}>
       <div className="game-shell">
         <header className="game-topbar">
-          <Link className="wordmark" href="/">One<span>Games</span></Link>
+          <Link href="/" className="back-link" aria-label="Back to OneGames">← <span>Back</span></Link>
+          <BrandLogo />
           <nav>
             <Link href="/sudoku/archive">Archive</Link>
             <button type="button" onClick={() => setSettingsOpen(true)} aria-label="Open settings">Settings</button>

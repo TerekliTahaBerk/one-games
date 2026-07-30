@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { BrandLogo } from "./BrandLogo";
-import { MiniGrid } from "./MiniGrid";
 import { SimpleFooter } from "./SimpleFooter";
 
 type Step = "email" | "code" | "payment" | "checking";
@@ -109,17 +109,19 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
 
   return (
     <main className="access-page">
-      <header className="access-topbar"><BrandLogo /></header>
+      <header className="access-topbar">
+        <Link href="/" className="back-link" aria-label="Back to OneGames">← <span>Back</span></Link>
+        <BrandLogo />
+      </header>
       <section className="access-shell">
-        <div className="access-visual"><MiniGrid /></div>
         <div className="access-copy">
-          <p className="one-eyebrow">OneSudoku · Today</p>
           {step === "email" && (
             <>
-              <h1>Ready to play?</h1>
-              <p>Enter your email. We’ll send one quiet six-digit code—no password to remember.</p>
+              <p className="one-eyebrow">One membership · Every game</p>
+              <h1>Start OneGames.</h1>
+              <p>Enter your email and we’ll send a six-digit code. No password, no noise.</p>
               <form onSubmit={submitEmail} className="access-form">
-                <label htmlFor="access-email">Email address</label>
+                <label className="sr-only" htmlFor="access-email">Email address</label>
                 <input
                   id="access-email"
                   type="email"
@@ -128,16 +130,17 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
                   placeholder="you@example.com"
                   autoComplete="email"
                 />
-                <button className="pill-primary" disabled={busy}>{busy ? "Sending…" : "Send my code"}</button>
+                <button className="pill-primary" disabled={busy}>{busy ? "Please wait…" : "Continue with email"}</button>
               </form>
             </>
           )}
           {step === "code" && (
             <>
+              <p className="one-eyebrow">Email verification</p>
               <h1>Check your inbox.</h1>
               <p>We sent a six-digit code to <strong>{email}</strong>. It expires in ten minutes.</p>
               <form onSubmit={submitCode} className="access-form">
-                <label htmlFor="access-code">Verification code</label>
+                <label className="sr-only" htmlFor="access-code">Verification code</label>
                 <input
                   id="access-code"
                   className="code-input"
@@ -147,37 +150,50 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
                   placeholder="123456"
                   autoComplete="one-time-code"
                 />
-                <button className="pill-primary" disabled={busy}>{busy ? "Checking…" : "Continue"}</button>
+                <button className="pill-primary" disabled={busy}>{busy ? "Please wait…" : "Verify email"}</button>
               </form>
               <button className="text-action" type="button" onClick={() => setStep("email")}>Use another email</button>
             </>
           )}
           {step === "payment" && (
             <>
-              <h1>One subscription.<br />Every daily game.</h1>
-              <p>Your email is verified. Subscribe for today’s Easy, Medium, and Hard chapters—and every game that joins later.</p>
-              <div className="price-lockup"><strong>$1</strong><span>per month<br />cancel anytime</span></div>
+              <p className="one-eyebrow">Your email is verified</p>
+              <h1>Every daily game.<br />One subscription.</h1>
+              <p>Today’s Easy, Medium, and Hard chapters—and every new game that joins the family.</p>
+              <div className="membership-card">
+                <div className="price-lockup"><strong><sup>$</sup>1</strong><span>per month</span></div>
+                <ul>
+                  <li><i>✓</i> Three new chapters every day</li>
+                  <li><i>✓</i> The complete OneGames family</li>
+                  <li><i>✓</i> Cancel whenever you like</li>
+                </ul>
+              </div>
               <button className="pill-primary" type="button" onClick={checkout} disabled={busy}>
-                {busy ? "Opening checkout…" : "Continue to secure payment"}
+                {busy ? "Please wait…" : "Subscribe for $1 / month"}
               </button>
               <p className="billing-note">Billing is handled securely by Polar.</p>
             </>
           )}
           {step === "checking" && (
             <>
+              <p className="one-eyebrow">OneGames membership</p>
               <h1>Checking your access.</h1>
               <p>Polar is confirming your subscription. This usually takes only a moment.</p>
               <span className="soft-loader" aria-label="Checking"><i /><i /><i /></span>
             </>
           )}
           {error && <p className="access-error" role="alert">{error}</p>}
-          <div className="test-divider"><span>or</span></div>
-          <form action="/api/access/test" method="post">
-            <button className="test-game" type="submit" disabled={busy}>
-              Test this game
-              <small>No email or payment required</small>
-            </button>
-          </form>
+          {step === "email" && (
+            <>
+              <div className="test-divider"><span>or</span></div>
+              <form action="/api/access/test" method="post">
+                <button className="test-game" type="submit" disabled={busy}>
+                  Test this game
+                  <small>No email or payment required</small>
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </section>
       <SimpleFooter tagline="One game. No noise." />

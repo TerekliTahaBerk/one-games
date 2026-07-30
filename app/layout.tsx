@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
+import { OpeningLoader } from "@/components/OpeningLoader";
+import "@fontsource/fraunces/latin-400.css";
+import "@fontsource/fraunces/latin-500.css";
+import "@fontsource/fraunces/latin-600.css";
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-500.css";
+import "@fontsource/inter/latin-600.css";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -10,33 +17,33 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase,
     title: {
-      default: "OneGames — One good game at a time",
+      default: "OneGames — One thoughtful game at a time",
       template: "%s — OneGames",
     },
     description:
-      "A quiet home for thoughtful daily games. Start with today’s OneSudoku.",
+      "One daily Easy, Medium, and Hard game. One subscription for the whole OneGames family.",
     applicationName: "OneGames",
     manifest: "/manifest.webmanifest",
     alternates: { canonical: "/" },
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
     openGraph: {
       type: "website",
-      title: "OneGames — One good game at a time",
-      description: "A quiet home for thoughtful daily games.",
+      title: "OneGames — One thoughtful game at a time",
+      description: "A small daily collection for your attention, not an endless feed.",
       siteName: "OneGames",
-      images: [{ url: "/og.png", width: 1734, height: 907, alt: "OneGames — One good game at a time" }],
+      images: [{ url: "/og-v2.png", width: 1734, height: 907, alt: "OneGames — One thoughtful game at a time" }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "OneGames — One good game at a time",
-      description: "A quiet home for thoughtful daily games.",
-      images: ["/og.png"],
+      title: "OneGames — One thoughtful game at a time",
+      description: "A small daily collection for your attention, not an endless feed.",
+      images: ["/og-v2.png"],
     },
   };
 }
 
 export const viewport: Viewport = {
-  themeColor: "#f3f0e7",
+  themeColor: "#ffffff",
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,
@@ -45,7 +52,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>{children}<OpeningLoader /></body>
     </html>
   );
 }

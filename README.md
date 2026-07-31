@@ -1,9 +1,9 @@
 # OneGames
 
-OneGames is the daily-games member of the OneRead product family. It ships with
-**OneSudoku** — one Easy, one Medium, and one Hard chapter every day — behind
-email-code verification and a $1/month Polar membership, plus an explicit
-no-payment test path.
+OneGames is the daily-games member of the One family — sibling to OneRead, not
+a product beneath it. It ships with **OneSudoku**: one Easy, one Medium, and
+one Hard chapter every day, behind email-code verification and a $1/month Polar
+membership, plus an explicit no-payment test path.
 
 > One thoughtful game at a time.
 
@@ -21,8 +21,8 @@ company:
 - calm black pill CTAs, restrained motion, no cards or dashboards
 - one centred footer: a Fraunces-italic tagline over
   Terms · Privacy · About · Pricing
-- the parent brand credited at the top left of the homepage, linking to
-  OneRead — quiet enough not to compete with the lockup
+- the family credited at the top left of the homepage, linking to OneRead —
+  quiet enough not to compete with the lockup
 
 The one deliberate departure is the legal pages: like OneRead's, they are
 reference documents, so `components/LegalPage.tsx` reads left-aligned from the

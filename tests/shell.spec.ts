@@ -183,16 +183,16 @@ test.describe("Family credit", () => {
     const credit = page.locator(".parent-brand");
     await expect(credit).toHaveAttribute("href", "https://www.oneread.email/");
     await expect(credit.locator(".parent-brand-name")).toBeVisible();
-    await expect(credit).toContainText("Part of OneRead");
+    await expect(credit).toContainText("The One family");
 
     // The descriptor needs room beside the centred lockup, so it appears once
-    // the header is wide enough; the "Part of OneRead" line always carries the
+    // the header is wide enough; the "The One family" line always carries the
     // relationship on its own.
     const width = page.viewportSize()?.width ?? 0;
     const note = credit.locator(".parent-brand-note");
     if (width >= 640) {
       await expect(note).toBeVisible();
-      await expect(note).toHaveText("One useful email a day");
+      await expect(note).toHaveText("Sibling to OneRead");
     } else {
       await expect(note).toBeHidden();
     }

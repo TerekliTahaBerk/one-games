@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "OneGames is the daily-games member of the OneRead family.",
+  description: "OneGames is the daily-games member of the One family.",
 };
 
 const VALUES = [
@@ -31,8 +31,9 @@ export default function AboutPage() {
         <div className="reading-body">
           <h2>One clear job.</h2>
           <p>
-            OneRead delivers one worthwhile read. OneGames brings the same restraint to play: no
-            feeds, no streak pressure, no attention traps. Same company, same design system, same
+            OneGames and OneRead are siblings in the One family — neither sits under the other.
+            OneRead delivers one worthwhile read; OneGames brings the same restraint to play: no
+            feeds, no streak pressure, no attention traps. Same people, same design system, same
             promise about your time.
           </p>
           <p>

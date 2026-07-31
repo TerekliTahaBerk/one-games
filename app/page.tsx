@@ -13,10 +13,10 @@ export default function HomePage() {
             href="https://www.oneread.email/"
             rel="noreferrer"
             className="parent-brand"
-            aria-label="OneRead — one useful email a day"
+            aria-label="The One family — visit OneRead"
           >
-            <span className="parent-brand-name link-underline">Part of OneRead</span>
-            <span className="parent-brand-note">One useful email a day</span>
+            <span className="parent-brand-name link-underline">The One family</span>
+            <span className="parent-brand-note">Sibling to OneRead</span>
           </a>
 
           <BrandLogo />

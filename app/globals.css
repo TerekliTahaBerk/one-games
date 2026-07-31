@@ -3,10 +3,10 @@
 /* ==========================================================================
    OneGames design system
 
-   OneGames is the daily-games member of the OneRead family, so the shell is
-   deliberately the same one: white paper, Fraunces for editorial type, Inter
-   for interface type, a centred wordmark at a fixed size, generous but equal
-   page padding, calm black pill buttons, and one quiet centred footer.
+   OneGames is the daily-games member of the One family, sibling to OneRead, so
+   the shell is deliberately the same: white paper, Fraunces for editorial type,
+   Inter for interface type, a centred wordmark at a fixed size, generous but
+   equal page padding, calm black pill buttons, and one quiet centred footer.
 
    Measurements below are the OneRead values, in px, so the two products line
    up when you flip between them.
@@ -246,7 +246,7 @@ button,
 }
 
 /* There is only room for the descriptor once the header is wide enough; the
-   "Part of OneRead" line carries the relationship on its own below that. */
+   "The One family" line carries the relationship on its own below that. */
 .parent-brand-note {
   display: none;
   color: var(--fog);

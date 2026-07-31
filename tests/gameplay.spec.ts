@@ -39,7 +39,8 @@ test.describe("Access", () => {
     await page.goto("/play");
     await page.getByPlaceholder("you@example.com").fill("not-an-email");
     await page.getByRole("button", { name: "Continue with email" }).click();
-    await expect(page.getByRole("alert")).toContainText("valid email");
+    // Scoped to main: Next.js keeps its own route announcer with role="alert".
+    await expect(page.getByRole("main").getByRole("alert")).toContainText("valid email");
   });
 });
 

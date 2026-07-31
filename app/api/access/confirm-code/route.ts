@@ -19,6 +19,13 @@ export async function POST(request: Request) {
   }
 
   const db = await getDatabase();
+  if (!db) {
+    return NextResponse.json(
+      { ok: false, error: "storage_not_configured" },
+      { status: 503 },
+    );
+  }
+
   const row = await db.prepare(
     `SELECT id, code_hash, expires_at, attempts
      FROM verification_codes
@@ -48,7 +55,14 @@ export async function POST(request: Request) {
        ON CONFLICT(email) DO NOTHING`,
     ).bind(email, now),
   ]);
-  await setAccessCookie(await createAccessSession(email));
+  const token = await createAccessSession(email);
+  if (!token) {
+    return NextResponse.json(
+      { ok: false, error: "storage_not_configured" },
+      { status: 503 },
+    );
+  }
+  await setAccessCookie(token);
   const subscription = await db.prepare("SELECT status FROM subscriptions WHERE email = ?")
     .bind(email).first<{ status: string }>();
 

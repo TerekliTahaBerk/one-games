@@ -38,6 +38,12 @@ export async function POST(request: Request) {
   const eventId = eventIdFor(request.headers.get("webhook-id"), payload, data);
 
   const db = await getDatabase();
+  if (!db) {
+    // Returning 503 asks Polar to retry rather than silently dropping the
+    // event, which would leave a paying member without access.
+    return NextResponse.json({ ok: false, error: "storage_not_configured" }, { status: 503 });
+  }
+
   const duplicate = await db
     .prepare("SELECT id FROM billing_events WHERE id = ?")
     .bind(eventId)

@@ -70,14 +70,19 @@ test.describe("Shared shell", () => {
   });
 
   test("every page uses the same top padding", async ({ page }) => {
-    const tops: number[] = [];
+    // Measured from the computed style rather than a bounding box: the reveal
+    // animation offsets the header by 10px mid-flight, which would make a
+    // geometry check pass or fail on timing alone.
+    const paddings = new Set<string>();
     for (const { path } of PAGES) {
       await page.goto(path);
-      const box = await page.locator("header.site-header").first().boundingBox();
-      if (!box) throw new Error(`No header on ${path}`);
-      tops.push(box.y);
+      const padding = await page
+        .locator(".page")
+        .first()
+        .evaluate((node) => getComputedStyle(node).paddingTop);
+      paddings.add(padding);
     }
-    expect(Math.max(...tops) - Math.min(...tops)).toBeLessThan(1);
+    expect([...paddings]).toHaveLength(1);
   });
 
   test("footer links keep an accessible touch height", async ({ page }) => {

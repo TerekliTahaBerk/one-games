@@ -18,6 +18,14 @@ export async function POST(request: Request) {
   if (!accessToken || !productId) {
     return NextResponse.json({ ok: false, error: "billing_not_configured" }, { status: 503 });
   }
+
+  // Checked before opening the checkout, so we never take someone to a payment
+  // page we cannot record the result of.
+  const db = await getDatabase();
+  if (!db) {
+    return NextResponse.json({ ok: false, error: "storage_not_configured" }, { status: 503 });
+  }
+
   const origin = process.env.PUBLIC_BASE_URL?.replace(/\/$/, "") || new URL(request.url).origin;
   const polar = new Polar({
     accessToken,
@@ -31,7 +39,6 @@ export async function POST(request: Request) {
     metadata: { email: access.email, product: "onegames" },
     customerMetadata: { email: access.email, product: "onegames" },
   });
-  const db = await getDatabase();
   await db.prepare(
     "UPDATE subscriptions SET polar_checkout_id = ?, updated_at = ? WHERE email = ?",
   ).bind(checkout.id, Date.now(), access.email).run();

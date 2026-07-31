@@ -26,6 +26,8 @@ function messageFor(error: unknown): string {
   switch (error) {
     case "email_not_configured":
       return "Email delivery is not connected on this deployment yet. You can still try the game below.";
+    case "storage_not_configured":
+      return "This deployment has no database connected yet, so email sign-in is unavailable. You can still try the game below.";
     case "delivery_failed":
       return "We couldn’t deliver the code. Check the address and try again.";
     case "cooldown":

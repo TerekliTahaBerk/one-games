@@ -31,6 +31,13 @@ export async function POST(request: Request) {
   }
 
   const db = await getDatabase();
+  if (!db) {
+    return NextResponse.json(
+      { ok: false, error: "storage_not_configured" },
+      { status: 503 },
+    );
+  }
+
   const now = Date.now();
   const recent = await db.prepare(
     `SELECT created_at FROM verification_codes

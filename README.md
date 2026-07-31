@@ -69,6 +69,25 @@ npm run dev
 
 Open `http://localhost:3000`. No credentials are needed — use **Test this game**.
 
+## Deploy targets
+
+The app builds for two hosts from one codebase.
+
+| | Cloudflare / Sites | Vercel |
+| --- | --- | --- |
+| Build | `npm run build` (vinext → `dist/`) | `npm run build:vercel` (`next build` → `.next/`) |
+| Config | `.openai/hosting.json` | `vercel.json` |
+| Storage | native D1 binding `DB` | D1 over HTTP (`CLOUDFLARE_*` vars) |
+
+`vercel.json` pins the build command, so a Vercel project needs no dashboard
+setup. If a Build Command is already set in project settings it overrides
+`vercel.json` — clear it, or set it to `npm run build:vercel`.
+
+Storage resolves in `lib/access/db.ts`, in this order: native D1 binding →
+D1 HTTP API → none. With none, the marketing pages and "Test this game" work
+normally, and email sign-in, checkout, and the webhook return
+`storage_not_configured` (503). Nothing is ever simulated as succeeding.
+
 ## Commands
 
 ```bash
@@ -77,7 +96,8 @@ npm run lint
 npm run typecheck
 npm test
 npm run test:e2e
-npm run build
+npm run build          # Cloudflare Worker bundle -> dist/
+npm run build:vercel   # Next.js build -> .next/
 ```
 
 Asset and content tooling:
@@ -141,6 +161,9 @@ See `.env.example`. Summary of what breaks without each:
 | `POLAR_WEBHOOK_SECRET` | Verifying webhooks | Webhook returns 503; nothing becomes `active` |
 | `POLAR_SERVER` | Sandbox vs production | Defaults to `sandbox` |
 | `PUBLIC_BASE_URL` | Checkout return URLs, sitemap, robots | Falls back to the production origin |
+| `CLOUDFLARE_ACCOUNT_ID` | D1 over HTTP (non-Cloudflare hosts) | Falls back to the native binding, then to no storage |
+| `CLOUDFLARE_D1_DATABASE_ID` | Same | Same |
+| `CLOUDFLARE_API_TOKEN` | Same (needs D1 Edit) | Same |
 
 ## Sudoku architecture
 
@@ -185,8 +208,8 @@ landmarks are page-level on every route, which the Playwright suite asserts.
 
 ## Testing
 
-- `npm test` — 25 unit tests over the solver, puzzle bank, daily scheduling, and
-  webhook interpretation.
+- `npm test` — 32 unit tests over the solver, puzzle bank, daily scheduling,
+  webhook interpretation, and the D1 HTTP client.
 - `npm run test:e2e` — 58 Playwright checks across a desktop and a mobile
   project, covering the test-access path, the access gate, number entry by pad
   and keyboard, notes mode, arrow-key movement, undo/redo/erase, hints,
@@ -198,8 +221,11 @@ landmarks are page-level on every route, which the Playwright suite asserts.
 
 `npm run build` produces the Cloudflare-compatible bundle in `dist/`, with
 `.openai/hosting.json` and the D1 migration packaged into `dist/.openai` by
-`build/sites-vite-plugin.ts`. Apply `drizzle/0000_onegames_access.sql` to the
-bound D1 database, then set the runtime variables above.
+`build/sites-vite-plugin.ts`. `npm run build:vercel` produces a stock Next.js
+build in `.next/`.
+
+Either way, apply `drizzle/0000_onegames_access.sql` to the D1 database (the
+app also creates the tables on first use) and set the runtime variables above.
 
 ## Originality
 

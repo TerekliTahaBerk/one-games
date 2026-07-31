@@ -53,10 +53,7 @@ export function SettingsPanel({ open, settings, onChange, onClose, onReset, onRe
         aria-labelledby="settings-title"
       >
         <div className="modal-heading">
-          <div>
-            <p className="eyebrow">Make it yours</p>
-            <h2 id="settings-title">Settings</h2>
-          </div>
+          <h2 id="settings-title">Settings</h2>
           <button
             className="icon-button"
             type="button"

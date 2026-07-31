@@ -55,7 +55,6 @@ export function CompletionPanel({ game, difficulty, stats, onClose }: Props) {
         </button>
 
         <GameLogo game="sudoku" size={64} decorative style={{ margin: "0 auto" }} />
-        <p className="eyebrow">Today’s grid is complete</p>
         <h2 id="complete-title">Nicely done.</h2>
         <p>One puzzle down. Take that quiet focus with you.</p>
 

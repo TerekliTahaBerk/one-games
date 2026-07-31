@@ -21,7 +21,6 @@ export default function AboutPage() {
 
       <main className="page-main is-reading">
         <div className="access-copy rise">
-          <p className="eyebrow">About OneGames</p>
           <h1 className="display display-sm">A little space to think.</h1>
           <p className="lede">
             OneGames is a family of small daily games — made with care, respectful of your

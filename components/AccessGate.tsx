@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { GameLogo, GameLogoFamily } from "./GameLogo";
+import { GameLogoFamily } from "./GameLogo";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
@@ -25,9 +25,9 @@ async function postJson(url: string, body?: unknown) {
 function messageFor(error: unknown): string {
   switch (error) {
     case "email_not_configured":
-      return "Email delivery is not connected on this deployment yet. You can still try the game below.";
+      return "Email delivery is not connected on this deployment yet. You can still play today\u2019s game below.";
     case "storage_not_configured":
-      return "This deployment has no database connected yet, so email sign-in is unavailable. You can still try the game below.";
+      return "This deployment has no database connected yet, so email sign-in is unavailable. You can still play today\u2019s game below.";
     case "delivery_failed":
       return "We couldn’t deliver the code. Check the address and try again.";
     case "cooldown":
@@ -39,7 +39,7 @@ function messageFor(error: unknown): string {
     case "too_many":
       return "Too many attempts on that code. Request a fresh one.";
     case "billing_not_configured":
-      return "Checkout is not connected on this deployment yet. Test access is available below.";
+      return "Checkout is not connected on this deployment yet.";
     default:
       return "Something went wrong. Please try once more.";
   }
@@ -129,9 +129,7 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
         <div className="access-copy rise">
           {step === "email" && (
             <>
-              <GameLogo game="sudoku" size={72} decorative className="access-mark" />
-              <p className="eyebrow">One membership · Every game</p>
-              <h1 className="display display-sm">Start OneGames.</h1>
+              <h1 className="display display-sm">Where should we send your code?</h1>
               <p className="lede">
                 Enter your email and we’ll send a six-digit code. No password, no noise.
               </p>
@@ -157,8 +155,6 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
 
           {step === "code" && (
             <>
-              <GameLogo game="sudoku" size={72} decorative className="access-mark" />
-              <p className="eyebrow">Email verification</p>
               <h1 className="display display-sm">Check your inbox.</h1>
               <p className="lede">
                 We sent a six-digit code to <strong>{email}</strong>. It expires in ten minutes.
@@ -191,7 +187,6 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
           {step === "payment" && (
             <>
               <GameLogoFamily size={54} className="access-mark" />
-              <p className="eyebrow">Your email is verified</p>
               <h1 className="display display-sm">Every daily game. One subscription.</h1>
               <p className="lede">
                 Today’s Easy, Medium, and Hard chapters — and every new game that joins the family.
@@ -223,8 +218,6 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
 
           {step === "checking" && (
             <>
-              <GameLogo game="sudoku" size={72} decorative className="access-mark" />
-              <p className="eyebrow">OneGames membership</p>
               <h1 className="display display-sm">Checking your access.</h1>
               <p className="lede">
                 Polar is confirming your subscription. This usually takes only a moment.
@@ -244,17 +237,14 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
           )}
 
           {step === "email" && (
-            <div className="test-block">
-              <div className="test-divider">
-                <span>or</span>
-              </div>
-              <form action="/api/access/test" method="post">
-                <button className="test-game" type="submit" disabled={busy}>
-                  Test this game
-                  <small>No email or payment required</small>
-                </button>
-              </form>
-            </div>
+            <form action="/api/access/test" method="post">
+              <button className="quiet-link" type="submit" disabled={busy}>
+                {/* The underline hugs the text rather than the 44px touch box. */}
+                <span className="link-underline">
+                  Or try today&rsquo;s game without an account
+                </span>
+              </button>
+            </form>
           )}
         </div>
       </main>

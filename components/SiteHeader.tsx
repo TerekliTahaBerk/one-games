@@ -6,15 +6,16 @@ import { BrandLogo } from "./BrandLogo";
  * The one header every OneGames page uses.
  *
  * The wordmark is always centred in the full page width and always the same
- * size; a back link or a quiet icon sits absolutely at the edges so it never
- * shifts the logo off centre.
+ * size. Back navigation is an icon-only circular arrow pinned to the left, the
+ * same affordance OneRead uses — its label lives in `aria-label` rather than
+ * on screen, so nothing competes with the wordmark.
  */
 export function SiteHeader({
   back,
-  backLabel = "Back",
+  backLabel = "Back to OneGames",
   trailing,
 }: {
-  /** Href for the quiet back link on the left. Omit on the homepage. */
+  /** Href for the back arrow. Omit on the homepage. */
   back?: string;
   backLabel?: string;
   trailing?: ReactNode;
@@ -22,9 +23,16 @@ export function SiteHeader({
   return (
     <header className="site-header">
       {back && (
-        <Link href={back} className="header-back" aria-label={`${backLabel} to OneGames`}>
-          <span aria-hidden="true">←</span>
-          <span className="header-back-label">{backLabel}</span>
+        <Link href={back} className="header-back" aria-label={backLabel}>
+          <svg width="18" height="18" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path
+              d="M12 7H2M6 3L2 7l4 4"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </Link>
       )}
       <BrandLogo />

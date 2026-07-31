@@ -193,14 +193,13 @@ button,
 
 .header-back {
   left: 0;
-  min-height: 44px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 0 10px;
-  border-radius: 999px;
-  color: var(--fog);
-  font-size: 12px;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--ash);
   transition:
     color 200ms ease,
     background-color 200ms ease;
@@ -271,6 +270,8 @@ button,
    Editorial type scale
    -------------------------------------------------------------------------- */
 
+/* Reserved for real information (a date, a status) — never a decorative
+   label above a heading. */
 .eyebrow {
   margin: 0 0 14px;
   color: var(--fog);
@@ -278,6 +279,14 @@ button,
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+/* A quiet sentence-case caption, for where a line of context genuinely helps. */
+.caption {
+  margin: 0 0 10px;
+  color: var(--fog);
+  font-size: 12.5px;
+  line-height: 1.5;
 }
 
 .display {
@@ -813,61 +822,24 @@ button,
   line-height: 1.5;
 }
 
-.test-block {
-  width: 100%;
-  max-width: 24rem;
-  margin: 24px auto 0;
-}
-
-.test-divider {
-  position: relative;
-  height: 1px;
-  margin-bottom: 20px;
-  background: var(--line);
-  text-align: center;
-}
-
-.test-divider span {
-  position: relative;
-  top: -8px;
-  padding: 0 10px;
-  background: var(--paper);
-  color: var(--fog);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.test-game {
-  width: 100%;
-  min-height: 48px;
-  padding: 6px 16px;
-  display: flex;
-  flex-direction: column;
+/* The no-account option is a line of text, not a second button competing
+   with the primary action. */
+.quiet-link {
+  min-height: 44px;
+  padding: 0 4px;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    background-color 200ms ease,
-    border-color 200ms ease;
-}
-
-.test-game:hover {
-  background: var(--cream);
-  border-color: var(--fog);
-}
-
-.test-game small {
+  border: 0;
+  background: none;
   color: var(--fog);
-  font-size: 10.5px;
-  font-weight: 400;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.quiet-link:hover {
+  color: var(--ink);
 }
 
 .soft-loader {
@@ -1137,7 +1109,7 @@ button,
   padding: 18px 0;
 }
 
-.game-title-row .eyebrow {
+.game-title-row .caption {
   margin-bottom: 12px;
 }
 
@@ -1657,10 +1629,6 @@ kbd {
   border-bottom: 1px solid var(--line);
 }
 
-.modal-heading .eyebrow {
-  margin-bottom: 6px;
-}
-
 .modal-heading h2,
 .completion-panel h2 {
   margin: 0;
@@ -1785,18 +1753,17 @@ kbd {
   text-align: center;
 }
 
+.completion-panel h2 {
+  margin-top: 22px;
+}
+
 .modal-close {
   position: absolute;
   top: 16px;
   right: 16px;
 }
 
-.completion-panel .eyebrow {
-  margin: 22px 0 8px;
-  color: var(--numbers);
-}
-
-.completion-panel > p:not(.eyebrow) {
+.completion-panel > p {
   margin: 10px auto 0;
   max-width: 34ch;
   color: var(--ash);

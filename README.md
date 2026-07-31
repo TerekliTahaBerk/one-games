@@ -67,7 +67,8 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`. No credentials are needed — use **Test this game**.
+Open `http://localhost:3000`. No credentials are needed — use the
+**“try today’s game without an account”** link on `/play`.
 
 ## Deploy targets
 
@@ -84,7 +85,7 @@ setup. If a Build Command is already set in project settings it overrides
 `vercel.json` — clear it, or set it to `npm run build:vercel`.
 
 Storage resolves in `lib/access/db.ts`, in this order: native D1 binding →
-D1 HTTP API → none. With none, the marketing pages and "Test this game" work
+D1 HTTP API → none. With none, the marketing pages and playing without an account work
 normally, and email sign-in, checkout, and the webhook return
 `storage_not_configured` (503). Nothing is ever simulated as succeeding.
 
@@ -142,7 +143,8 @@ a subscription to `active`.
   that a `subscription.revoked` event carrying a stale `active` status still
   revokes.
 
-“Test this game” sets a short-lived (2 hour) HTTP-only test session and is
+“Try today’s game without an account” sets a short-lived (2 hour) HTTP-only
+test session and is
 deliberately independent of billing. **When the email or billing variables are
 absent, those endpoints say so and return 503 — they never behave as though a
 real code was sent or a real payment was taken.**
@@ -211,7 +213,7 @@ landmarks are page-level on every route, which the Playwright suite asserts.
 - `npm test` — 32 unit tests over the solver, puzzle bank, daily scheduling,
   webhook interpretation, and the D1 HTTP client.
 - `npm run test:e2e` — 58 Playwright checks across a desktop and a mobile
-  project, covering the test-access path, the access gate, number entry by pad
+  project, covering the no-account play path, the access gate, number entry by pad
   and keyboard, notes mode, arrow-key movement, undo/redo/erase, hints,
   pause/resume, difficulty switching, reload persistence, puzzle completion,
   the archive, and shell consistency (wordmark size and centring, equal top padding, identical footer,

@@ -44,7 +44,6 @@ export default function ArchivePage() {
 
       <main className="page-main is-reading">
         <div className="access-copy rise">
-          <p className="eyebrow">On this device</p>
           <h1 className="display display-sm">Your local archive.</h1>
           <p className="lede">
             Revisit a recent grid or see what you have finished. Progress lives only in this

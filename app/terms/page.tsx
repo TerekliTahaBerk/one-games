@@ -14,7 +14,7 @@ export default function TermsPage() {
 
       <main className="page-main is-reading">
         <div className="access-copy rise">
-          <p className="eyebrow">Terms</p>
+          <p className="eyebrow">Last updated February 2026</p>
           <h1 className="display display-sm">Simple terms for a simple membership.</h1>
           <p className="lede">
             OneGames gives active members access to the daily game family.
@@ -36,10 +36,10 @@ export default function TermsPage() {
             today.
           </p>
 
-          <h2>Test access</h2>
+          <h2>Playing without an account</h2>
           <p>
-            The “Test this game” option opens a short-lived session so you can try the game before
-            deciding. It is not a membership and carries no guarantee of availability.
+            The “try today’s game without an account” option opens a short-lived session so you can
+            play before deciding. It is not a membership and carries no guarantee of availability.
           </p>
 
           <h2>Fair use</h2>

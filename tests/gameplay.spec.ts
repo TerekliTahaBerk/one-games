@@ -19,11 +19,13 @@ test.describe("Access", () => {
   test("the test path opens the game without email or payment", async ({ page }) => {
     await page.goto("/play");
 
-    await expect(page.getByRole("heading", { name: "Start OneGames." })).toBeVisible();
-    // The offer sits directly under the email field, as an alternative to it.
+    await expect(
+      page.getByRole("heading", { name: "Where should we send your code?" }),
+    ).toBeVisible();
+    // The no-account option is a line of text under the form, not a rival button.
     await expect(page.getByPlaceholder("you@example.com")).toBeVisible();
 
-    await page.getByRole("button", { name: /Test this game/ }).click();
+    await page.getByRole("button", { name: /without an account/ }).click();
 
     await expect(page).toHaveURL(/\/sudoku/);
     await expect(page.getByRole("heading", { name: "OneSudoku" })).toBeVisible();

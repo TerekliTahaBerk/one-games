@@ -17,7 +17,6 @@ export default function PricingPage() {
       <main className="page-main is-narrow">
         <div className="access-copy rise">
           <GameLogoFamily size={54} className="access-mark" />
-          <p className="eyebrow">Simple pricing</p>
           <h1 className="display display-sm">One membership. Every game.</h1>
           <p className="lede">Daily play without ads, bundles, or complicated plans.</p>
 

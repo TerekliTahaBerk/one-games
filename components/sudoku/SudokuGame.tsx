@@ -81,7 +81,7 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
 
       <main className="game-main">
         <div className="game-title-row">
-          <p className="eyebrow">Daily puzzle · {formatLongDate(date)}</p>
+          <p className="caption">Daily puzzle · {formatLongDate(date)}</p>
           <div className="game-title-line">
             <div className="game-title-lockup">
               <GameLogo game="sudoku" size={52} decorative />

@@ -14,7 +14,7 @@ export default function PrivacyPage() {
 
       <main className="page-main is-reading">
         <div className="access-copy rise">
-          <p className="eyebrow">Privacy</p>
+          <p className="eyebrow">Last updated February 2026</p>
           <h1 className="display display-sm">Quiet play includes quiet data.</h1>
           <p className="lede">
             We collect only what is needed to verify access and operate your membership.

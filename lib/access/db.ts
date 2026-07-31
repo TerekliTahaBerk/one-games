@@ -5,10 +5,11 @@
  * tried in order:
  *
  * 1. A native D1 binding — Cloudflare Workers / the Sites deployment.
- * 2. Cloudflare's D1 HTTP API — any Node or serverless host (Vercel included),
- *    when `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, and
- *    `CLOUDFLARE_API_TOKEN` are set.
- * 3. Nothing. `getDatabase()` resolves to `null`, and every caller reports that
+ * 2. Postgres, when `POSTGRES_URL` (or `PRISMA_DATABASE_URL`) is set. This is
+ *    the path Vercel uses.
+ * 3. Cloudflare's D1 HTTP API — any Node host, when `CLOUDFLARE_ACCOUNT_ID`,
+ *    `CLOUDFLARE_D1_DATABASE_ID`, and `CLOUDFLARE_API_TOKEN` are set.
+ * 4. Nothing. `getDatabase()` resolves to `null`, and every caller reports that
  *    the feature is unavailable rather than pretending it worked. The marketing
  *    pages and the "Test this game" path never touch storage, so they keep
  *    working on a host with no database at all.
@@ -29,6 +30,13 @@ export interface AccessDatabase {
 }
 
 const SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS players (
+    email TEXT PRIMARY KEY,
+    created_at INTEGER NOT NULL,
+    verified_at INTEGER,
+    last_seen_at INTEGER,
+    code_requests INTEGER NOT NULL DEFAULT 0
+  )`,
   `CREATE TABLE IF NOT EXISTS verification_codes (
     id TEXT PRIMARY KEY,
     email TEXT NOT NULL,
@@ -60,6 +68,7 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS billing_events (
     id TEXT PRIMARY KEY,
     event_type TEXT NOT NULL,
+    email TEXT,
     processed_at INTEGER NOT NULL
   )`,
 ] as const;
@@ -171,20 +180,58 @@ async function bindingDatabase(): Promise<AccessDatabase | null> {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Postgres                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/** Either name works; Prisma hands out the second one. */
+function postgresUrl(): string | null {
+  return (
+    process.env.POSTGRES_URL?.trim() || process.env.PRISMA_DATABASE_URL?.trim() || null
+  );
+}
+
+async function postgresDatabase(): Promise<AccessDatabase | null> {
+  const connectionString = postgresUrl();
+  if (!connectionString) return null;
+  // Imported only when configured, so hosts without Postgres never load the
+  // driver — the Cloudflare bundle in particular has no use for it.
+  const { createPostgresDatabase } = await import("./postgres");
+  return createPostgresDatabase(connectionString);
+}
+
+/* -------------------------------------------------------------------------- */
 /* Resolution                                                                  */
 /* -------------------------------------------------------------------------- */
 
 let resolved: Promise<AccessDatabase | null> | null = null;
 
-async function resolveDatabase(): Promise<AccessDatabase | null> {
-  const rest = restConfigFromEnv();
-  const database = (await bindingDatabase()) ?? (rest ? createRestDatabase(rest) : null);
-  if (!database) return null;
+type Source = { database: AccessDatabase; kind: "d1-binding" | "postgres" | "d1-http" };
 
-  for (const statement of SCHEMA) {
-    await database.prepare(statement).run();
+async function selectSource(): Promise<Source | null> {
+  const binding = await bindingDatabase();
+  if (binding) return { database: binding, kind: "d1-binding" };
+
+  const postgres = await postgresDatabase();
+  if (postgres) return { database: postgres, kind: "postgres" };
+
+  const rest = restConfigFromEnv();
+  if (rest) return { database: createRestDatabase(rest), kind: "d1-http" };
+
+  return null;
+}
+
+async function resolveDatabase(): Promise<AccessDatabase | null> {
+  const source = await selectSource();
+  if (!source) return null;
+
+  // The D1 paths create their tables on first use. Postgres is migrated ahead
+  // of time by scripts/migrate-postgres.mjs, so there is nothing to bootstrap.
+  if (source.kind !== "postgres") {
+    for (const statement of SCHEMA) {
+      await source.database.prepare(statement).run();
+    }
   }
-  return database;
+  return source.database;
 }
 
 /**

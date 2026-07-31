@@ -1,7 +1,8 @@
 import { Polar } from "@polar-sh/sdk";
 import { NextResponse } from "next/server";
-import { getDatabase } from "@/lib/access/db";
+import { hasDatabase } from "@/lib/access/db";
 import { getAccessState } from "@/lib/access/session";
+import { recordCheckoutStarted } from "@/lib/access/store";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +22,7 @@ export async function POST(request: Request) {
 
   // Checked before opening the checkout, so we never take someone to a payment
   // page we cannot record the result of.
-  const db = await getDatabase();
-  if (!db) {
+  if (!(await hasDatabase())) {
     return NextResponse.json({ ok: false, error: "storage_not_configured" }, { status: 503 });
   }
 
@@ -39,8 +39,6 @@ export async function POST(request: Request) {
     metadata: { email: access.email, product: "onegames" },
     customerMetadata: { email: access.email, product: "onegames" },
   });
-  await db.prepare(
-    "UPDATE subscriptions SET polar_checkout_id = ?, updated_at = ? WHERE email = ?",
-  ).bind(checkout.id, Date.now(), access.email).run();
+  await recordCheckoutStarted(access.email, checkout.id);
   return NextResponse.json({ ok: true, action: "redirect", url: checkout.url });
 }

@@ -11,6 +11,7 @@
     "build:vercel": "next build",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "vitest run",
+    "test:db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run tests/access-store.integration.test.ts",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
@@ -21,7 +22,9 @@
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@polar-sh/sdk": "^0.48.1",
+    "@types/pg": "^8.20.0",
     "next": "16.2.6",
+    "pg": "^8.22.0",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },

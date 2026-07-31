@@ -1,6 +1,6 @@
 import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks";
 import { NextResponse } from "next/server";
-import { getDatabase } from "@/lib/access/db";
+import { hasDatabase } from "@/lib/access/db";
 import {
   asRecord,
   emailForEvent,
@@ -9,6 +9,11 @@ import {
   statusForEvent,
   subscriptionIdsFor,
 } from "@/lib/access/billing";
+import {
+  applySubscriptionChange,
+  hasProcessedEvent,
+  markEventProcessed,
+} from "@/lib/access/store";
 
 export const dynamic = "force-dynamic";
 
@@ -32,51 +37,38 @@ export async function POST(request: Request) {
     throw error;
   }
 
+  if (!(await hasDatabase())) {
+    // 503 asks Polar to retry rather than dropping the event, which would
+    // leave a paying member without access.
+    return NextResponse.json({ ok: false, error: "storage_not_configured" }, { status: 503 });
+  }
+
   const payload = asRecord(JSON.parse(body));
   const type = typeof payload.type === "string" ? payload.type : "unknown";
   const data = asRecord(payload.data);
   const eventId = eventIdFor(request.headers.get("webhook-id"), payload, data);
 
-  const db = await getDatabase();
-  if (!db) {
-    // Returning 503 asks Polar to retry rather than silently dropping the
-    // event, which would leave a paying member without access.
-    return NextResponse.json({ ok: false, error: "storage_not_configured" }, { status: 503 });
+  if (await hasProcessedEvent(eventId)) {
+    return NextResponse.json({ ok: true, duplicate: true });
   }
-
-  const duplicate = await db
-    .prepare("SELECT id FROM billing_events WHERE id = ?")
-    .bind(eventId)
-    .first();
-  if (duplicate) return NextResponse.json({ ok: true, duplicate: true });
 
   const email = emailForEvent(data);
   const status = statusForEvent(type, data);
 
   if (email && status) {
     const { subscriptionId, customerId } = subscriptionIdsFor(data);
-    await db
-      .prepare(
-        `INSERT INTO subscriptions
-          (email, status, polar_customer_id, polar_subscription_id, current_period_end, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?)
-         ON CONFLICT(email) DO UPDATE SET
-          status = excluded.status,
-          polar_customer_id = COALESCE(excluded.polar_customer_id, subscriptions.polar_customer_id),
-          polar_subscription_id = COALESCE(excluded.polar_subscription_id, subscriptions.polar_subscription_id),
-          current_period_end = excluded.current_period_end,
-          updated_at = excluded.updated_at`,
-      )
-      .bind(email, status, customerId, subscriptionId, periodEndFor(data), Date.now())
-      .run();
+    await applySubscriptionChange({
+      email,
+      status,
+      subscriptionId,
+      customerId,
+      currentPeriodEnd: periodEndFor(data),
+    });
   }
 
-  // Recorded last so a failed write above is retried by Polar rather than
+  // Recorded last, so a failed write above is retried by Polar rather than
   // swallowed by the idempotency check.
-  await db
-    .prepare("INSERT INTO billing_events (id, event_type, processed_at) VALUES (?, ?, ?)")
-    .bind(eventId, type, Date.now())
-    .run();
+  await markEventProcessed(eventId, type, email);
 
   return NextResponse.json({ ok: true, status: status ?? "ignored" });
 }

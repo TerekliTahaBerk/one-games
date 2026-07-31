@@ -1,10 +1,11 @@
 import { cookies } from "next/headers";
-import { getDatabase } from "./db";
+import { hasDatabase } from "./db";
 import { randomToken, sha256 } from "./crypto";
+import { findSession, insertSession, SESSION_TTL_MS } from "./store";
 
 const SESSION_COOKIE = "onegames_session";
 const TEST_COOKIE = "onegames_test";
-const SESSION_SECONDS = 60 * 60 * 24 * 30;
+const SESSION_SECONDS = SESSION_TTL_MS / 1000;
 
 export type AccessState = {
   authenticated: boolean;
@@ -26,21 +27,14 @@ const ANONYMOUS: AccessState = {
  * Issues a session token, or `null` when this deployment has no storage to
  * record it in. Callers must treat `null` as "sign-in is unavailable" — never
  * as a successful sign-in.
+ *
+ * Only the SHA-256 hash is stored, so the database never holds a value that
+ * could be replayed as a cookie.
  */
 export async function createAccessSession(email: string): Promise<string | null> {
-  const db = await getDatabase();
-  if (!db) return null;
-
   const token = randomToken();
-  const now = Date.now();
-  await db
-    .prepare(
-      `INSERT INTO access_sessions (token_hash, email, expires_at, created_at)
-       VALUES (?, ?, ?, ?)`,
-    )
-    .bind(await sha256(token), email, now + SESSION_SECONDS * 1000, now)
-    .run();
-  return token;
+  const stored = await insertSession(await sha256(token), email);
+  return stored ? token : null;
 }
 
 export async function setAccessCookie(token: string): Promise<void> {
@@ -64,20 +58,11 @@ export async function getAccessState(): Promise<AccessState> {
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return ANONYMOUS;
 
-  const db = await getDatabase();
-  // Without storage a session token cannot be verified, so it grants nothing.
-  if (!db) return { ...ANONYMOUS, status: "unavailable" };
+  // Without storage a session token cannot be verified, so it grants nothing —
+  // and says so, rather than looking like an expired session.
+  if (!(await hasDatabase())) return { ...ANONYMOUS, status: "unavailable" };
 
-  const row = await db
-    .prepare(
-      `SELECT s.email, COALESCE(p.status, 'pending') AS status
-       FROM access_sessions s
-       LEFT JOIN subscriptions p ON p.email = s.email
-       WHERE s.token_hash = ? AND s.expires_at > ?`,
-    )
-    .bind(await sha256(token), Date.now())
-    .first<{ email: string; status: string }>();
-
+  const row = await findSession(await sha256(token));
   if (!row) return { ...ANONYMOUS, status: "expired" };
 
   return {

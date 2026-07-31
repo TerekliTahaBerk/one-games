@@ -109,7 +109,7 @@ The app builds for two hosts from one codebase.
 | --- | --- | --- |
 | Build | `npm run build` (vinext → `dist/`) | `npm run build:vercel` (`next build` → `.next/`) |
 | Config | `.openai/hosting.json` | `vercel.json` |
-| Storage | native D1 binding `DB` | D1 over HTTP (`CLOUDFLARE_*` vars) |
+| Storage | native D1 binding `DB` | Postgres (`POSTGRES_URL`) |
 
 `vercel.json` pins the build command, so a Vercel project needs no dashboard
 setup. If a Build Command is already set in project settings it overrides
@@ -127,6 +127,7 @@ npm run dev
 npm run lint
 npm run typecheck
 npm test
+npm run test:db        # needs POSTGRES_URL in .env.local
 npm run test:e2e
 npm run build          # Cloudflare Worker bundle -> dist/
 npm run build:vercel   # Next.js build -> .next/
@@ -147,14 +148,54 @@ assets/brand/           Supplied logo artwork (source files)
 app/                    Routes, metadata, manifest, sitemap, robots
 app/api/access/         Verification, session, test, status, checkout
 app/api/webhook/        Signed Polar billing lifecycle
+db/postgres/            Postgres migrations
 components/             Shared shell: header, footer, logos, access, legal
 components/sudoku/      Board, controls, settings, completion
 hooks/                  Gameplay state and timer orchestration
-lib/access/             Crypto, D1, email, session, webhook interpretation
+lib/access/             Crypto, storage adapters, store, session, webhooks
 lib/sudoku/             Solver, puzzle bank, persistence
 scripts/                Social card and puzzle-bank generators
 tests/                  Vitest unit tests and Playwright specs
 drizzle/                D1 schema migration
+```
+
+## Data layer
+
+Every statement the app runs lives in `lib/access/store.ts`. Route handlers own
+HTTP — parsing, status codes, cookies — and call in for anything that touches
+storage, so the SQL the app runs is the SQL the integration test exercises
+rather than a copy that can drift. Each function returns `null`/`false` when no
+database is configured; none of them throw for that, and none invent a result.
+
+One schema serves both engines. Timestamps are epoch milliseconds in `BIGINT`
+rather than `TIMESTAMPTZ`, because SQLite has no timezone-aware type and
+milliseconds compare identically on both with no conversion. `lib/access/
+postgres.ts` rewrites `?` placeholders to `$1…$n` (skipping quoted strings) so
+one set of queries serves both, and runs `batch` inside a real transaction —
+something the D1 HTTP client cannot offer.
+
+| Table | Holds |
+| --- | --- |
+| `players` | every address ever entered, with request count and verification date |
+| `verification_codes` | keyed hashes, expiry, attempt count |
+| `access_sessions` | SHA-256 of the cookie value, never the value itself |
+| `subscriptions` | billing status per address |
+| `billing_events` | delivered webhook ids, for idempotency |
+
+`players` is recorded the moment an address is entered, not once it verifies —
+the top of the funnel is worth knowing.
+
+### Migrations
+
+Postgres migrations live in `db/postgres/` and are applied in filename order by
+`scripts/migrate-postgres.mjs`, which records what it has run in
+`schema_migrations` and wraps each file in a transaction, so re-running is a
+no-op and a partial file can never land. The D1 paths create their tables on
+first use instead.
+
+```bash
+node --env-file=.env.local scripts/migrate-postgres.mjs
+npm run test:db   # walks the whole lifecycle against the real database
 ```
 
 ## Access and billing
@@ -196,7 +237,8 @@ See `.env.example`. Summary of what breaks without each:
 | `POLAR_WEBHOOK_SECRET` | Verifying webhooks | Webhook returns 503; nothing becomes `active` |
 | `POLAR_SERVER` | Sandbox vs production | Defaults to `sandbox` |
 | `PUBLIC_BASE_URL` | Checkout return URLs, sitemap, robots | Falls back to the production origin |
-| `CLOUDFLARE_ACCOUNT_ID` | D1 over HTTP (non-Cloudflare hosts) | Falls back to the native binding, then to no storage |
+| `POSTGRES_URL` / `PRISMA_DATABASE_URL` | Storage off Cloudflare | Falls back to the D1 binding, then D1 HTTP, then no storage |
+| `CLOUDFLARE_ACCOUNT_ID` | D1 over HTTP | Only consulted when Postgres is unset |
 | `CLOUDFLARE_D1_DATABASE_ID` | Same | Same |
 | `CLOUDFLARE_API_TOKEN` | Same (needs D1 Edit) | Same |
 
@@ -243,8 +285,12 @@ landmarks are page-level on every route, which the Playwright suite asserts.
 
 ## Testing
 
-- `npm test` — 32 unit tests over the solver, puzzle bank, daily scheduling,
-  webhook interpretation, and the D1 HTTP client.
+- `npm test` — 41 unit tests over the solver, puzzle bank, daily scheduling,
+  webhook interpretation, the D1 HTTP client, and Postgres placeholder
+  translation. Offline; the integration suite skips itself.
+- `npm run test:db` — 11 checks that walk the whole lifecycle against a real
+  database: code request, cooldown, attempt counting, verification, session
+  resolution, checkout, webhook grant and revoke, idempotency, and purge.
 - `npm run test:e2e` — 72 Playwright checks across a desktop and a mobile
   project, covering the no-account play path, the access gate, number entry by pad
   and keyboard, notes mode, arrow-key movement, undo/redo/erase, hints,

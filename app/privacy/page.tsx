@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
+import { LegalPage } from "@/components/LegalPage";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -9,54 +8,67 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="page">
-      <SiteHeader back="/" />
+    <LegalPage
+      title="Quiet play includes quiet data."
+      lastUpdated="July 31, 2026"
+    >
+      <p>
+        OneGames collects only what is needed to verify access and operate your
+        membership. This page describes what that means in practice.
+      </p>
 
-      <main className="page-main is-reading">
-        <div className="access-copy rise">
-          <p className="eyebrow">Last updated February 2026</p>
-          <h1 className="display display-sm">Quiet play includes quiet data.</h1>
-          <p className="lede">
-            We collect only what is needed to verify access and operate your membership.
-          </p>
-        </div>
+      <h2>What we keep</h2>
+      <p>
+        Your email address, your verification status, your subscription state,
+        and a session token. The token is stored only as a SHA-256 hash, so the
+        value in your browser cannot be reconstructed from our records.
+      </p>
+      <p>
+        Puzzle progress, statistics, and preferences are <strong>not</strong>{" "}
+        sent to us. They live in your browser&rsquo;s local storage under the{" "}
+        <strong>onegames:v1</strong> namespace and stay on the device that
+        created them.
+      </p>
 
-        <div className="reading-body">
-          <h2>What we keep</h2>
-          <p>
-            Your email address, verification status, subscription state, and a hashed session
-            token. Puzzle progress, statistics, and preferences stay in your browser’s local
-            storage and are never sent to us.
-          </p>
+      <h2>Verification codes</h2>
+      <p>Six-digit sign-in codes are deliberately short-lived:</p>
+      <ul>
+        <li>stored only as a keyed hash, never in plain text</li>
+        <li>valid for ten minutes</li>
+        <li>
+          invalidated after five incorrect attempts, or after one successful use
+        </li>
+        <li>limited to one request per address per minute</li>
+      </ul>
 
-          <h2>Verification codes</h2>
-          <p>
-            Six-digit codes are stored only as a keyed hash, expire after ten minutes, and are
-            invalidated after five incorrect attempts or a single successful use.
-          </p>
+      <h2>Playing without an account</h2>
+      <p>
+        Choosing to play without an account sets a single short-lived cookie and
+        nothing else. No email address is collected, and no record of the
+        session is kept after it expires.
+      </p>
 
-          <h2>What we do not do</h2>
-          <p>
-            We do not sell personal data, build advertising profiles, or embed third-party
-            advertising trackers.
-          </p>
+      <h2>What we do not do</h2>
+      <p>
+        We do not sell personal data, build advertising profiles, or embed
+        third-party advertising trackers. There is no analytics script following
+        you between pages.
+      </p>
 
-          <h2>Service partners</h2>
-          <p>
-            Resend delivers verification emails and Polar processes subscription payments. Each
-            receives only the information required for that service.
-          </p>
+      <h2>Service partners</h2>
+      <p>
+        Resend delivers verification emails and Polar processes subscription
+        payments. Each receives only the information required for that service —
+        your email address, and in Polar&rsquo;s case the subscription itself.
+        We never see or store your card details.
+      </p>
 
-          <h2>Removal</h2>
-          <p>
-            Ask us to delete your account data at any time and we will remove your email,
-            verification records, and session tokens. Clearing your browser storage removes local
-            puzzle progress.
-          </p>
-        </div>
-      </main>
-
-      <SiteFooter />
-    </div>
+      <h2>Removal</h2>
+      <p>
+        Ask us to delete your account data at any time and we will remove your
+        email address, verification records, and session tokens. Clearing your
+        browser storage removes local puzzle progress independently of that.
+      </p>
+    </LegalPage>
   );
 }

@@ -256,6 +256,21 @@ button,
   justify-content: flex-start;
 }
 
+/* Reference documents read top-down and left-aligned, so the column starts at
+   the top of the page rather than being centred in the viewport. */
+.page-main.is-legal {
+  max-width: 42rem;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding-block: 40px 24px;
+}
+
+@media (min-width: 640px) {
+  .page-main.is-legal {
+    padding-block: 56px 32px;
+  }
+}
+
 @media (min-width: 640px) {
   .brand-logo-mark {
     font-size: 28px;
@@ -944,7 +959,77 @@ button,
 }
 
 /* --------------------------------------------------------------------------
-   Reading pages — about, privacy, terms
+   Legal documents
+   -------------------------------------------------------------------------- */
+
+.legal-article {
+  width: 100%;
+  text-align: left;
+}
+
+.legal-article h1 {
+  margin: 12px 0 0;
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.legal-prose {
+  margin-top: 32px;
+}
+
+.legal-prose p {
+  margin: 16px 0 0;
+  color: var(--ash);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.legal-prose h2 {
+  margin: 36px 0 4px;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.legal-prose ul {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+  list-style: disc;
+}
+
+.legal-prose li {
+  padding-left: 4px;
+  color: var(--ash);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.legal-prose strong {
+  color: var(--graphite);
+  font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .legal-article h1 {
+    font-size: 2.6rem;
+  }
+
+  .legal-prose {
+    margin-top: 40px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reading pages — about
    -------------------------------------------------------------------------- */
 
 .reading-body {

@@ -21,6 +21,11 @@ company:
 - one centred footer: a Fraunces-italic tagline over
   Terms · Privacy · About · Pricing · Archive · OneRead
 
+The one deliberate departure is the legal pages: like OneRead's, they are
+reference documents, so `components/LegalPage.tsx` reads left-aligned from the
+top of the column instead of centring a single screen. The shell around them —
+padding, wordmark, footer — is unchanged.
+
 Mobile is designed at mobile, not scaled down: the game's number pad becomes a
 single thumb-reachable row, footer dot separators are dropped in favour of
 wrapping, and the title bar restacks.
@@ -114,7 +119,7 @@ node scripts/generate-puzzles.mjs
 app/                    Routes, metadata, manifest, sitemap, robots
 app/api/access/         Verification, session, test, status, checkout
 app/api/webhook/        Signed Polar billing lifecycle
-components/             Shared shell: header, footer, logos, access flow
+components/             Shared shell: header, footer, logos, access, legal
 components/sudoku/      Board, controls, settings, completion
 hooks/                  Gameplay state and timer orchestration
 lib/access/             Crypto, D1, email, session, webhook interpretation
@@ -212,7 +217,7 @@ landmarks are page-level on every route, which the Playwright suite asserts.
 
 - `npm test` — 32 unit tests over the solver, puzzle bank, daily scheduling,
   webhook interpretation, and the D1 HTTP client.
-- `npm run test:e2e` — 58 Playwright checks across a desktop and a mobile
+- `npm run test:e2e` — 66 Playwright checks across a desktop and a mobile
   project, covering the no-account play path, the access gate, number entry by pad
   and keyboard, notes mode, arrow-key movement, undo/redo/erase, hints,
   pause/resume, difficulty switching, reload persistence, puzzle completion,

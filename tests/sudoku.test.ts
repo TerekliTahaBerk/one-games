@@ -8,7 +8,7 @@ import {
   parsePuzzle,
   solve,
 } from "../lib/sudoku/solver";
-import { DIFFICULTIES, getDailyPuzzle } from "../lib/sudoku/puzzles";
+import { DIFFICULTIES, getBank, getDailyPuzzle } from "../lib/sudoku/puzzles";
 
 const puzzle = parsePuzzle("530070000600195000098000060800060003400803001700020006060000280000419005000080079");
 
@@ -42,6 +42,54 @@ describe("Sudoku domain logic", () => {
       for (const date of ["2026-07-30", "2026-08-01", "2026-11-17", "2027-01-03"]) {
         expect(hasUniqueSolution(getDailyPuzzle(date, difficulty))).toBe(true);
       }
+    }
+  });
+});
+
+describe("Curated puzzle bank", () => {
+  const banks = DIFFICULTIES.map((difficulty) => ({
+    difficulty,
+    puzzles: getBank(difficulty),
+  }));
+
+  it("ships every difficulty with a stocked bank", () => {
+    for (const { difficulty, puzzles } of banks) {
+      expect(puzzles.length, difficulty).toBeGreaterThanOrEqual(8);
+    }
+  });
+
+  it("gives every single puzzle exactly one solution", () => {
+    for (const { difficulty, puzzles } of banks) {
+      for (const puzzle of puzzles) {
+        expect(hasUniqueSolution(parsePuzzle(puzzle)), `${difficulty} ${puzzle}`).toBe(true);
+      }
+    }
+  });
+
+  it("never reuses a grid within or across difficulties", () => {
+    const all = banks.flatMap(({ puzzles }) => puzzles);
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("gives fewer clues as difficulty rises", () => {
+    const clues = Object.fromEntries(
+      banks.map(({ difficulty, puzzles }) => [
+        difficulty,
+        puzzles.map((puzzle) => 81 - (puzzle.match(/0/g)?.length ?? 0)),
+      ]),
+    );
+    // Every easy grid must start with more clues than every medium grid, and
+    // likewise medium over hard — otherwise the tabs are difficulty in name only.
+    expect(Math.min(...clues.easy)).toBeGreaterThan(Math.max(...clues.medium));
+    expect(Math.min(...clues.medium)).toBeGreaterThan(Math.max(...clues.hard));
+  });
+
+  it("serves three different grids on the same day", () => {
+    for (const date of ["2026-07-31", "2026-08-14", "2027-02-02", "2027-11-09"]) {
+      const boards = DIFFICULTIES.map((difficulty) =>
+        getDailyPuzzle(date, difficulty).join(""),
+      );
+      expect(new Set(boards).size, date).toBe(3);
     }
   });
 });

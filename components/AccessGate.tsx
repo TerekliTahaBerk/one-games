@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import Link from "next/link";
-import { BrandLogo } from "./BrandLogo";
-import { GameLogo } from "./GameLogo";
-import { SimpleFooter } from "./SimpleFooter";
+import { GameLogo, GameLogoFamily } from "./GameLogo";
+import { SiteFooter } from "./SiteFooter";
+import { SiteHeader } from "./SiteHeader";
 
 type Step = "email" | "code" | "payment" | "checking";
 
@@ -14,24 +13,31 @@ async function postJson(url: string, body?: unknown) {
     headers: body ? { "content-type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
-  const data = await response.json().catch(() => ({})) as Record<string, unknown>;
+  const data = ((await response.json().catch(() => ({}))) ?? {}) as Record<string, unknown>;
   return { ok: response.ok, data };
 }
 
+/**
+ * Messages stay honest about the difference between "this went wrong" and
+ * "this integration has no credentials yet" — the second case always points at
+ * the test path rather than pretending the real one worked.
+ */
 function messageFor(error: unknown): string {
   switch (error) {
     case "email_not_configured":
-      return "Email delivery is being connected. You can test the game below.";
+      return "Email delivery is not connected on this deployment yet. You can still try the game below.";
     case "delivery_failed":
       return "We couldn’t deliver the code. Check the address and try again.";
     case "cooldown":
-      return "A code was just sent. Give it a minute before trying again.";
+      return "A code was just sent. Give it a minute before asking for another.";
     case "incorrect":
       return "That code isn’t right. Please check the email and try again.";
     case "expired":
       return "That code has expired. Request a fresh one.";
+    case "too_many":
+      return "Too many attempts on that code. Request a fresh one.";
     case "billing_not_configured":
-      return "Secure checkout is being connected. Test access is available below.";
+      return "Checkout is not connected on this deployment yet. Test access is available below.";
     default:
       return "Something went wrong. Please try once more.";
   }
@@ -49,23 +55,25 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
     let active = true;
     const check = async () => {
       const response = await fetch("/api/access/status");
-      const state = await response.json() as { allowed?: boolean; authenticated?: boolean };
+      const state = (await response.json()) as { allowed?: boolean; authenticated?: boolean };
       if (!active) return;
       if (state.allowed) {
         window.location.href = "/sudoku";
-      } else {
-        setStep(state.authenticated ? "payment" : "email");
+        return;
       }
+      setStep(state.authenticated ? "payment" : "email");
     };
     void check();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [checkoutReturn]);
 
   const submitEmail = async (event: FormEvent) => {
     event.preventDefault();
     setError("");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError("Please enter a valid email.");
+      setError("Please enter a valid email address.");
       return;
     }
     setBusy(true);
@@ -92,8 +100,11 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
       setError(messageFor(result.data.error));
       return;
     }
-    if (result.data.allowed) window.location.href = "/sudoku";
-    else setStep("payment");
+    if (result.data.allowed) {
+      window.location.href = "/sudoku";
+      return;
+    }
+    setStep("payment");
   };
 
   const checkout = async () => {
@@ -109,21 +120,24 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
   };
 
   return (
-    <main className="access-page">
-      <header className="access-topbar">
-        <Link href="/" className="back-link" aria-label="Back to OneGames">← <span>Back</span></Link>
-        <BrandLogo />
-      </header>
-      <section className="access-shell">
-        <div className="access-copy">
+    <div className="page">
+      <SiteHeader back="/" />
+
+      <main className="page-main is-narrow">
+        <div className="access-copy rise">
           {step === "email" && (
             <>
-              <GameLogo game="sudoku" decorative className="access-game-logo" />
-              <p className="one-eyebrow">One membership · Every game</p>
-              <h1>Start OneGames.</h1>
-              <p>Enter your email and we’ll send a six-digit code. No password, no noise.</p>
-              <form onSubmit={submitEmail} className="access-form">
-                <label className="sr-only" htmlFor="access-email">Email address</label>
+              <GameLogo game="sudoku" size={72} decorative className="access-mark" />
+              <p className="eyebrow">One membership · Every game</p>
+              <h1 className="display display-sm">Start OneGames.</h1>
+              <p className="lede">
+                Enter your email and we’ll send a six-digit code. No password, no noise.
+              </p>
+              {/* noValidate keeps validation messaging in our own voice and styling. */}
+              <form onSubmit={submitEmail} className="access-form" noValidate>
+                <label className="sr-only" htmlFor="access-email">
+                  Email address
+                </label>
                 <input
                   id="access-email"
                   type="email"
@@ -132,81 +146,118 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
                   placeholder="you@example.com"
                   autoComplete="email"
                 />
-                <button className="pill-primary" disabled={busy}>{busy ? "Please wait…" : "Continue with email"}</button>
+                <button className="pill-primary" disabled={busy}>
+                  {busy ? "Please wait…" : "Continue with email"}
+                </button>
               </form>
             </>
           )}
+
           {step === "code" && (
             <>
-              <GameLogo game="sudoku" decorative className="access-game-logo" />
-              <p className="one-eyebrow">Email verification</p>
-              <h1>Check your inbox.</h1>
-              <p>We sent a six-digit code to <strong>{email}</strong>. It expires in ten minutes.</p>
-              <form onSubmit={submitCode} className="access-form">
-                <label className="sr-only" htmlFor="access-code">Verification code</label>
+              <GameLogo game="sudoku" size={72} decorative className="access-mark" />
+              <p className="eyebrow">Email verification</p>
+              <h1 className="display display-sm">Check your inbox.</h1>
+              <p className="lede">
+                We sent a six-digit code to <strong>{email}</strong>. It expires in ten minutes.
+              </p>
+              <form onSubmit={submitCode} className="access-form" noValidate>
+                <label className="sr-only" htmlFor="access-code">
+                  Verification code
+                </label>
                 <input
                   id="access-code"
                   className="code-input"
                   inputMode="numeric"
                   value={code}
-                  onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                  onChange={(event) =>
+                    setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
                   placeholder="123456"
                   autoComplete="one-time-code"
                 />
-                <button className="pill-primary" disabled={busy}>{busy ? "Please wait…" : "Verify email"}</button>
+                <button className="pill-primary" disabled={busy}>
+                  {busy ? "Please wait…" : "Verify email"}
+                </button>
               </form>
-              <button className="text-action" type="button" onClick={() => setStep("email")}>Use another email</button>
+              <button className="text-action" type="button" onClick={() => setStep("email")}>
+                Use another email
+              </button>
             </>
           )}
+
           {step === "payment" && (
             <>
-              <div className="membership-logo-row" aria-hidden="true">
-                <GameLogo game="sudoku" decorative />
-                <GameLogo game="word" decorative />
-                <GameLogo game="match" decorative />
-                <GameLogo game="numbers" decorative />
+              <GameLogoFamily size={54} className="access-mark" />
+              <p className="eyebrow">Your email is verified</p>
+              <h1 className="display display-sm">Every daily game. One subscription.</h1>
+              <p className="lede">
+                Today’s Easy, Medium, and Hard chapters — and every new game that joins the family.
+              </p>
+              <div className="price-lockup">
+                <sup>$</sup>
+                <strong>1</strong>
+                <span>/ month</span>
               </div>
-              <p className="one-eyebrow">Your email is verified</p>
-              <h1>Every daily game.<br />One subscription.</h1>
-              <p>Today’s Easy, Medium, and Hard chapters—and every new game that joins the family.</p>
-              <div className="membership-card">
-                <div className="price-lockup"><strong><sup>$</sup>1</strong><span>per month</span></div>
-                <ul>
-                  <li><i>✓</i> Three new chapters every day</li>
-                  <li><i>✓</i> The complete OneGames family</li>
-                  <li><i>✓</i> Cancel whenever you like</li>
-                </ul>
+              <ul className="benefit-list">
+                <li>
+                  <i aria-hidden="true">✓</i> Three new chapters every day
+                </li>
+                <li>
+                  <i aria-hidden="true">✓</i> The complete OneGames family
+                </li>
+                <li>
+                  <i aria-hidden="true">✓</i> Cancel whenever you like
+                </li>
+              </ul>
+              <div className="cta-row">
+                <button className="pill-primary" type="button" onClick={checkout} disabled={busy}>
+                  {busy ? "Please wait…" : "Subscribe for $1 / month"}
+                </button>
+                <p className="note">Billing is handled securely by Polar.</p>
               </div>
-              <button className="pill-primary" type="button" onClick={checkout} disabled={busy}>
-                {busy ? "Please wait…" : "Subscribe for $1 / month"}
-              </button>
-              <p className="billing-note">Billing is handled securely by Polar.</p>
             </>
           )}
+
           {step === "checking" && (
             <>
-              <GameLogo game="sudoku" decorative className="access-game-logo" />
-              <p className="one-eyebrow">OneGames membership</p>
-              <h1>Checking your access.</h1>
-              <p>Polar is confirming your subscription. This usually takes only a moment.</p>
-              <span className="soft-loader" aria-label="Checking"><i /><i /><i /></span>
+              <GameLogo game="sudoku" size={72} decorative className="access-mark" />
+              <p className="eyebrow">OneGames membership</p>
+              <h1 className="display display-sm">Checking your access.</h1>
+              <p className="lede">
+                Polar is confirming your subscription. This usually takes only a moment.
+              </p>
+              <span className="soft-loader" aria-label="Checking">
+                <i />
+                <i />
+                <i />
+              </span>
             </>
           )}
-          {error && <p className="access-error" role="alert">{error}</p>}
+
+          {error && (
+            <p className="access-error" role="alert">
+              {error}
+            </p>
+          )}
+
           {step === "email" && (
-            <>
-              <div className="test-divider"><span>or</span></div>
+            <div className="test-block">
+              <div className="test-divider">
+                <span>or</span>
+              </div>
               <form action="/api/access/test" method="post">
                 <button className="test-game" type="submit" disabled={busy}>
                   Test this game
                   <small>No email or payment required</small>
                 </button>
               </form>
-            </>
+            </div>
           )}
         </div>
-      </section>
-      <SimpleFooter tagline="One game. No noise." />
-    </main>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }

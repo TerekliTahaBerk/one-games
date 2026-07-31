@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
 import { formatLongDate, getTodayKey } from "@/lib/date";
 import { loadGame } from "@/lib/sudoku/persistence";
 import { DIFFICULTIES, getArchiveDates } from "@/lib/sudoku/puzzles";
@@ -17,26 +17,41 @@ export default function ArchivePage() {
   const [states, setStates] = useState<Record<string, DateState>>({});
 
   useEffect(() => {
-    queueMicrotask(() => setStates(Object.fromEntries(dates.map((date) => [
-        date,
-        DIFFICULTIES.map((difficulty) => {
-          const game = loadGame(date, difficulty);
-          return { difficulty, completed: Boolean(game?.completed), started: Boolean(game?.started) };
-        }),
-      ]))));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Progress lives in localStorage, so read it after hydration.
+    queueMicrotask(() =>
+      setStates(
+        Object.fromEntries(
+          dates.map((date) => [
+            date,
+            DIFFICULTIES.map((difficulty) => {
+              const game = loadGame(date, difficulty);
+              return {
+                difficulty,
+                completed: Boolean(game?.completed),
+                started: Boolean(game?.started),
+              };
+            }),
+          ]),
+        ),
+      ),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <>
-      <Header />
-      <main className="shell archive-page">
-        <p className="eyebrow">On this device</p>
-        <h1>Your local archive.</h1>
-        <p className="page-intro">
-          Revisit a recent grid or see what you have completed. Progress lives
-          only in this browser.
-        </p>
+    <div className="page">
+      <SiteHeader back="/sudoku" backLabel="Game" />
+
+      <main className="page-main is-reading">
+        <div className="access-copy rise">
+          <p className="eyebrow">On this device</p>
+          <h1 className="display display-sm">Your local archive.</h1>
+          <p className="lede">
+            Revisit a recent grid or see what you have finished. Progress lives only in this
+            browser.
+          </p>
+        </div>
+
         <div className="archive-list">
           {dates.map((date) => {
             const state = states[date] ?? [];
@@ -44,15 +59,19 @@ export default function ArchivePage() {
             const inProgress = state.some((item) => item.started && !item.completed);
             const label = completed.length
               ? `Completed · ${completed.join(", ")}`
-              : inProgress ? "In progress" : "Not played";
+              : inProgress
+                ? "In progress"
+                : "Not played";
+
             return (
               <Link href={`/sudoku?date=${date}`} className="archive-row" key={date}>
                 <span className="archive-date">
                   <strong>{date === today ? "Today" : formatLongDate(date).split(",")[0]}</strong>
                   <small>{formatLongDate(date).replace(/^[^,]+,\s*/, "")}</small>
                 </span>
-                <span className={`archive-status ${completed.length ? "complete" : ""}`}>
-                  <i aria-hidden="true" />{label}
+                <span className={`archive-status${completed.length ? " is-complete" : ""}`}>
+                  <i aria-hidden="true" />
+                  {label}
                 </span>
                 <b aria-hidden="true">→</b>
               </Link>
@@ -60,7 +79,8 @@ export default function ArchivePage() {
           })}
         </div>
       </main>
-      <Footer />
-    </>
+
+      <SiteFooter />
+    </div>
   );
 }

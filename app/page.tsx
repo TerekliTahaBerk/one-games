@@ -2,44 +2,57 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
 import { GameFamily } from "@/components/GameFamily";
 import { HomeReveal } from "@/components/HomeReveal";
-import { SimpleFooter } from "@/components/SimpleFooter";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export default function HomePage() {
   return (
-    <main className="oneread-home">
+    <div className="page">
       <HomeReveal>
-        <header className="oneread-topbar reveal-item">
+        <header className="site-header reveal-item">
           <BrandLogo />
-          <Link href="/about" className="quiet-icon-link" aria-label="About OneGames" title="About OneGames">
-            <span className="quiet-grid-icon" aria-hidden="true"><i /><i /><i /><i /></span>
-          </Link>
+          <div className="header-trailing">
+            <Link
+              href="/about"
+              className="quiet-icon-link"
+              aria-label="About OneGames"
+              title="About OneGames"
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <rect
+                  x="3.25"
+                  y="3.25"
+                  width="13.5"
+                  height="13.5"
+                  rx="3"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                />
+                <path d="M10 3.5v13M3.5 10h13" stroke="currentColor" strokeWidth="1.3" />
+              </svg>
+            </Link>
+          </div>
         </header>
 
-        <section className="oneread-main">
-          <div className="home-copy">
-            <h1 className="reveal-item reveal-item-2">One thoughtful game at a time.</h1>
-            <p className="reveal-item reveal-item-3">
-              Three fresh chapters every day—Easy, Medium, and Hard.
-              A quiet place to play, finish, and move on.
-            </p>
-            <div className="reveal-item reveal-item-4">
-              <Link href="/play" className="pill-primary">
-                Play OneGames
-              </Link>
-              <p className="price-note">$1 / month · Every game included · Cancel anytime</p>
-            </div>
+        <main className="page-main">
+          <h1 className="display reveal-item reveal-item-2">One thoughtful game at a time.</h1>
+
+          <p className="lede reveal-item reveal-item-3">
+            Three fresh chapters every day — Easy, Medium, and Hard. A quiet place to play, finish,
+            and move on.
+          </p>
+
+          <div className="cta-row reveal-item reveal-item-4">
+            <Link href="/play" className="pill-primary">
+              Play OneGames
+            </Link>
+            <p className="note">$1 / month · Every game included · Cancel anytime</p>
           </div>
 
           <GameFamily />
-          <div className="ecosystem-note reveal-item reveal-item-4">
-            <span>One membership</span><i />
-            <span>One new set daily</span><i />
-            <span>No ads or endless feed</span>
-          </div>
-        </section>
+        </main>
       </HomeReveal>
 
-      <SimpleFooter tagline="One good game at a time." />
-    </main>
+      <SiteFooter />
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/Footer";
-import { GameLogo } from "@/components/GameLogo";
-import { Header } from "@/components/Header";
+import { GameLogoFamily } from "@/components/GameLogo";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -11,33 +11,45 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <main className="ecosystem-page">
-      <Header />
-      <section className="centered-page pricing-page">
-        <div className="centered-heading">
-          <p className="one-eyebrow">Simple pricing</p>
-          <h1>One membership.<br />Every game.</h1>
-          <p>Daily play without ads, bundles, or complicated plans.</p>
-        </div>
-        <div className="pricing-lockup">
-          <div className="membership-logo-row" aria-label="Games included">
-            <GameLogo game="sudoku" />
-            <GameLogo game="word" />
-            <GameLogo game="match" />
-            <GameLogo game="numbers" />
+    <div className="page">
+      <SiteHeader back="/" />
+
+      <main className="page-main is-narrow">
+        <div className="access-copy rise">
+          <GameLogoFamily size={54} className="access-mark" />
+          <p className="eyebrow">Simple pricing</p>
+          <h1 className="display display-sm">One membership. Every game.</h1>
+          <p className="lede">Daily play without ads, bundles, or complicated plans.</p>
+
+          <div className="price-lockup">
+            <sup>$</sup>
+            <strong>1</strong>
+            <span>/ month</span>
           </div>
-          <div className="pricing-number"><sup>$</sup><strong>1</strong><span>/ month</span></div>
-          <p>OneSudoku today, every new OneGames title tomorrow.</p>
-          <ul>
-            <li><i>✓</i> Easy, Medium, and Hard every day</li>
-            <li><i>✓</i> One subscription across the family</li>
-            <li><i>✓</i> Cancel anytime</li>
+          <p className="price-caption">OneSudoku today, every new OneGames title tomorrow.</p>
+
+          <ul className="benefit-list">
+            <li>
+              <i aria-hidden="true">✓</i> Easy, Medium, and Hard every day
+            </li>
+            <li>
+              <i aria-hidden="true">✓</i> One subscription across the family
+            </li>
+            <li>
+              <i aria-hidden="true">✓</i> Cancel anytime
+            </li>
           </ul>
-          <Link className="pill-primary" href="/play">Start OneGames — $1</Link>
-          <small>Secure monthly billing by Polar.</small>
+
+          <div className="cta-row">
+            <Link className="pill-primary" href="/play">
+              Start OneGames — $1
+            </Link>
+            <p className="note">Secure monthly billing by Polar.</p>
+          </div>
         </div>
-      </section>
-      <Footer />
-    </main>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }

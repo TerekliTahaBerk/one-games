@@ -1,29 +1,62 @@
 import type { Metadata } from "next";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
 
-export const metadata: Metadata = { title: "Privacy" };
+export const metadata: Metadata = {
+  title: "Privacy",
+  description: "What OneGames stores, and what it deliberately does not.",
+};
 
 export default function PrivacyPage() {
   return (
-    <main className="ecosystem-page">
-      <Header />
-      <article className="centered-page legal-page">
-        <div className="centered-heading">
-          <p className="one-eyebrow">Privacy</p>
-          <h1>Quiet play includes quiet data.</h1>
-          <p>We collect only what is needed to verify access and operate your membership.</p>
+    <div className="page">
+      <SiteHeader back="/" />
+
+      <main className="page-main is-reading">
+        <div className="access-copy rise">
+          <p className="eyebrow">Privacy</p>
+          <h1 className="display display-sm">Quiet play includes quiet data.</h1>
+          <p className="lede">
+            We collect only what is needed to verify access and operate your membership.
+          </p>
         </div>
-        <section>
+
+        <div className="reading-body">
           <h2>What we keep</h2>
-          <p>Your email, verification status, subscription state, and a secure session token. Puzzle progress and preferences remain in your browser.</p>
+          <p>
+            Your email address, verification status, subscription state, and a hashed session
+            token. Puzzle progress, statistics, and preferences stay in your browser’s local
+            storage and are never sent to us.
+          </p>
+
+          <h2>Verification codes</h2>
+          <p>
+            Six-digit codes are stored only as a keyed hash, expire after ten minutes, and are
+            invalidated after five incorrect attempts or a single successful use.
+          </p>
+
           <h2>What we do not do</h2>
-          <p>We do not sell personal data, build advertising profiles, or add third-party advertising trackers.</p>
+          <p>
+            We do not sell personal data, build advertising profiles, or embed third-party
+            advertising trackers.
+          </p>
+
           <h2>Service partners</h2>
-          <p>Resend delivers verification emails and Polar processes subscription payments. Each handles only the information required for that service.</p>
-        </section>
-      </article>
-      <Footer />
-    </main>
+          <p>
+            Resend delivers verification emails and Polar processes subscription payments. Each
+            receives only the information required for that service.
+          </p>
+
+          <h2>Removal</h2>
+          <p>
+            Ask us to delete your account data at any time and we will remove your email,
+            verification records, and session tokens. Clearing your browser storage removes local
+            puzzle progress.
+          </p>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }

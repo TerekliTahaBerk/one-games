@@ -1,56 +1,57 @@
 import Link from "next/link";
-import { GameLogo } from "./GameLogo";
+import { GameLogo, type GameKey } from "./GameLogo";
 
-const games = [
+const GAMES: {
+  key: GameKey;
+  name: string;
+  description: string;
+  href?: string;
+}[] = [
   {
+    key: "sudoku",
     name: "OneSudoku",
     description: "A clear grid for a clear mind",
-    prop: "sudoku",
-    active: true,
+    href: "/play",
   },
-  {
-    name: "OneWord",
-    description: "One word, carefully found",
-    prop: "word",
-    active: false,
-  },
-  {
-    name: "OneMatch",
-    description: "Quiet connections",
-    prop: "match",
-    active: false,
-  },
-  {
-    name: "OneNumbers",
-    description: "A little arithmetic",
-    prop: "numbers",
-    active: false,
-  },
-] as const;
+  { key: "word", name: "OneWord", description: "One word, carefully found" },
+  { key: "match", name: "OneMatch", description: "Quiet connections" },
+  { key: "numbers", name: "OneNumbers", description: "A little arithmetic" },
+];
 
+/** The four marks at homepage scale — the family, shown rather than described. */
 export function GameFamily() {
   return (
-    <section className="game-family reveal-item reveal-item-4" aria-labelledby="family-heading">
-      <div className="family-heading">
-        <h2 id="family-heading">Meet the OneGames family.</h2>
-        <p>Small daily games, all under one roof.</p>
+    <section className="game-family reveal-item reveal-item-4" aria-labelledby="game-family-heading">
+      <div className="game-family-heading">
+        <h2 id="game-family-heading" className="section-title">
+          Meet the OneGames family.
+        </h2>
+        <p>Small daily games, all under one membership.</p>
       </div>
-      <div className="family-grid">
-        {games.map((game) => {
+      <div className="game-family-grid">
+        {GAMES.map((game) => {
           const content = (
             <>
-              <GameLogo game={game.prop} decorative />
+              <GameLogo game={game.key} size={104} decorative />
               <h3>{game.name}</h3>
               <p>{game.description}</p>
-              <small>{game.active ? "Play today" : "Coming soon"}</small>
+              <small>{game.href ? "Play today" : "Coming soon"}</small>
             </>
           );
-          return game.active ? (
-            <Link href="/play" className="family-card active" key={game.name} aria-label={`Play ${game.name}`}>
+
+          return game.href ? (
+            <Link
+              key={game.key}
+              href={game.href}
+              className="game-card is-active"
+              aria-label={`Play ${game.name}`}
+            >
               {content}
             </Link>
           ) : (
-            <article className="family-card" key={game.name}>{content}</article>
+            <article key={game.key} className="game-card">
+              {content}
+            </article>
           );
         })}
       </div>

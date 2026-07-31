@@ -11,35 +11,45 @@ import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
 import "./globals.css";
 
+const TITLE = "OneGames — One thoughtful game at a time";
+const DESCRIPTION =
+  "One daily Easy, Medium, and Hard game. One $1 membership for the whole OneGames family.";
+
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const metadataBase = new URL(`${protocol}://${host}`);
+  const host =
+    requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
+  const protocol =
+    requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+
   return {
-    metadataBase,
-    title: {
-      default: "OneGames — One thoughtful game at a time",
-      template: "%s — OneGames",
-    },
-    description:
-      "One daily Easy, Medium, and Hard game. One subscription for the whole OneGames family.",
+    metadataBase: new URL(`${protocol}://${host}`),
+    title: { default: TITLE, template: "%s — OneGames" },
+    description: DESCRIPTION,
     applicationName: "OneGames",
     manifest: "/manifest.webmanifest",
     alternates: { canonical: "/" },
-    icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+    icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/favicon.svg" },
     openGraph: {
       type: "website",
-      title: "OneGames — One thoughtful game at a time",
-      description: "A small daily collection for your attention, not an endless feed.",
+      title: TITLE,
+      description: DESCRIPTION,
       siteName: "OneGames",
-      images: [{ url: "/og-v4.png", width: 1610, height: 977, alt: "OneGames — One thoughtful game at a time" }],
+      url: "/",
+      images: [
+        {
+          url: "/og.png",
+          width: 1200,
+          height: 630,
+          alt: "OneGames — One thoughtful game at a time.",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      title: "OneGames — One thoughtful game at a time",
-      description: "A small daily collection for your attention, not an endless feed.",
-      images: ["/og-v4.png"],
+      title: TITLE,
+      description: DESCRIPTION,
+      images: ["/og.png"],
     },
   };
 }
@@ -54,7 +64,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}<OpeningLoader /></body>
+      <body>
+        {children}
+        <OpeningLoader />
+      </body>
     </html>
   );
 }

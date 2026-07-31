@@ -2,89 +2,132 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { GAME_PALETTE } from "@/components/GameLogo";
 
-const WORDS = ["Games", "Sudoku", "Word", "Match"];
-const COLORS = ["#1a1a1a", "#3f6fa8", "#745f9a", "#8b667c"];
+/**
+ * The opening wordmark animation, matched to OneRead's.
+ *
+ * `One` stays fixed while the suffix is typed and deleted, walking the family
+ * from the parent brand through each game. Each suffix takes its game's accent,
+ * so the loader doubles as an introduction to the identity system.
+ */
+const SEQUENCE = [
+  { suffix: "Games", color: "#1A1A1A" },
+  { suffix: "Sudoku", color: GAME_PALETTE.sudoku.accent },
+  { suffix: "Word", color: GAME_PALETTE.word.accent },
+  { suffix: "Match", color: GAME_PALETTE.match.accent },
+  { suffix: "Numbers", color: GAME_PALETTE.numbers.accent },
+] as const;
+
+/** Only the calm, top-of-funnel pages get the opening animation. */
+const PUBLIC_PATHS = new Set(["/", "/play", "/pricing", "/about"]);
 const SESSION_KEY = "onegames-opening-shown";
-const PUBLIC_PATHS = new Set(["/", "/play", "/pricing"]);
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/* Timing (ms) — the same restrained cadence as OneRead. */
+const TYPE_MS = 52;
+const DELETE_MS = 30;
+const PAUSE_MS = 260;
+const FINAL_HOLD_MS = 700;
+const FADE_MS = 600;
+const REDUCED_HOLD_MS = 650;
+
+type Frame = { suffix: string; color: string; hold: number };
+
+function buildFrames(): Frame[] {
+  const frames: Frame[] = [];
+
+  SEQUENCE.forEach(({ suffix, color }, index) => {
+    const isLast = index === SEQUENCE.length - 1;
+
+    for (let i = 1; i <= suffix.length; i += 1) {
+      frames.push({ suffix: suffix.slice(0, i), color, hold: TYPE_MS });
+    }
+    frames[frames.length - 1].hold = isLast ? FINAL_HOLD_MS : PAUSE_MS;
+
+    if (!isLast) {
+      for (let i = suffix.length - 1; i >= 0; i -= 1) {
+        frames.push({ suffix: suffix.slice(0, i), color, hold: DELETE_MS });
+      }
+    }
+  });
+
+  return frames;
+}
+
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export function OpeningLoader() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
-  const [suffix, setSuffix] = useState("");
   const [fading, setFading] = useState(false);
-  const [wordIndex, setWordIndex] = useState(0);
+  const [suffix, setSuffix] = useState("");
+  const [color, setColor] = useState<string>("#1A1A1A");
   const timers = useRef<number[]>([]);
 
   useIsomorphicLayoutEffect(() => {
     const clearTimers = () => {
-      timers.current.forEach((timer) => window.clearTimeout(timer));
+      timers.current.forEach((id) => window.clearTimeout(id));
       timers.current = [];
     };
+
     if (!PUBLIC_PATHS.has(pathname)) return;
+
+    let alreadyShown = false;
     try {
-      if (sessionStorage.getItem(SESSION_KEY)) return;
+      alreadyShown = window.sessionStorage.getItem(SESSION_KEY) === "1";
     } catch {
-      // The brand intro is optional.
+      // sessionStorage can throw in private modes; treat it as not shown.
     }
+    if (alreadyShown) return;
+
     setVisible(true);
 
-    const finish = () => {
+    const startFadeOut = () => {
       try {
-        sessionStorage.setItem(SESSION_KEY, "1");
+        window.sessionStorage.setItem(SESSION_KEY, "1");
       } catch {
-        // Storage is optional.
+        // Non-fatal — the loader may simply replay.
       }
+      // Cue the page reveal as we fade, so the handoff reads as one motion.
       window.dispatchEvent(new Event("onegames:reveal"));
       setFading(true);
-      timers.current.push(window.setTimeout(() => setVisible(false), 600));
+      timers.current.push(window.setTimeout(() => setVisible(false), FADE_MS));
     };
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setSuffix("Games");
-      timers.current.push(window.setTimeout(finish, 650));
+      timers.current.push(window.setTimeout(startFadeOut, REDUCED_HOLD_MS));
       return clearTimers;
     }
 
-    let currentWord = 0;
-    let character = 0;
-    let deleting = false;
-    const tick = () => {
-      const word = WORDS[currentWord];
-      if (!deleting) {
-        character += 1;
-        setSuffix(word.slice(0, character));
-        if (character === word.length) {
-          if (currentWord === WORDS.length - 1) {
-            timers.current.push(window.setTimeout(finish, 750));
-            return;
-          }
-          deleting = true;
-          timers.current.push(window.setTimeout(tick, 300));
-          return;
-        }
-      } else {
-        character -= 1;
-        setSuffix(word.slice(0, character));
-        if (character === 0) {
-          deleting = false;
-          currentWord += 1;
-          setWordIndex(currentWord);
-        }
+    const frames = buildFrames();
+    const play = (index: number) => {
+      if (index >= frames.length) {
+        startFadeOut();
+        return;
       }
-      timers.current.push(window.setTimeout(tick, deleting ? 34 : 55));
+      const frame = frames[index];
+      setSuffix(frame.suffix);
+      setColor(frame.color);
+      timers.current.push(window.setTimeout(() => play(index + 1), frame.hold));
     };
-    timers.current.push(window.setTimeout(tick, 120));
+    play(0);
+
     return clearTimers;
-  }, [pathname]);
+    // Runs once on mount; pathname is only read for the initial gate.
+  }, []);
 
   if (!visible) return null;
+
   return (
-    <div className={`opening-loader ${fading ? "is-fading" : ""}`} aria-hidden="true">
-      <span><b>One</b><em style={{ color: COLORS[wordIndex] }}>{suffix}</em><i style={{ color: COLORS[wordIndex] }}>|</i></span>
+    <div className={`opening-loader${fading ? " is-fading" : ""}`} aria-hidden="true">
+      <span className="opening-wordmark">
+        <span>One</span>
+        <span style={{ color }}>{suffix}</span>
+        <span className="opening-caret" style={{ color }}>
+          |
+        </span>
+      </span>
     </div>
   );
 }

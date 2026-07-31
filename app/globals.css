@@ -1782,3 +1782,117 @@ kbd { padding: 1px 4px; border: 1px solid var(--line); border-radius: 2px; backg
   .game-logo { width: 98px; height: 98px; transform: scale(.9); }
   .membership-logo-row .game-logo { margin-inline: -15px; }
 }
+
+/* Exact OneRead shell alignment: type, centered logo, and quiet footer. */
+.brand-logo {
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 24px;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  line-height: 1;
+}
+.brand-logo span,
+.brand-logo em { color: #1a1a1a; }
+.brand-logo:hover em { color: #1a1a1a; }
+.oneread-topbar,
+.ecosystem-header,
+.access-topbar,
+.game-topbar {
+  min-height: 42px;
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.simple-footer,
+.ecosystem-footer {
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 24px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  color: #a1a1aa;
+  text-align: center;
+}
+.simple-footer p,
+.ecosystem-footer p {
+  margin: 0;
+  color: #71717a;
+  font-family: var(--serif);
+  font-size: 13.5px;
+  font-style: italic;
+  line-height: 1.45;
+}
+.simple-footer nav,
+.ecosystem-footer nav {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 6px;
+  color: #a1a1aa;
+  font-family: var(--sans);
+  font-size: 12px;
+}
+.footer-link-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.simple-footer nav a,
+.ecosystem-footer nav a {
+  min-height: 44px;
+  padding-inline: 4px;
+  display: inline-flex;
+  align-items: center;
+  color: #a1a1aa;
+  transition: color .2s ease;
+}
+.simple-footer nav a > span,
+.ecosystem-footer nav a > span {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  transition: background-size .25s ease;
+}
+.simple-footer nav a:hover,
+.ecosystem-footer nav a:hover { color: #1a1a1a; }
+.simple-footer nav a:hover > span,
+.ecosystem-footer nav a:hover > span {
+  background-position: 100% 100%;
+  background-size: 0 1px;
+}
+.footer-separator {
+  color: #d4d4d8;
+  font-style: normal;
+}
+
+@media (min-width: 640px) {
+  .brand-logo { font-size: 28px; }
+  .simple-footer,
+  .ecosystem-footer { padding-bottom: 8px; }
+  .simple-footer p,
+  .ecosystem-footer p { font-size: 14px; }
+  .simple-footer nav,
+  .ecosystem-footer nav { gap: 0 10px; }
+  .footer-link-group { gap: 10px; }
+}
+
+@media (max-width: 639px) {
+  .footer-separator { display: none; }
+  .simple-footer nav,
+  .ecosystem-footer nav { column-gap: 6px; }
+}

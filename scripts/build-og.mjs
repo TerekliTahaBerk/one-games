@@ -11,7 +11,6 @@ import { chromium } from "@playwright/test";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { characterSvg } from "./brand-character.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const WIDTH = 1200;
@@ -94,10 +93,14 @@ async function fontFace(family, file, weight, style = "normal") {
 
 async function buildHtml() {
   const fonts = [
-    await fontFace("Fraunces", "fraunces/files/fraunces-latin-500-normal.woff2", 500),
     await fontFace("Fraunces", "fraunces/files/fraunces-latin-400-italic.woff2", 400, "italic"),
     await fontFace("Inter", "inter/files/inter-latin-500-normal.woff2", 500),
   ].join("");
+
+  // The lockup is artwork, so the card uses the same file the site does rather
+  // than re-typesetting the wordmark.
+  const logo = await readFile(resolve(ROOT, "public/onegames-logo.png"));
+  const logoUrl = `data:image/png;base64,${logo.toString("base64")}`;
 
   const labels = ["OneSudoku", "OneWord", "OneMatch", "OneNumbers"];
   const games = ["sudoku", "word", "match", "numbers"];
@@ -109,10 +112,7 @@ async function buildHtml() {
       font-family:Inter,sans-serif;display:flex;flex-direction:column;
       align-items:center;justify-content:center;padding:64px 72px;
       -webkit-font-smoothing:antialiased;}
-    .lockup{display:flex;align-items:flex-end;gap:10px;}
-    h1{font-family:Fraunces,serif;font-weight:500;font-size:104px;
-      letter-spacing:-.03em;line-height:1;}
-    .lockup svg{display:block;margin-bottom:-6px;}
+    .lockup{display:block;height:150px;width:auto;}
     .tagline{margin-top:26px;font-family:Fraunces,serif;font-style:italic;
       font-weight:400;font-size:34px;color:#52525b;letter-spacing:-.01em;}
     .rule{width:180px;height:1px;background:#e4e4e7;margin:46px 0 42px;}
@@ -120,7 +120,7 @@ async function buildHtml() {
     .cell{display:flex;flex-direction:column;align-items:center;gap:16px;}
     .cell span{font-size:19px;font-weight:500;color:#71717a;letter-spacing:.01em;}
   </style></head><body>
-    <div class="lockup"><h1>OneGames</h1>${characterSvg(132)}</div>
+    <img class="lockup" src="${logoUrl}" alt="OneGames"/>
     <p class="tagline">One thoughtful game at a time.</p>
     <div class="rule"></div>
     <div class="row">

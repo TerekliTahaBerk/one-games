@@ -168,32 +168,18 @@ button,
 
 .brand-logo {
   display: inline-flex;
-  /* Baseline, so the character stands on the same line the wordmark sits on. */
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
-  gap: 0.05em;
   padding: 4px 8px;
   border-radius: 999px;
-  font-size: 24px;
 }
 
+/* One fixed height everywhere — the same 28/34px OneRead renders its logo at. */
 .brand-logo-mark {
-  font-family: var(--serif);
-  font-size: 1em;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1;
-  color: var(--ink);
-  user-select: none;
-}
-
-.brand-character {
-  height: 1.42em;
+  display: block;
+  height: 28px;
   width: auto;
-  flex: 0 0 auto;
-  /* The drawing leaves a little room under the feet; pull it back so they
-     land on the text baseline rather than floating above it. */
-  margin-bottom: -0.06em;
+  user-select: none;
 }
 
 .header-back,
@@ -284,8 +270,8 @@ button,
 }
 
 @media (min-width: 640px) {
-  .brand-logo {
-    font-size: 28px;
+  .brand-logo-mark {
+    height: 34px;
   }
 
   .page-main {

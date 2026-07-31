@@ -29,7 +29,11 @@ export async function generateMetadata(): Promise<Metadata> {
     applicationName: "OneGames",
     manifest: "/manifest.webmanifest",
     alternates: { canonical: "/" },
-    icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/favicon.svg" },
+    icons: {
+      icon: "/onegames-mark.png",
+      shortcut: "/onegames-mark.png",
+      apple: "/onegames-mark.png",
+    },
     openGraph: {
       type: "website",
       title: TITLE,

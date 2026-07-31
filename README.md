@@ -13,8 +13,8 @@ The shell is deliberately the same one OneRead uses, so the two read as one
 company:
 
 - white paper, Fraunces for editorial type, Inter for interface type
-- the wordmark at one fixed size (24px / 28px) with the OneGames character
-  standing to its right, the whole lockup centred on **every** route
+- the lockup — wordmark plus character — at one fixed height (28px / 34px),
+  centred on **every** route
 - the same page padding on every route, verified by a test
 - a typewriter opening loader — OneGames → OneSudoku → OneWord → OneMatch →
   OneNumbers — handing off to a staggered content reveal
@@ -31,18 +31,25 @@ Mobile is designed at mobile, not scaled down: the game's number pad becomes a
 single thumb-reachable row, footer dot separators are dropped in favour of
 wrapping, and the title bar restacks.
 
-## The character
+## The lockup
 
-`components/BrandCharacter.tsx` draws the OneGames character — a sibling to the
-reader that stands beside the OneRead wordmark. Same construction language (a
-round, spiky ink body, oversized eyes, thin limbs, something held in front),
-its own creature: where the reader holds a book, this one holds a puzzle grid
-carrying the single filled cell that signs the OneGames logo family.
+The wordmark and the character beside it are supplied artwork, so — like
+OneRead's — they ship as an image rather than being typeset. Source files live
+in `assets/brand/`; `scripts/build-brand-assets.mjs` produces what the site
+actually loads:
 
-It is drawn in code, so the browser tab at 16px and the social card at 132px
-come from one source. `scripts/build-favicon.mjs` renders `public/favicon.svg`
-from the same geometry; `scripts/brand-character.mjs` is what the asset scripts
-share.
+- `public/onegames-logo.png` — the lockup, cut out of its background
+- `public/onegames-mark.png` — the character alone, on a white tile, used for
+  the browser tab and the web app manifest
+
+The supplied art sits on a near-white field, which reads as a grey box on a
+white page. The script measures that field (82% of pixels land at 253–255, the
+ink at 17–20), trims to the ink, derives per-pixel alpha across the gap so the
+antialiasing survives, and undoes the white compositing so the controller's
+coloured buttons keep their true hue.
+
+The lockup renders at one fixed height everywhere — 28px, 34px from `sm` up,
+the same as OneRead's.
 
 The character belongs to the brand lockup only. The four game marks below stay
 strictly geometric — no faces anywhere in them.
@@ -67,8 +74,8 @@ pricing pages, and as the product mark in the game. There are no characters,
 faces, or mascots anywhere in the product, and nothing is borrowed from another
 puzzle brand's marks, colours, or cell compositions.
 
-`scripts/build-og.mjs` renders `public/og.png` (1200×630) from the same geometry
-and the same fonts, so a shared link previews as the product it opens.
+`scripts/build-og.mjs` renders `public/og.png` (1200×630) from the same lockup
+file and the same fonts, so a shared link previews as the product it opens.
 
 ## Stack
 
@@ -126,14 +133,15 @@ npm run build:vercel   # Next.js build -> .next/
 Asset and content tooling:
 
 ```bash
+node scripts/build-brand-assets.mjs
 node scripts/build-og.mjs
-node scripts/build-favicon.mjs
 node scripts/generate-puzzles.mjs
 ```
 
 ## Project structure
 
 ```text
+assets/brand/           Supplied logo artwork (source files)
 app/                    Routes, metadata, manifest, sitemap, robots
 app/api/access/         Verification, session, test, status, checkout
 app/api/webhook/        Signed Polar billing lifecycle

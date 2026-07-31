@@ -42,31 +42,72 @@ test.describe("Shared shell", () => {
     });
   }
 
-  test("the wordmark is the same size and centred on every page", async ({ page }) => {
-    const measurements: { path: string; width: number; centreOffset: number }[] = [];
+  test("the lockup is the same size and centred on every page", async ({ page }) => {
+    const measurements: {
+      path: string;
+      markWidth: number;
+      characterHeight: number;
+      centreOffset: number;
+    }[] = [];
 
     for (const { path } of PAGES) {
       await page.goto(path);
       const header = page.locator("header.site-header").first();
-      const mark = header.locator(".brand-logo-mark");
-      const markBox = await mark.boundingBox();
+      const lockup = header.locator(".brand-logo");
+      const markBox = await lockup.locator(".brand-logo-mark").boundingBox();
+      const characterBox = await lockup.locator(".brand-character").boundingBox();
+      const lockupBox = await lockup.boundingBox();
       const headerBox = await header.boundingBox();
-      if (!markBox || !headerBox) throw new Error(`No wordmark measured on ${path}`);
+      if (!markBox || !characterBox || !lockupBox || !headerBox) {
+        throw new Error(`No lockup measured on ${path}`);
+      }
 
       measurements.push({
         path,
-        width: markBox.width,
-        centreOffset:
-          markBox.x + markBox.width / 2 - (headerBox.x + headerBox.width / 2),
+        markWidth: markBox.width,
+        characterHeight: characterBox.height,
+        // It is the whole lockup — wordmark plus character — that is centred,
+        // not the text on its own.
+        centreOffset: lockupBox.x + lockupBox.width / 2 - (headerBox.x + headerBox.width / 2),
       });
     }
 
-    const widths = measurements.map((entry) => entry.width);
-    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(1);
+    const markWidths = measurements.map((entry) => entry.markWidth);
+    const characterHeights = measurements.map((entry) => entry.characterHeight);
+    expect(Math.max(...markWidths) - Math.min(...markWidths)).toBeLessThan(1);
+    expect(Math.max(...characterHeights) - Math.min(...characterHeights)).toBeLessThan(1);
 
     for (const entry of measurements) {
       expect(Math.abs(entry.centreOffset), `${entry.path} is off centre`).toBeLessThan(1.5);
     }
+  });
+
+  test("the character stands on the wordmark's baseline", async ({ page }) => {
+    await page.goto("/");
+
+    // Measure the real typographic baseline: a zero-height inline-block aligns
+    // its top to it. Comparing against the text's box would only measure the
+    // line box, which is not where the glyphs sit.
+    const baseline = await page.evaluate(() => {
+      const mark = document.querySelector(".brand-logo-mark");
+      if (!mark) throw new Error("No wordmark");
+      const probe = document.createElement("span");
+      probe.style.cssText = "display:inline-block;width:0;height:0;";
+      mark.appendChild(probe);
+      const top = probe.getBoundingClientRect().top;
+      probe.remove();
+      return top;
+    });
+
+    const mark = await page.locator(".brand-logo-mark").first().boundingBox();
+    const character = await page.locator(".brand-character").first().boundingBox();
+    if (!mark || !character) throw new Error("No lockup measured");
+
+    // Feet on the baseline, quills above the cap height, and to the right of
+    // the wordmark rather than over it.
+    expect(Math.abs(character.y + character.height - baseline)).toBeLessThan(3);
+    expect(character.y).toBeLessThan(mark.y);
+    expect(character.x).toBeGreaterThanOrEqual(mark.x + mark.width - 1);
   });
 
   test("every page uses the same top padding", async ({ page }) => {

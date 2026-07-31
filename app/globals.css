@@ -168,20 +168,32 @@ button,
 
 .brand-logo {
   display: inline-flex;
-  align-items: center;
+  /* Baseline, so the character stands on the same line the wordmark sits on. */
+  align-items: baseline;
   justify-content: center;
+  gap: 0.05em;
   padding: 4px 8px;
   border-radius: 999px;
+  font-size: 24px;
 }
 
 .brand-logo-mark {
   font-family: var(--serif);
-  font-size: 24px;
+  font-size: 1em;
   font-weight: 500;
   letter-spacing: -0.015em;
   line-height: 1;
   color: var(--ink);
   user-select: none;
+}
+
+.brand-character {
+  height: 1.42em;
+  width: auto;
+  flex: 0 0 auto;
+  /* The drawing leaves a little room under the feet; pull it back so they
+     land on the text baseline rather than floating above it. */
+  margin-bottom: -0.06em;
 }
 
 .header-back,
@@ -272,7 +284,7 @@ button,
 }
 
 @media (min-width: 640px) {
-  .brand-logo-mark {
+  .brand-logo {
     font-size: 28px;
   }
 

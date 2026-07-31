@@ -13,7 +13,8 @@ The shell is deliberately the same one OneRead uses, so the two read as one
 company:
 
 - white paper, Fraunces for editorial type, Inter for interface type
-- the wordmark at one fixed size (24px / 28px), centred, on **every** route
+- the wordmark at one fixed size (24px / 28px) with the OneGames character
+  standing to its right, the whole lockup centred on **every** route
 - the same page padding on every route, verified by a test
 - a typewriter opening loader — OneGames → OneSudoku → OneWord → OneMatch →
   OneNumbers — handing off to a staggered content reveal
@@ -29,6 +30,22 @@ padding, wordmark, footer — is unchanged.
 Mobile is designed at mobile, not scaled down: the game's number pad becomes a
 single thumb-reachable row, footer dot separators are dropped in favour of
 wrapping, and the title bar restacks.
+
+## The character
+
+`components/BrandCharacter.tsx` draws the OneGames character — a sibling to the
+reader that stands beside the OneRead wordmark. Same construction language (a
+round, spiky ink body, oversized eyes, thin limbs, something held in front),
+its own creature: where the reader holds a book, this one holds a puzzle grid
+carrying the single filled cell that signs the OneGames logo family.
+
+It is drawn in code, so the browser tab at 16px and the social card at 132px
+come from one source. `scripts/build-favicon.mjs` renders `public/favicon.svg`
+from the same geometry; `scripts/brand-character.mjs` is what the asset scripts
+share.
+
+The character belongs to the brand lockup only. The four game marks below stay
+strictly geometric — no faces anywhere in them.
 
 ## The identity system
 
@@ -110,6 +127,7 @@ Asset and content tooling:
 
 ```bash
 node scripts/build-og.mjs
+node scripts/build-favicon.mjs
 node scripts/generate-puzzles.mjs
 ```
 
@@ -217,7 +235,7 @@ landmarks are page-level on every route, which the Playwright suite asserts.
 
 - `npm test` — 32 unit tests over the solver, puzzle bank, daily scheduling,
   webhook interpretation, and the D1 HTTP client.
-- `npm run test:e2e` — 66 Playwright checks across a desktop and a mobile
+- `npm run test:e2e` — 68 Playwright checks across a desktop and a mobile
   project, covering the no-account play path, the access gate, number entry by pad
   and keyboard, notes mode, arrow-key movement, undo/redo/erase, hints,
   pause/resume, difficulty switching, reload persistence, puzzle completion,

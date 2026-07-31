@@ -1,17 +1,22 @@
 import Link from "next/link";
+import { BrandCharacter } from "./BrandCharacter";
 
 /**
- * The OneGames wordmark.
+ * The OneGames lockup: the wordmark in Fraunces with the character standing to
+ * its right, the same arrangement OneRead uses.
  *
- * Set in Fraunces at one fixed size — 24px on small screens, 28px from `sm` up
- * — so it never changes scale between the homepage, the access flow, the game,
- * and the legal pages. `SiteHeader` is responsible for centring it.
+ * The whole lockup is what gets centred by `SiteHeader` — not the text alone —
+ * and it is one fixed size everywhere, so it never changes scale between the
+ * homepage, the access flow, the game, and the legal pages.
  */
 export function BrandLogo({ href = "/" }: { href?: string | null }) {
   const mark = (
-    <span className="brand-logo-mark" aria-hidden="true">
-      OneGames
-    </span>
+    <>
+      <span className="brand-logo-mark" aria-hidden="true">
+        OneGames
+      </span>
+      <BrandCharacter />
+    </>
   );
 
   if (href === null) {

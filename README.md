@@ -187,11 +187,11 @@ landmarks are page-level on every route, which the Playwright suite asserts.
 
 - `npm test` — 25 unit tests over the solver, puzzle bank, daily scheduling, and
   webhook interpretation.
-- `npm run test:e2e` — 56 Playwright checks across a desktop and a mobile
+- `npm run test:e2e` — 58 Playwright checks across a desktop and a mobile
   project, covering the test-access path, the access gate, number entry by pad
   and keyboard, notes mode, arrow-key movement, undo/redo/erase, hints,
-  pause/resume, difficulty switching, reload persistence, the archive, and shell
-  consistency (wordmark size and centring, equal top padding, identical footer,
+  pause/resume, difficulty switching, reload persistence, puzzle completion,
+  the archive, and shell consistency (wordmark size and centring, equal top padding, identical footer,
   touch heights, and no horizontal overflow) on every route.
 
 ## Deployment

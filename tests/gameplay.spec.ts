@@ -1,4 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
+import { getTodayKey } from "../lib/date";
+import { getDailyPuzzle } from "../lib/sudoku/puzzles";
+import { solve } from "../lib/sudoku/solver";
 
 /**
  * Pins the first empty cell to a stable locator. Resolving `[aria-label*=empty]`
@@ -155,5 +158,60 @@ test.describe("OneSudoku", () => {
     await expect(page).toHaveURL(/\/sudoku\/archive/);
     await expect(page.getByRole("heading", { name: "Your local archive." })).toBeVisible();
     await expect(page.getByRole("link", { name: /Today/ })).toBeVisible();
+  });
+});
+
+test.describe("Finishing a puzzle", () => {
+  test("shows the completion summary on the final entry", async ({ page, context }) => {
+    const date = getTodayKey();
+    const difficulty = "easy";
+    const clues = getDailyPuzzle(date, difficulty);
+    const solution = solve(clues);
+    if (!solution) throw new Error("Today's easy grid has no solution");
+
+    // Seed a save that is one entry short, so the test exercises the real
+    // completion path rather than a mocked flag.
+    const lastEmpty = clues.lastIndexOf(0);
+    const board = solution.map((value, index) => (index === lastEmpty ? 0 : value));
+
+    await context.addCookies([
+      { name: "onegames_test", value: "1", url: "http://localhost:3000" },
+    ]);
+    await page.addInitScript(
+      ({ key, save }) => window.localStorage.setItem(key, JSON.stringify(save)),
+      {
+        key: `onegames:v1:game:${date}:${difficulty}`,
+        save: {
+          version: 1,
+          date,
+          difficulty,
+          board,
+          notes: {},
+          elapsed: 42,
+          started: true,
+          completed: false,
+          mistakes: 0,
+          hints: 0,
+          history: [],
+          future: [],
+        },
+      },
+    );
+
+    await page.goto("/sudoku");
+    await page.getByRole("button", { name: "easy", exact: true }).click();
+
+    const cell = page.locator(`[data-cell="${lastEmpty}"]`);
+    await cell.click();
+    await page.keyboard.press(String(solution[lastEmpty]));
+
+    const summary = page.getByRole("dialog", { name: "Nicely done." });
+    await expect(summary).toBeVisible();
+    await expect(summary).toContainText("00:42");
+    await expect(summary).toContainText("easy");
+    await expect(summary.getByRole("button", { name: "Share result" })).toBeVisible();
+
+    await summary.getByRole("button", { name: "Close completion summary" }).click();
+    await expect(summary).toHaveCount(0);
   });
 });

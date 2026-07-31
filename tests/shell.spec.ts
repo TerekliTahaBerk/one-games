@@ -17,7 +17,7 @@ const PAGES = [
   { path: "/sudoku/archive", name: "archive" },
 ];
 
-const FOOTER_LINKS = ["Terms", "Privacy", "About", "Pricing", "Archive", "OneRead"];
+const FOOTER_LINKS = ["Terms", "Privacy", "About", "Pricing"];
 
 test.beforeEach(async ({ context }) => {
   // The game and archive need a session; the test path is the honest way in.
@@ -173,5 +173,44 @@ test.describe("Homepage", () => {
     await page.goto("/");
     await page.getByRole("link", { name: "Play OneGames" }).click();
     await expect(page).toHaveURL(/\/play/);
+  });
+});
+
+test.describe("Family credit", () => {
+  test("the homepage points at OneRead from the top left", async ({ page }) => {
+    await page.goto("/");
+
+    const credit = page.locator(".parent-brand");
+    await expect(credit).toHaveAttribute("href", "https://www.oneread.email/");
+    await expect(credit.locator(".parent-brand-name")).toBeVisible();
+    await expect(credit).toContainText("Part of OneRead");
+
+    // The descriptor needs room beside the centred lockup, so it appears once
+    // the header is wide enough; the "Part of OneRead" line always carries the
+    // relationship on its own.
+    const width = page.viewportSize()?.width ?? 0;
+    const note = credit.locator(".parent-brand-note");
+    if (width >= 640) {
+      await expect(note).toBeVisible();
+      await expect(note).toHaveText("One useful email a day");
+    } else {
+      await expect(note).toBeHidden();
+    }
+
+    // Top left, and never reaching the lockup.
+    const creditBox = await credit.boundingBox();
+    const lockupBox = await page.locator(".brand-logo").boundingBox();
+    const headerBox = await page.locator("header.site-header").boundingBox();
+    if (!creditBox || !lockupBox || !headerBox) throw new Error("Header not measured");
+
+    expect(creditBox.x).toBeLessThan(headerBox.x + 4);
+    expect(creditBox.x + creditBox.width).toBeLessThanOrEqual(lockupBox.x);
+  });
+
+  test("it appears only on the homepage", async ({ page }) => {
+    for (const { path } of PAGES.filter((entry) => entry.path !== "/")) {
+      await page.goto(path);
+      await expect(page.locator(".parent-brand")).toHaveCount(0);
+    }
   });
 });

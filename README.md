@@ -20,7 +20,9 @@ company:
   OneNumbers — handing off to a staggered content reveal
 - calm black pill CTAs, restrained motion, no cards or dashboards
 - one centred footer: a Fraunces-italic tagline over
-  Terms · Privacy · About · Pricing · Archive · OneRead
+  Terms · Privacy · About · Pricing
+- the parent brand credited at the top left of the homepage, linking to
+  OneRead — quiet enough not to compete with the lockup
 
 The one deliberate departure is the legal pages: like OneRead's, they are
 reference documents, so `components/LegalPage.tsx` reads left-aligned from the
@@ -243,7 +245,7 @@ landmarks are page-level on every route, which the Playwright suite asserts.
 
 - `npm test` — 32 unit tests over the solver, puzzle bank, daily scheduling,
   webhook interpretation, and the D1 HTTP client.
-- `npm run test:e2e` — 68 Playwright checks across a desktop and a mobile
+- `npm run test:e2e` — 72 Playwright checks across a desktop and a mobile
   project, covering the no-account play path, the access gate, number entry by pad
   and keyboard, notes mode, arrow-key movement, undo/redo/erase, hints,
   pause/resume, difficulty switching, reload persistence, puzzle completion,

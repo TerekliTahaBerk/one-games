@@ -9,6 +9,16 @@ export default function HomePage() {
     <div className="page">
       <HomeReveal>
         <header className="site-header reveal-item">
+          <a
+            href="https://www.oneread.email/"
+            rel="noreferrer"
+            className="parent-brand"
+            aria-label="OneRead — one useful email a day"
+          >
+            <span className="parent-brand-name link-underline">Part of OneRead</span>
+            <span className="parent-brand-note">One useful email a day</span>
+          </a>
+
           <BrandLogo />
           <div className="header-trailing">
             <Link

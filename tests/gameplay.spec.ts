@@ -156,8 +156,9 @@ test.describe("OneSudoku", () => {
     await expect(page.locator(`[data-cell="${label}"]`)).toContainText("8");
   });
 
-  test("reaches the archive and back", async ({ page }) => {
-    await page.getByRole("link", { name: "Archive" }).first().click();
+  test("reaches the archive from the game", async ({ page }) => {
+    // The footer no longer carries it, so the game itself has to.
+    await page.getByRole("link", { name: "Archive" }).click();
     await expect(page).toHaveURL(/\/sudoku\/archive/);
     await expect(page.getByRole("heading", { name: "Your local archive." })).toBeVisible();
     await expect(page.getByRole("link", { name: /Today/ })).toBeVisible();

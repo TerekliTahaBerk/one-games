@@ -215,6 +215,54 @@ button,
   gap: 2px;
 }
 
+/* The parent brand, pinned opposite the quiet icon so the lockup stays centred.
+   Deliberately small: it credits the family without competing with the logo. */
+.parent-brand {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  /* Half the header, less half the lockup — so it can never reach the logo. */
+  max-width: calc(50% - 4.8rem);
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  /* Shrink each line to its text, so the hover underline hugs the word rather
+     than running the width of the column. */
+  align-items: flex-start;
+  gap: 1px;
+  color: var(--fog);
+  font-size: 10.5px;
+  line-height: 1.35;
+  transform: translateY(-50%);
+  transition: color 200ms ease;
+}
+
+.parent-brand:hover {
+  color: var(--ink);
+}
+
+.parent-brand-name {
+  font-weight: 500;
+}
+
+/* There is only room for the descriptor once the header is wide enough; the
+   "Part of OneRead" line carries the relationship on its own below that. */
+.parent-brand-note {
+  display: none;
+  color: var(--fog);
+}
+
+@media (min-width: 640px) {
+  .parent-brand {
+    max-width: calc(50% - 6.5rem);
+    font-size: 11.5px;
+  }
+
+  .parent-brand-note {
+    display: block;
+  }
+}
+
 .quiet-icon-link {
   width: 36px;
   height: 36px;

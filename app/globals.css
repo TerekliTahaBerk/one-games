@@ -263,6 +263,23 @@ button,
   }
 }
 
+/* A plain word in the header's top-right slot — used instead of an icon so it
+   reads the same at a glance as the footer's text links. */
+.header-text-link {
+  min-height: 44px;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--fog);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  transition: color 200ms ease;
+}
+
+.header-text-link:hover {
+  color: var(--ink);
+}
+
 .quiet-icon-link {
   width: 36px;
   height: 36px;
@@ -507,7 +524,7 @@ button,
 
 .site-footer {
   width: 100%;
-  padding: 24px 0 4px;
+  padding: 24px 0 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -521,6 +538,17 @@ button,
   font-size: 13.5px;
   font-style: italic;
   line-height: 1.45;
+}
+
+/* The homepage's longer statement — a second, quieter line under the tagline,
+   the same way OneRead pairs its own tagline with a fuller sentence. */
+.site-footer-manifesto {
+  margin: 8px 0 0;
+  max-width: 40ch;
+  color: var(--fog);
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .site-footer-nav {
@@ -579,13 +607,36 @@ button,
   }
 }
 
+/* The very last line on every page — a small, quiet maker's credit below the
+   nav row, distinct from the tagline above it. */
+.site-footer-credit {
+  margin: 18px 0 0;
+  color: var(--fog);
+  font-family: var(--sans);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.site-footer-credit a {
+  color: var(--fog);
+  transition: color 200ms ease;
+}
+
+.site-footer-credit a:hover {
+  color: var(--ink);
+}
+
 @media (min-width: 640px) {
   .site-footer {
-    padding-bottom: 8px;
+    padding-bottom: 20px;
   }
 
   .site-footer-tagline {
     font-size: 14px;
+  }
+
+  .site-footer-manifesto {
+    font-size: 12.5px;
   }
 
   .site-footer-nav {
@@ -594,6 +645,10 @@ button,
 
   .footer-link-group {
     gap: 10px;
+  }
+
+  .site-footer-credit {
+    font-size: 11px;
   }
 }
 

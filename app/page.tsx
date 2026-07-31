@@ -21,24 +21,8 @@ export default function HomePage() {
 
           <BrandLogo />
           <div className="header-trailing">
-            <Link
-              href="/about"
-              className="quiet-icon-link"
-              aria-label="About OneGames"
-              title="About OneGames"
-            >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <rect
-                  x="3.25"
-                  y="3.25"
-                  width="13.5"
-                  height="13.5"
-                  rx="3"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                />
-                <path d="M10 3.5v13M3.5 10h13" stroke="currentColor" strokeWidth="1.3" />
-              </svg>
+            <Link href="/about" className="header-text-link link-underline" aria-label="About OneGames">
+              About
             </Link>
           </div>
         </header>
@@ -62,7 +46,7 @@ export default function HomePage() {
         </main>
       </HomeReveal>
 
-      <SiteFooter />
+      <SiteFooter manifesto="No feed to check. Just something worth opening. For people who want better inputs without another app to open." />
     </div>
   );
 }

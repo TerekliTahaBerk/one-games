@@ -20,7 +20,7 @@ type Palette = { accent: string; pale: string; wash: string };
 
 export const GAME_PALETTE: Record<GameKey, Palette> = {
   sudoku: { accent: "#3F6FA8", pale: "#DCE8F7", wash: "#EFF5FC" },
-  dna: { accent: "#2F7D95", pale: "#DCEBF1", wash: "#EFF6F9" },
+  dna: { accent: "#477B72", pale: "#DDEBE6", wash: "#F4F7F3" },
 };
 
 export const GAME_LABEL: Record<GameKey, string> = {
@@ -98,52 +98,74 @@ function SudokuMark({ accent }: Palette) {
 }
 
 /**
- * A double helix: two strands crossing at the centre, four rungs between them.
+ * The OneDNA bond seal.
  *
- * Free-standing rather than panelled, so it reads as a different object from
- * the OneSudoku grid at family scale. The strands are point-symmetric about the
- * middle, which is what produces the wide-narrow-narrow-wide rung rhythm that
- * makes a helix legible at 20px. The third rung is this mark's single solid
- * accent moment, in the same lower-right position OneSudoku puts its own.
+ * Four soft endpoints form two complementary pairs. Their mirrored paths meet
+ * in the middle without becoming a literal laboratory helix: the mark now
+ * speaks the game's own visual language — pair, connect, complete — while the
+ * rounded frame keeps it visibly related to the OneSudoku tile.
  */
-const DNA_STRANDS = ["M16 8C16 26 48 38 48 56", "M48 8C48 26 16 38 16 56"];
-
-/** Each rung spans the strands at its own height, so the pair pinches inward. */
-const DNA_RUNGS = [
-  { x: 18, y: 13.5, width: 28, solid: false },
-  { x: 23, y: 20.5, width: 18, solid: false },
-  { x: 23, y: 38.5, width: 18, solid: true },
-  { x: 18, y: 45.5, width: 28, solid: false },
-];
-
-function DnaMark({ accent, pale }: Palette) {
+function DnaMark({ accent, pale, wash }: Palette) {
   return (
     <>
-      {DNA_RUNGS.map((rung) => (
-        <rect
-          key={rung.y}
-          x={rung.x}
-          y={rung.y}
-          width={rung.width}
-          height={5}
-          rx={2.5}
-          fill={rung.solid ? accent : pale}
-          stroke={INK}
-          strokeWidth={INNER}
-          strokeLinejoin="round"
-        />
-      ))}
-      {/* Drawn last so the strands read as the structure and cap the rungs. */}
-      {DNA_STRANDS.map((strand) => (
-        <path
-          key={strand}
-          d={strand}
-          fill="none"
-          stroke={INK}
-          strokeWidth={OUTER}
-          strokeLinecap="round"
-        />
-      ))}
+      <rect x="6" y="6" width="52" height="52" rx="15" fill={wash} />
+      <path
+        d="M18 19C27 19 25 31 32 31s5 14 14 14"
+        fill="none"
+        stroke={INK}
+        strokeWidth={INNER}
+        strokeLinecap="round"
+      />
+      <path
+        d="M46 19C37 19 39 31 32 31S27 45 18 45"
+        fill="none"
+        stroke={INK}
+        strokeWidth={INNER}
+        strokeLinecap="round"
+      />
+      <circle
+        cx="18"
+        cy="19"
+        r="6"
+        fill={pale}
+        stroke={INK}
+        strokeWidth={INNER}
+      />
+      <circle
+        cx="46"
+        cy="19"
+        r="6"
+        fill="#EFE4D3"
+        stroke={INK}
+        strokeWidth={INNER}
+      />
+      <circle
+        cx="18"
+        cy="45"
+        r="6"
+        fill="#EFE4D3"
+        stroke={INK}
+        strokeWidth={INNER}
+      />
+      <circle
+        cx="46"
+        cy="45"
+        r="6"
+        fill={accent}
+        stroke={INK}
+        strokeWidth={INNER}
+      />
+      <circle cx="32" cy="31" r="2.5" fill={INK} />
+      <rect
+        x="6"
+        y="6"
+        width="52"
+        height="52"
+        rx="15"
+        fill="none"
+        stroke={INK}
+        strokeWidth={OUTER}
+      />
     </>
   );
 }
@@ -158,7 +180,13 @@ interface Props {
   style?: CSSProperties;
 }
 
-export function GameLogo({ game, size = 96, decorative = false, className = "", style }: Props) {
+export function GameLogo({
+  game,
+  size = 96,
+  decorative = false,
+  className = "",
+  style,
+}: Props) {
   const palette = GAME_PALETTE[game];
 
   return (
@@ -201,7 +229,11 @@ export function GameLogoFamily({
 }) {
   const games: GameKey[] = ["sudoku", "dna"];
   return (
-    <span className={`logo-family ${className}`.trim()} role="img" aria-label="The OneGames family">
+    <span
+      className={`logo-family ${className}`.trim()}
+      role="img"
+      aria-label="The OneGames family"
+    >
       {games.map((game) => (
         <GameLogo key={game} game={game} size={size} decorative />
       ))}

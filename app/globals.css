@@ -32,9 +32,9 @@
   --sudoku: #3f6fa8;
   --sudoku-pale: #dce8f7;
   --sudoku-wash: #eff5fc;
-  --dna: #2f7d95;
-  --dna-pale: #dcebf1;
-  --dna-wash: #eff6f9;
+  --dna: #477b72;
+  --dna-pale: #ddebe6;
+  --dna-wash: #f4f7f3;
 
   /* Quiet green for guidance and completion — not a game accent. */
   --guide: #3f7652;
@@ -69,38 +69,88 @@
   color-scheme: light;
 }
 
-/* OneDNA — quiet editorial color, with letter + strand marker carrying meaning. */
+/* OneDNA — a warm, playful bond system inside the quiet OneGames shell. */
 :root {
-  --dna-accent: #2f7186;
-  --dna-accent-soft: #e7f1f4;
-  --dna-at: #456f9c;
-  --dna-at-soft: #e8eff7;
-  --dna-cg: #7b6244;
-  --dna-cg-soft: #f3ede4;
+  --dna-accent: #477b72;
+  --dna-accent-soft: #e5efeb;
+  --dna-at: #416f8d;
+  --dna-at-soft: #e8f1f6;
+  --dna-at-mid: #cddfe8;
+  --dna-cg: #86633f;
+  --dna-cg-soft: #f5ecdf;
+  --dna-cg-mid: #e7d6bd;
+  --dna-board-frame: #e9e4d9;
+  --dna-cell: #fffefa;
   --dna-conflict: #a8433d;
-  --dna-complete: #39745d;
+  --dna-complete: #477b72;
 }
 
 .dna-page {
-  background: linear-gradient(180deg, #fff 0, #fbfcfc 48%, #fff 100%);
+  background: #fbfaf7;
 }
 .dna-main {
   width: min(100%, 1040px);
+}
+.dna-main .game-header {
+  max-width: 920px;
+  margin-inline: auto;
+  padding-block: 18px 20px;
+}
+.dna-main .game-title-lockup {
+  gap: 14px;
+}
+.dna-main .game-title-lockup .game-logo {
+  width: 48px;
+  height: 48px;
+}
+.dna-main .game-title-lockup h1 {
+  font-size: clamp(1.65rem, 3vw, 2rem);
+}
+.dna-title-note {
+  margin: 4px 0 0;
+  color: var(--slate);
+  font-family: var(--serif);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+.dna-main .game-status {
+  border-color: #ded9ce;
+  background: rgb(255 255 255 / 78%);
+}
+.dna-main .pause-button:hover:not(:disabled) {
+  border-color: var(--dna-at-mid);
+  background: var(--dna-accent-soft);
+  color: var(--dna-accent);
+}
+.dna-main .difficulty-tabs {
+  width: min(100%, 570px);
+  margin-inline: auto;
+  border-color: #dfdbd1;
+  background: #f1eee8;
+}
+.dna-main .difficulty-tabs button.is-active {
+  border-color: #d9d4c9;
+  box-shadow: 0 2px 7px rgb(52 47 40 / 8%);
 }
 .dna-rule-legend {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 7px 16px;
-  color: var(--muted, #68645f);
-  font-size: 0.72rem;
-  margin: 4px auto 20px;
+  gap: 7px;
+  color: #68645d;
+  font-size: 0.7rem;
+  margin: 12px auto 22px;
 }
 .dna-rule-legend span {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #e3ded4;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 65%);
 }
 .dna-rule-legend i {
   width: 9px;
@@ -113,10 +163,15 @@
 .dna-rule-legend .family-cg {
   background: var(--dna-cg);
 }
+.dna-rule-legend b {
+  color: #aaa298;
+  font-weight: 400;
+}
 .dna-rule-legend button {
   border: 0;
   background: none;
-  padding: 8px;
+  min-height: 36px;
+  padding: 0 9px;
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -124,10 +179,10 @@
 }
 .dna-play-area {
   display: grid;
-  grid-template-columns: minmax(0, 620px) 150px;
+  grid-template-columns: minmax(0, 620px) 190px;
   align-items: center;
   justify-content: center;
-  gap: clamp(22px, 5vw, 56px);
+  gap: clamp(24px, 5vw, 52px);
 }
 .dna-board-stage {
   position: relative;
@@ -136,21 +191,23 @@
 .dna-board-wrap {
   width: min(100%, 620px);
   aspect-ratio: 1;
-  padding: 3px;
-  border: 1px solid #a49d91;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 18px 50px rgb(37 47 47 / 8%);
+  padding: 8px;
+  border: 1px solid #d8d1c4;
+  border-radius: 24px;
+  background: var(--dna-board-frame);
+  box-shadow:
+    0 18px 46px rgb(58 50 39 / 8%),
+    0 2px 7px rgb(58 50 39 / 5%);
 }
 .dna-board {
   position: relative;
   display: grid;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #9c978e;
-  gap: 1px;
+  overflow: visible;
+  border-radius: 17px;
+  background: transparent;
+  gap: 5px;
 }
 .dna-bonds {
   position: absolute;
@@ -163,20 +220,20 @@
 }
 .dna-bonds path {
   fill: none;
-  stroke: #343a3c;
-  stroke-width: 0.42;
-  opacity: 0.38;
+  stroke: #596560;
+  stroke-width: 1.2;
+  opacity: 0.48;
   vector-effect: non-scaling-stroke;
   stroke-linecap: round;
 }
 .dna-bonds path.is-satisfied {
   stroke: var(--dna-complete);
-  opacity: 0.3;
+  opacity: 0.58;
 }
 .dna-bonds path.is-violated {
   stroke: var(--dna-conflict);
   opacity: 0.92;
-  stroke-width: 0.68;
+  stroke-width: 2;
 }
 .dna-cell {
   position: relative;
@@ -185,43 +242,56 @@
   min-height: 0;
   display: grid;
   place-items: center;
-  border: 0;
-  border-radius: 0;
-  background: #fff;
+  border: 1px solid rgb(117 108 96 / 12%);
+  border-radius: 10px;
+  background: var(--dna-cell);
   color: #222;
   font-family: var(--font-sans, Inter, sans-serif);
   font-size: clamp(1.15rem, 5.1vw, 2.25rem);
   font-weight: 500;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgb(59 52 42 / 5%);
   transition:
     background-color 0.16s,
     box-shadow 0.16s,
     transform 0.12s;
 }
 .dna-cell.is-related {
-  background: #f6f7f7;
+  background: #f1f0eb;
 }
 .dna-cell.family-at {
   background: var(--dna-at-soft);
-  color: #264c73;
+  color: #315b75;
 }
 .dna-cell.family-cg {
   background: var(--dna-cg-soft);
-  color: #634c32;
+  color: #6d4e30;
 }
 .dna-cell.is-given {
-  font-weight: 700;
-  color: #1b1c1d;
+  font-weight: 650;
+}
+.dna-cell.family-at:not(.is-given),
+.dna-cell.family-cg:not(.is-given) {
+  background: #fff;
+}
+.dna-cell.family-at:not(.is-given) {
+  box-shadow: inset 0 0 0 2px var(--dna-at-mid);
+}
+.dna-cell.family-cg:not(.is-given) {
+  box-shadow: inset 0 0 0 2px var(--dna-cg-mid);
 }
 .dna-cell.is-selected {
   z-index: 4;
-  box-shadow: inset 0 0 0 3px var(--dna-accent);
+  transform: translateY(-1px) scale(1.018);
+  box-shadow:
+    inset 0 0 0 3px var(--dna-accent),
+    0 5px 12px rgb(52 83 76 / 14%);
 }
 .dna-cell.is-partner {
-  box-shadow: inset 0 0 0 2px #618a98;
+  box-shadow: inset 0 0 0 2px #77a097;
 }
 .dna-cell.is-conflict {
-  background: #f9e5e3;
+  background: #fae7e4;
   color: var(--dna-conflict);
   box-shadow: inset 0 0 0 2px var(--dna-conflict);
 }
@@ -230,8 +300,8 @@
 }
 .dna-cell:focus-visible {
   z-index: 5;
-  outline: 3px solid #111;
-  outline-offset: -4px;
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
 }
 .dna-cell:disabled {
   cursor: default;
@@ -254,58 +324,87 @@
   width: 0.68em;
 }
 .dna-empty {
-  color: #c9c7c2;
+  width: 4px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #d5d0c7;
+  color: transparent;
   font-weight: 400;
 }
 .dna-bond-badge {
   position: absolute;
   z-index: 5;
-  top: 5px;
+  top: 6px;
   right: 6px;
   display: grid;
   place-items: center;
   min-width: 17px;
   height: 17px;
   padding: 0 3px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 84%);
-  color: #424647;
+  border: 1px solid #aaa399;
+  border-radius: 6px;
+  background: rgb(255 254 250 / 92%);
+  color: #57534d;
   font-size: 9px;
   font-weight: 700;
   line-height: 1;
 }
 .dna-controls {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 .dna-keypad {
   display: grid;
+  gap: 10px;
+}
+.dna-key-family {
+  padding: 9px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+}
+.dna-key-family.family-at {
+  border-color: var(--dna-at-mid);
+  background: var(--dna-at-soft);
+  color: var(--dna-at);
+}
+.dna-key-family.family-cg {
+  border-color: var(--dna-cg-mid);
+  background: var(--dna-cg-soft);
+  color: var(--dna-cg);
+}
+.dna-key-family > span {
+  display: block;
+  margin: 0 0 7px 3px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.dna-key-family > div {
+  display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 9px;
+  gap: 6px;
 }
 .dna-key {
-  min-width: 64px;
-  min-height: 64px;
-  border: 1px solid #b9b5ae;
-  border-radius: 14px;
-  background: #fff;
+  min-width: 0;
+  min-height: 58px;
+  border: 1px solid rgb(79 72 62 / 14%);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 75%);
+  color: inherit;
   font-size: 1.45rem;
   font-weight: 650;
-  box-shadow: 0 3px 0 #d5d2cc;
+  box-shadow: 0 2px 0 rgb(74 65 54 / 14%);
   cursor: pointer;
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease,
+    background-color 0.14s ease;
 }
 .dna-key:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #d5d2cc;
-}
-.dna-key.family-at {
-  color: var(--dna-at);
-  background: var(--dna-at-soft);
-}
-.dna-key.family-cg {
-  color: var(--dna-cg);
-  background: var(--dna-cg-soft);
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 1px 0 rgb(74 65 54 / 14%);
 }
 .dna-key i {
   display: inline-block;
@@ -316,23 +415,36 @@
   background: currentColor;
   vertical-align: -1px;
 }
-.dna-key:nth-child(even) i {
+.dna-key:nth-child(2) i {
   width: 16px;
   height: 4px;
   vertical-align: 4px;
 }
 .dna-utilities {
   display: grid;
-  gap: 4px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
 }
 .dna-utilities button {
-  min-height: 42px;
-  border: 0;
-  border-bottom: 1px solid #e5e2dd;
-  background: transparent;
-  color: #45433f;
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  border: 1px solid #e2ddd4;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 58%);
+  color: #5f5a53;
+  font-size: 0.67rem;
   cursor: pointer;
-  text-align: left;
+}
+.dna-utilities button:last-child {
+  border-color: #c8ddd7;
+  background: var(--dna-accent-soft);
+  color: var(--dna-accent);
+}
+.dna-utilities svg {
+  width: 18px;
+  height: 18px;
 }
 .dna-utilities button:disabled,
 .dna-key:disabled {
@@ -342,9 +454,9 @@
 .dna-hint {
   max-width: 620px;
   margin: 18px auto 0;
-  padding: 13px 16px;
-  border-left: 3px solid var(--dna-accent);
-  border-radius: 4px 10px 10px 4px;
+  padding: 14px 17px;
+  border: 1px solid #cfe0db;
+  border-radius: 14px;
   background: var(--dna-accent-soft);
   line-height: 1.5;
 }
@@ -376,11 +488,11 @@
 }
 .dna-pause-cover {
   position: absolute;
-  inset: 3px;
+  inset: 8px;
   z-index: 10;
   border: 0;
-  border-radius: 11px;
-  background: rgb(250 250 248 / 94%);
+  border-radius: 17px;
+  background: rgb(251 250 247 / 94%);
   backdrop-filter: blur(8px);
   display: grid;
   place-content: center;
@@ -402,8 +514,9 @@
   max-height: min(90vh, 720px);
   overflow: auto;
   padding: clamp(24px, 5vw, 42px);
-  border-radius: 18px;
-  background: #fff;
+  border: 1px solid #ded8cd;
+  border-radius: 24px;
+  background: #fffefa;
   box-shadow: 0 24px 90px rgb(20 24 25 / 22%);
 }
 .dna-modal h2 {
@@ -430,14 +543,20 @@
   width: 54px;
   height: 54px;
   margin: auto;
-  border: 1px solid #aaa49b;
-  border-radius: 12px;
-  background: var(--dna-accent-soft);
+  border: 1px solid var(--dna-at-mid);
+  border-radius: 16px;
+  background: var(--dna-at-soft);
   font-weight: 700;
   font-size: 1.4rem;
 }
 .tutorial-sample b {
   color: var(--dna-accent);
+}
+.tutorial-sample span:nth-of-type(3),
+.tutorial-sample span:nth-of-type(4) {
+  border-color: var(--dna-cg-mid);
+  background: var(--dna-cg-soft);
+  color: var(--dna-cg);
 }
 .modal-actions {
   display: flex;
@@ -568,22 +687,27 @@
     gap: 10px;
   }
   .dna-keypad {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 7px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .dna-key-family {
+    padding: 7px;
   }
   .dna-key {
     min-width: 0;
-    min-height: 54px;
-    border-radius: 11px;
+    min-height: 52px;
+    border-radius: 10px;
   }
   .dna-utilities {
     grid-template-columns: repeat(4, 1fr);
     gap: 2px;
   }
   .dna-utilities button {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
     font-size: 0.78rem;
-    border-bottom: 0;
+    min-height: 44px;
   }
   .dna-rule-legend {
     gap: 3px 10px;
@@ -595,6 +719,7 @@
     min-width: 14px;
     height: 14px;
     font-size: 7px;
+    border-radius: 5px;
   }
   .dna-board.size-8 .dna-cell {
     font-size: clamp(0.95rem, 4.8vw, 1.4rem);
@@ -607,12 +732,19 @@
   .dna-cell {
     font-size: 1.25rem;
   }
-  .dna-rule-legend span:nth-child(3),
-  .dna-rule-legend span:nth-child(4) {
+  .dna-rule-legend span:nth-child(2),
+  .dna-rule-legend span:nth-child(3) {
     display: none;
   }
-  .dna-key i {
-    display: none;
+  .dna-board {
+    gap: 4px;
+  }
+  .dna-board-wrap {
+    padding: 6px;
+    border-radius: 20px;
+  }
+  .dna-key-family > span {
+    font-size: 0.54rem;
   }
 }
 

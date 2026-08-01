@@ -77,7 +77,27 @@ export function DnaGame({
             onClick={() => setSettingsOpen(true)}
             aria-label="Open OneDNA settings"
           >
-            ⚙
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                cx="10"
+                cy="10"
+                r="2.6"
+                stroke="currentColor"
+                strokeWidth="1.3"
+              />
+              <path
+                d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
         }
       />
@@ -88,6 +108,7 @@ export function DnaGame({
             <div>
               <p className="caption">Daily puzzle · {formatLongDate(date)}</p>
               <h1>OneDNA</h1>
+              <p className="dna-title-note">Find every perfect pair.</p>
             </div>
           </div>
           <div className="game-status">
@@ -125,15 +146,13 @@ export function DnaGame({
           </span>
         </div>
         <section className="dna-rule-legend" aria-label="OneDNA rules">
-          <span>
-            <i className="family-at" /> Half A–T
+          <span className="dna-rule-pairs">
+            <i className="family-at" /> A–T <b>+</b> <i className="family-cg" />{" "}
+            C–G balance
           </span>
-          <span>
-            <i className="family-cg" /> Half C–G
-          </span>
-          <span>All four in each line</span>
+          <span>All four · every line</span>
           <span>No matching neighbors</span>
-          <span>Bonded pairs complement</span>
+          <span>Links complete a pair</span>
           <button type="button" onClick={() => setTutorialOpen(true)}>
             How to play
           </button>

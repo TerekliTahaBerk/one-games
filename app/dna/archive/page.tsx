@@ -47,7 +47,7 @@ export default function DnaArchivePage() {
   }, []);
 
   return (
-    <div className="page">
+    <div className="page game-archive-page dna-archive-page">
       <SiteHeader back="/dna" backLabel="Game" />
       <main className="page-main is-reading">
         <div className="access-copy rise">

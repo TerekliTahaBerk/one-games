@@ -49,7 +49,7 @@ export function GameFamily() {
             <Link
               key={game.key}
               href={game.href}
-              className="game-card is-active"
+              className={`game-card game-${game.key} is-active`}
               aria-label={`Play ${game.name}`}
             >
               {content}

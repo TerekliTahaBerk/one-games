@@ -9,7 +9,11 @@ import { loadGame } from "@/lib/sudoku/persistence";
 import { DIFFICULTIES, getArchiveDates } from "@/lib/sudoku/puzzles";
 import type { Difficulty } from "@/lib/sudoku/types";
 
-type DateState = { difficulty: Difficulty; completed: boolean; started: boolean }[];
+type DateState = {
+  difficulty: Difficulty;
+  completed: boolean;
+  started: boolean;
+}[];
 
 export default function ArchivePage() {
   const today = getTodayKey();
@@ -39,23 +43,27 @@ export default function ArchivePage() {
   }, []);
 
   return (
-    <div className="page">
+    <div className="page game-archive-page sudoku-archive-page">
       <SiteHeader back="/sudoku" backLabel="Game" />
 
       <main className="page-main is-reading">
         <div className="access-copy rise">
           <h1 className="display display-sm">Your local archive.</h1>
           <p className="lede">
-            Revisit a recent grid or see what you have finished. Progress lives only in this
-            browser.
+            Revisit a recent grid or see what you have finished. Progress lives
+            only in this browser.
           </p>
         </div>
 
         <div className="archive-list">
           {dates.map((date) => {
             const state = states[date] ?? [];
-            const completed = state.filter((item) => item.completed).map((item) => item.difficulty);
-            const inProgress = state.some((item) => item.started && !item.completed);
+            const completed = state
+              .filter((item) => item.completed)
+              .map((item) => item.difficulty);
+            const inProgress = state.some(
+              (item) => item.started && !item.completed,
+            );
             const label = completed.length
               ? `Completed · ${completed.join(", ")}`
               : inProgress
@@ -63,12 +71,24 @@ export default function ArchivePage() {
                 : "Not played";
 
             return (
-              <Link href={`/sudoku?date=${date}`} className="archive-row" key={date}>
+              <Link
+                href={`/sudoku?date=${date}`}
+                className="archive-row"
+                key={date}
+              >
                 <span className="archive-date">
-                  <strong>{date === today ? "Today" : formatLongDate(date).split(",")[0]}</strong>
-                  <small>{formatLongDate(date).replace(/^[^,]+,\s*/, "")}</small>
+                  <strong>
+                    {date === today
+                      ? "Today"
+                      : formatLongDate(date).split(",")[0]}
+                  </strong>
+                  <small>
+                    {formatLongDate(date).replace(/^[^,]+,\s*/, "")}
+                  </small>
                 </span>
-                <span className={`archive-status${completed.length ? " is-complete" : ""}`}>
+                <span
+                  className={`archive-status${completed.length ? " is-complete" : ""}`}
+                >
                   <i aria-hidden="true" />
                   {label}
                 </span>

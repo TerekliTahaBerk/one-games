@@ -61,7 +61,8 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA") return;
-      if (event.key.toLowerCase() === "n" && !settingsOpen) game.setNotesMode((value) => !value);
+      if (event.key.toLowerCase() === "n" && !settingsOpen)
+        game.setNotesMode((value) => !value);
       if (event.key === "Escape" && game.paused) game.togglePause();
     };
     document.addEventListener("keydown", onKey);
@@ -80,7 +81,9 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
   const locked = game.paused || game.game.completed;
 
   return (
-    <div className={`page${game.settings.reducedMotion ? " reduce-motion" : ""}`}>
+    <div
+      className={`page sudoku-page${game.settings.reducedMotion ? " reduce-motion" : ""}`}
+    >
       <SiteHeader
         back="/"
         trailing={
@@ -91,8 +94,20 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
             aria-label="Open settings"
             title="Settings"
           >
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <circle cx="10" cy="10" r="2.6" stroke="currentColor" strokeWidth="1.3" />
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                cx="10"
+                cy="10"
+                r="2.6"
+                stroke="currentColor"
+                strokeWidth="1.3"
+              />
               <path
                 d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4"
                 stroke="currentColor"
@@ -111,11 +126,15 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
             <div>
               <p className="caption">Daily puzzle · {formatLongDate(date)}</p>
               <h1>OneSudoku</h1>
+              <p className="game-title-note">A quiet little number ritual.</p>
             </div>
           </div>
 
           <div className="game-status">
-            <span className="timer" aria-label={`Elapsed time ${formatTimer(game.game.elapsed)}`}>
+            <span
+              className="timer"
+              aria-label={`Elapsed time ${formatTimer(game.game.elapsed)}`}
+            >
               {formatTimer(game.game.elapsed)}
             </span>
             <button
@@ -173,19 +192,29 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
                   <GameLogo game="sudoku" size={56} decorative />
                   <h2>Take your time.</h2>
                   <p>The puzzle is paused.</p>
-                  <button className="pill-primary" type="button" onClick={game.togglePause}>
+                  <button
+                    className="pill-primary"
+                    type="button"
+                    onClick={game.togglePause}
+                  >
                     Resume puzzle
                   </button>
                 </div>
               )}
             </div>
 
-            <ColoredRuleLegend groups={game.coloredGroups} onExplain={() => setIntroOpen(true)} />
+            <ColoredRuleLegend
+              groups={game.coloredGroups}
+              onExplain={() => setIntroOpen(true)}
+            />
           </section>
 
           <aside className="control-wrap">
             {introOpen && hasColoredGroups && (
-              <ColoredRuleIntro groups={game.coloredGroups} onDismiss={dismissIntro} />
+              <ColoredRuleIntro
+                groups={game.coloredGroups}
+                onDismiss={dismissIntro}
+              />
             )}
 
             {game.hintMessage && (
@@ -213,8 +242,8 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
 
             <p className="keyboard-note">
               <span className="keyboard-keys">
-                <kbd>N</kbd> notes · <kbd>1–9</kbd> enter · <kbd>⌫</kbd> erase · <kbd>↑↓←→</kbd>{" "}
-                move ·{" "}
+                <kbd>N</kbd> notes · <kbd>1–9</kbd> enter · <kbd>⌫</kbd> erase ·{" "}
+                <kbd>↑↓←→</kbd> move ·{" "}
               </span>
               <Link href="/sudoku/archive" className="link-underline">
                 Archive

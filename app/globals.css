@@ -14,8 +14,8 @@
 
 :root {
   /* Surfaces */
-  --paper: #ffffff;
-  --cream: #f4f4f5;
+  --paper: #fffdfb;
+  --cream: #f5ece8;
 
   /* Text */
   --ink: #1a1a1a;
@@ -25,16 +25,16 @@
   --fog: #a1a1aa;
 
   /* Hairlines */
-  --line: #e4e4e7;
-  --line-strong: #d4d4d8;
+  --line: #e8d9d2;
+  --line-strong: #d9c2b8;
 
   /* Game accents — mirrored from components/GameLogo.tsx */
-  --sudoku: #3f6fa8;
-  --sudoku-pale: #dce8f7;
-  --sudoku-wash: #eff5fc;
-  --dna: #477b72;
-  --dna-pale: #ddebe6;
-  --dna-wash: #f4f7f3;
+  --sudoku: #7855c7;
+  --sudoku-pale: #d9c7ea;
+  --sudoku-wash: #f2ebf7;
+  --dna: #087d91;
+  --dna-pale: #b7d2d4;
+  --dna-wash: #e9f2f1;
 
   /* Quiet green for guidance and completion — not a game accent. */
   --guide: #3f7652;
@@ -42,16 +42,16 @@
   /* Colored groups — the palette keys puzzle data refers to by name.
      Each pair is a readable ink for markers and hairlines, and a wash light
      enough to keep graphite clues and blue entries legible on top. */
-  --region-coral: #b4564a;
-  --region-coral-soft: #fceeec;
-  --region-violet: #6e5598;
-  --region-violet-soft: #f1eefa;
-  --region-mint: #3f7652;
-  --region-mint-soft: #eaf4ed;
-  --region-gold: #8a6a2f;
-  --region-gold-soft: #faf3e3;
-  --region-sky: #2f7d95;
-  --region-sky-soft: #e7f3f7;
+  --region-coral: #d10f5d;
+  --region-coral-soft: #e8a2b1;
+  --region-violet: #6715d4;
+  --region-violet-soft: #bda0bd;
+  --region-mint: #006f82;
+  --region-mint-soft: #aabfc0;
+  --region-gold: #c85000;
+  --region-gold-soft: #edbb8e;
+  --region-sky: #477f99;
+  --region-sky-soft: #b8ced7;
 
   /* States */
   --alert: #9f3b32;
@@ -1559,13 +1559,94 @@ button,
   color: var(--sudoku);
 }
 
+/* Each game has its own little world on the family shelf. The cards share
+   proportions, but not personality: Sudoku is a paper mosaic; DNA is a soft
+   colour lab. */
+.game-card.is-active {
+  position: relative;
+  isolation: isolate;
+  min-height: 250px;
+  padding: 28px 16px 22px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  box-shadow: 0 14px 36px rgb(80 55 47 / 7%);
+}
+
+.game-card.is-active::before,
+.game-card.is-active::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.game-card.game-sudoku {
+  border-color: #d9c1d9;
+  background: #f0e4ef;
+}
+
+.game-card.game-sudoku::before {
+  inset: 14px;
+  border-radius: 16px;
+  background-image:
+    linear-gradient(rgb(103 21 212 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(103 21 212 / 7%) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, #000, transparent 76%);
+}
+
+.game-card.game-sudoku::after {
+  width: 76px;
+  height: 76px;
+  right: -18px;
+  bottom: -24px;
+  border-radius: 22px;
+  background: #efbd91;
+  transform: rotate(12deg);
+  opacity: 0.52;
+}
+
+.game-card.game-dna {
+  border-color: #b9d0cf;
+  background: #e4efed;
+}
+
+.game-card.game-dna::before {
+  width: 120px;
+  height: 120px;
+  top: -56px;
+  right: -34px;
+  border: 18px solid #e7a2b1;
+  border-radius: 50%;
+  opacity: 0.42;
+}
+
+.game-card.game-dna::after {
+  width: 94px;
+  height: 26px;
+  left: -28px;
+  bottom: 24px;
+  border-radius: 999px;
+  background: #efbd91;
+  transform: rotate(-18deg);
+  opacity: 0.62;
+}
+
+.game-card.game-sudoku small {
+  color: #6841a9;
+}
+
+.game-card.game-dna small {
+  color: #087689;
+}
+
 @media (min-width: 640px) {
   .game-family {
     margin-top: 68px;
   }
 
   .game-family-grid {
-    max-width: 30rem;
+    max-width: 36rem;
     margin-inline: auto;
     gap: 32px;
   }
@@ -1978,6 +2059,82 @@ button,
   color: var(--fog);
   font-size: 15px;
   font-weight: 400;
+}
+
+.game-archive-page {
+  background: var(--pastel-canvas);
+}
+
+.game-archive-page .page-main.is-reading {
+  max-width: 44rem;
+}
+
+.game-archive-page .archive-list {
+  display: grid;
+  gap: 10px;
+  border: 0;
+}
+
+.game-archive-page .archive-row {
+  min-height: 76px;
+  padding: 14px 18px;
+  border: 1px solid #dec8bf;
+  border-radius: 18px;
+  background: rgb(255 250 247 / 72%);
+  box-shadow: 0 5px 16px rgb(78 53 45 / 4%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.game-archive-page .archive-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgb(78 53 45 / 8%);
+}
+
+.sudoku-archive-page {
+  background-image: radial-gradient(
+    circle at 12% 24%,
+    rgb(190 161 192 / 18%),
+    transparent 30%
+  );
+}
+
+.sudoku-archive-page .archive-row:hover {
+  border-color: #cdb0cf;
+  background: #f4e8f3;
+}
+
+.sudoku-archive-page .archive-status.is-complete,
+.sudoku-archive-page .archive-status.is-complete i {
+  color: #6841a9;
+  border-color: #6841a9;
+}
+
+.sudoku-archive-page .archive-status.is-complete i {
+  background: #bea1c0;
+}
+
+.dna-archive-page {
+  background-image:
+    radial-gradient(circle at 88% 18%, rgb(171 192 193 / 25%), transparent 29%),
+    radial-gradient(circle at 10% 82%, rgb(239 188 143 / 14%), transparent 25%);
+}
+
+.dna-archive-page .archive-row:hover {
+  border-color: #aec9c8;
+  background: #eaf3f1;
+}
+
+.dna-archive-page .archive-status.is-complete,
+.dna-archive-page .archive-status.is-complete i {
+  color: #087689;
+  border-color: #087689;
+}
+
+.dna-archive-page .archive-status.is-complete i {
+  background: #abc0c1;
 }
 
 /* --------------------------------------------------------------------------
@@ -3245,6 +3402,556 @@ kbd {
 
   .completion-actions {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Soft pastel game theme
+
+   A shared tactile language for both puzzles: warm canvas, rounded tiles,
+   dusty base colours and saturated outlines only when the player needs them.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --pastel-canvas: #fcfaf7;
+  --pastel-shell: #f1e3dd;
+  --pastel-shell-strong: #dfc4b9;
+  --pastel-tile: #ead7cf;
+  --pastel-violet: #bea1c0;
+  --pastel-violet-ink: #6715d4;
+  --pastel-rose: #e7a2b1;
+  --pastel-rose-ink: #d10f5d;
+  --pastel-teal: #abc0c1;
+  --pastel-teal-ink: #006f82;
+  --pastel-apricot: #efbc8f;
+  --pastel-apricot-ink: #c85000;
+  --pastel-shadow: 0 18px 46px rgb(92 64 55 / 9%);
+}
+
+body,
+.sudoku-page,
+.dna-page {
+  background: var(--pastel-canvas);
+}
+
+.sudoku-page {
+  background-image:
+    radial-gradient(circle at 8% 28%, rgb(190 161 192 / 16%), transparent 26%),
+    radial-gradient(circle at 92% 78%, rgb(239 188 143 / 10%), transparent 24%);
+}
+
+.dna-page {
+  background-image:
+    radial-gradient(circle at 92% 24%, rgb(171 192 193 / 20%), transparent 27%),
+    radial-gradient(circle at 7% 74%, rgb(231 162 177 / 11%), transparent 23%);
+}
+
+.sudoku-page .game-main,
+.dna-page .game-main {
+  width: min(100%, 1080px);
+}
+
+.game-title-note,
+.dna-title-note {
+  margin: 5px 0 0;
+  color: #88736b;
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.sudoku-page .game-header,
+.dna-page .game-header {
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.sudoku-page .game-title-lockup .game-logo {
+  filter: drop-shadow(0 5px 10px rgb(98 61 112 / 10%));
+}
+
+.dna-page .game-title-lockup .game-logo {
+  filter: drop-shadow(0 5px 10px rgb(37 100 102 / 12%));
+}
+
+.sudoku-page .game-status,
+.dna-page .game-status {
+  border-color: #e2cec5;
+  background: rgb(255 253 251 / 80%);
+  box-shadow: 0 6px 20px rgb(90 64 54 / 6%);
+}
+
+.sudoku-page .pause-button,
+.dna-page .pause-button {
+  border-color: transparent;
+  background: #f0e3de;
+}
+
+.sudoku-page .difficulty-tabs,
+.dna-page .difficulty-tabs {
+  width: min(100%, 600px);
+  margin-inline: auto;
+  padding: 5px;
+  border-color: #e0cac1;
+  background: #f0e1db;
+}
+
+.sudoku-page .difficulty-tabs button,
+.dna-page .difficulty-tabs button {
+  min-height: 42px;
+  color: #826e66;
+}
+
+.sudoku-page .difficulty-tabs button.is-active,
+.dna-page .difficulty-tabs button.is-active {
+  border-color: #dfcbc3;
+  background: #fffaf7;
+  color: #3b302c;
+  box-shadow: 0 4px 12px rgb(94 67 57 / 8%);
+}
+
+/* Sudoku board: tiny soft tiles, with wider block gutters retaining the
+   familiar 3 × 3 reading structure. */
+.sudoku-page .play-layout {
+  align-items: center;
+}
+
+.sudoku-page .board-frame {
+  padding: 8px;
+  border: 1px solid #d9beb3;
+  border-radius: 26px;
+  background: var(--pastel-shell-strong);
+  box-shadow: var(--pastel-shadow);
+}
+
+.sudoku-page .sudoku-board {
+  gap: 3px;
+  padding: 4px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 19px;
+  background: #dcc2b8;
+}
+
+.sudoku-page .sudoku-cell {
+  border: 0;
+  border-radius: 7px;
+  background: var(--pastel-tile);
+  color: #463732;
+  box-shadow: inset 0 0 0 1px rgb(119 84 72 / 3%);
+  transition:
+    transform 140ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.sudoku-page .sudoku-cell.block-right {
+  margin-right: 3px;
+}
+
+.sudoku-page .sudoku-cell.block-bottom {
+  margin-bottom: 3px;
+}
+
+.sudoku-page .sudoku-cell.has-region {
+  background: var(--region-soft);
+  box-shadow: inset 0 0 0 1.5px
+    color-mix(in srgb, var(--region) 32%, transparent);
+}
+
+.sudoku-page .sudoku-cell.is-related::before {
+  border-radius: inherit;
+  background: rgb(255 255 255 / 20%);
+}
+
+.sudoku-page .sudoku-cell.is-matching::before {
+  border-radius: inherit;
+  background: rgb(103 21 212 / 12%);
+}
+
+.sudoku-page .sudoku-cell.is-selected {
+  z-index: 3;
+  transform: scale(1.045);
+  outline: 2px dashed var(--pastel-violet-ink);
+  outline-offset: -5px;
+  box-shadow: 0 5px 13px rgb(71 40 84 / 18%);
+}
+
+.sudoku-page .sudoku-cell.is-selected::before {
+  border-radius: inherit;
+  background: rgb(255 255 255 / 15%);
+}
+
+.sudoku-page .sudoku-cell.is-conflict {
+  outline: 2px solid var(--pastel-rose-ink);
+  outline-offset: -3px;
+  box-shadow: none;
+}
+
+.sudoku-page .sudoku-cell.is-region-conflict {
+  outline-style: double;
+}
+
+.sudoku-page .sudoku-cell:focus-visible {
+  outline: 3px solid #2f2522;
+  outline-offset: -4px;
+}
+
+.sudoku-page .is-entry .cell-value {
+  color: #5e3ba5;
+  font-weight: 650;
+}
+
+.sudoku-page .region-mark {
+  top: 4px;
+  left: 4px;
+}
+
+.sudoku-page .rule-legend,
+.sudoku-page .rule-intro {
+  border-color: #dfc8be;
+  background: #f3e7e2;
+}
+
+.sudoku-page .control-surface {
+  padding: 12px;
+  border-color: #dfc9c0;
+  border-radius: 24px;
+  background: #f6ebe6;
+  box-shadow: 0 14px 34px rgb(91 64 54 / 7%);
+}
+
+.sudoku-page .tool-row {
+  border-bottom-color: #e1cdc5;
+}
+
+.sudoku-page .tool-row button {
+  border-color: #e1cdc5;
+  background: #fffaf7;
+  color: #69564f;
+  box-shadow: 0 2px 0 rgb(137 100 84 / 9%);
+}
+
+.sudoku-page .tool-row button:nth-child(4),
+.sudoku-page .tool-row button:nth-child(5) {
+  background: #eee3f1;
+}
+
+.sudoku-page .number-key {
+  border-color: rgb(113 78 67 / 10%);
+  background: var(--pastel-tile);
+  color: #563f38;
+  box-shadow: 0 3px 0 #d4b9ae;
+}
+
+.sudoku-page .number-key:nth-child(3n + 1) {
+  background: #d7c2d8;
+  box-shadow: 0 3px 0 #bea3c0;
+}
+
+.sudoku-page .number-key:nth-child(3n + 2) {
+  background: #c9d7d7;
+  box-shadow: 0 3px 0 #aec2c3;
+}
+
+.sudoku-page .number-key:nth-child(3n) {
+  background: #efd1ba;
+  box-shadow: 0 3px 0 #ddb58f;
+}
+
+.sudoku-page .number-key:hover:not(:disabled) {
+  border-color: rgb(94 55 111 / 22%);
+  background: #fff8f3;
+}
+
+.sudoku-page .number-key:disabled {
+  background: #eee4df;
+  box-shadow: none;
+}
+
+.sudoku-page .settings-panel {
+  background-image: linear-gradient(145deg, #fffaf7, #f7edf6);
+}
+
+.sudoku-page .setting-row input:checked + i {
+  border-color: #b895bd;
+  background: #d9c6dc;
+}
+
+.sudoku-page .completion-panel {
+  background-image:
+    radial-gradient(circle at 50% 0, rgb(190 161 192 / 24%), transparent 34%),
+    linear-gradient(#fffaf7, #fbf5f2);
+}
+
+.sudoku-page .hint-note {
+  border: 1px solid #b7d3d0;
+  border-left: 5px solid var(--pastel-teal-ink);
+  border-radius: 14px;
+  background: #e7f0ee;
+}
+
+/* OneDNA maps the four bases to the four accent families in the reference:
+   A violet, T rose, C teal, G apricot. Shape cues remain alongside colour. */
+.dna-page {
+  --dna-accent: var(--pastel-teal-ink);
+  --dna-accent-soft: #e6f0ee;
+  --dna-at: var(--pastel-violet-ink);
+  --dna-at-soft: #eaddea;
+  --dna-at-mid: #c9afca;
+  --dna-cg: var(--pastel-teal-ink);
+  --dna-cg-soft: #deebea;
+  --dna-cg-mid: #afc9c9;
+  --dna-board-frame: var(--pastel-shell-strong);
+  --dna-cell: var(--pastel-tile);
+}
+
+.dna-page .dna-rule-legend span {
+  border-color: #e1ccc3;
+  background: #f5eae5;
+}
+
+.dna-page .dna-rule-legend button {
+  color: #7a6259;
+}
+
+.dna-page .dna-board-wrap {
+  padding: 8px;
+  border-color: #d7baae;
+  border-radius: 26px;
+  background: var(--pastel-shell-strong);
+  box-shadow: var(--pastel-shadow);
+}
+
+.dna-page .dna-board {
+  border-radius: 19px;
+  gap: 6px;
+}
+
+.dna-page .dna-cell {
+  border: 0;
+  border-radius: 13px;
+  background: var(--pastel-tile);
+  color: #4e3d37;
+  box-shadow: inset 0 0 0 1px rgb(114 77 64 / 4%);
+}
+
+.dna-page .dna-cell.family-at.strand-upper {
+  background: var(--pastel-violet);
+  color: #5e2197;
+}
+
+.dna-page .dna-cell.family-at.strand-lower {
+  background: var(--pastel-rose);
+  color: #b50950;
+}
+
+.dna-page .dna-cell.family-cg.strand-upper {
+  background: var(--pastel-teal);
+  color: var(--pastel-teal-ink);
+}
+
+.dna-page .dna-cell.family-cg.strand-lower {
+  background: var(--pastel-apricot);
+  color: var(--pastel-apricot-ink);
+}
+
+.dna-page .dna-cell.family-at:not(.is-given),
+.dna-page .dna-cell.family-cg:not(.is-given) {
+  background: #fffaf7;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.dna-page .dna-cell.is-related {
+  background: #f2e7e2;
+}
+
+.dna-page .dna-cell.is-selected {
+  outline: 2px dashed currentColor;
+  outline-offset: -6px;
+  transform: translateY(-1px) scale(1.025);
+  box-shadow: 0 6px 14px rgb(69 44 37 / 16%);
+}
+
+.dna-page .dna-cell.is-partner {
+  outline: 2px dashed var(--pastel-teal-ink);
+  outline-offset: -6px;
+}
+
+.dna-page .dna-cell.is-conflict {
+  background: #f4c2c1;
+  color: #a91436;
+  outline: 2px solid #bd153d;
+  outline-offset: -4px;
+}
+
+.dna-page .dna-bonds path {
+  stroke: #6d5f5a;
+  stroke-dasharray: 4 4;
+  opacity: 0.48;
+}
+
+.dna-page .dna-bonds path.is-satisfied {
+  stroke: var(--pastel-teal-ink);
+  stroke-dasharray: none;
+  opacity: 0.7;
+}
+
+.dna-page .dna-bond-badge {
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: #fff8f3;
+  color: currentColor;
+  transform: rotate(45deg);
+  box-shadow: 0 2px 5px rgb(76 49 40 / 11%);
+}
+
+.dna-page .dna-bond-badge b {
+  font-size: 8px;
+  transform: rotate(-45deg);
+}
+
+.dna-page .dna-key-family {
+  border-color: #e0c9c0;
+  background: #f3e6e1;
+}
+
+.dna-page .dna-key-family.family-at,
+.dna-page .dna-key-family.family-cg {
+  color: #745e56;
+}
+
+.dna-page .dna-key {
+  border: 0;
+  box-shadow: 0 3px 0 rgb(103 70 58 / 13%);
+}
+
+.dna-page .dna-key-family.family-at .dna-key:first-child {
+  background: var(--pastel-violet);
+  color: #5e2197;
+}
+
+.dna-page .dna-key-family.family-at .dna-key:last-child {
+  background: var(--pastel-rose);
+  color: #b50950;
+}
+
+.dna-page .dna-key-family.family-cg .dna-key:first-child {
+  background: var(--pastel-teal);
+  color: var(--pastel-teal-ink);
+}
+
+.dna-page .dna-key-family.family-cg .dna-key:last-child {
+  background: var(--pastel-apricot);
+  color: var(--pastel-apricot-ink);
+}
+
+.dna-page .dna-utilities button {
+  border-color: #e1ccc3;
+  background: #f5eae5;
+}
+
+.dna-page .dna-utilities button:last-child {
+  border-color: #b9d1cf;
+  background: #dcebea;
+}
+
+.dna-page .dna-hint,
+.dna-page .dna-modal {
+  border-color: #d9c2b8;
+  background: #fffaf7;
+}
+
+.dna-page .dna-modal {
+  background-image: linear-gradient(145deg, #fffaf7, #edf6f4);
+}
+
+.dna-page .completion-modal {
+  background-image:
+    radial-gradient(circle at 50% 0, rgb(171 192 193 / 26%), transparent 34%),
+    linear-gradient(#fffaf7, #f5eeea);
+}
+
+.dna-page .dna-pause-cover,
+.sudoku-page .pause-overlay {
+  background: rgb(252 247 243 / 91%);
+}
+
+/* Dialogs and completion states belong to the same soft material system. */
+.settings-panel,
+.completion-panel,
+.dna-modal {
+  border-color: #dbc5bc;
+  background: #fffaf7;
+  box-shadow: 0 30px 90px rgb(73 47 39 / 18%);
+}
+
+.modal-backdrop {
+  background: rgb(76 54 47 / 28%);
+}
+
+.settings-panel .setting-row,
+.dna-modal .setting-row {
+  border-bottom-color: #ead9d2;
+}
+
+.completion-stats div,
+.completion-grid span {
+  border-color: #e5d2ca;
+  background: #f4e8e3;
+}
+
+@media (max-width: 760px) {
+  .game-title-note,
+  .dna-title-note {
+    display: none;
+  }
+
+  .sudoku-page .sudoku-board {
+    gap: 2px;
+    padding: 3px;
+  }
+
+  .sudoku-page .sudoku-cell.block-right {
+    margin-right: 2px;
+  }
+
+  .sudoku-page .sudoku-cell.block-bottom {
+    margin-bottom: 2px;
+  }
+
+  .dna-page .dna-board {
+    gap: 5px;
+  }
+}
+
+@media (max-width: 390px) {
+  .sudoku-page .board-frame,
+  .dna-page .dna-board-wrap {
+    padding: 6px;
+    border-radius: 21px;
+  }
+
+  .sudoku-page .sudoku-cell {
+    border-radius: 5px;
+  }
+
+  .dna-page .dna-cell {
+    border-radius: 10px;
+  }
+
+  .dna-page .dna-bond-badge {
+    top: 4px;
+    right: 4px;
+    width: 14px;
+    min-width: 14px;
+    height: 14px;
   }
 }
 

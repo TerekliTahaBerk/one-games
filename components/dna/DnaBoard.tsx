@@ -161,7 +161,7 @@ export function DnaBoard({
               )}
               {bond ? (
                 <span className="dna-bond-badge" aria-hidden="true">
-                  {bond.id}
+                  <b>{bond.id}</b>
                 </span>
               ) : null}
             </button>

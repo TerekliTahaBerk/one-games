@@ -125,7 +125,7 @@ export function DnaGame({
               disabled={!game.game.started || game.game.completed}
               aria-label={game.paused ? "Resume" : "Pause"}
             >
-              {game.paused ? "Play" : "Pause"}
+              {game.paused ? "Resume" : "Pause"}
             </button>
           </div>
         </header>

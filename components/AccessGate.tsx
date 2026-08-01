@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { GameLogoFamily } from "./GameLogo";
+import { ProductPair } from "./ProductPair";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
@@ -135,11 +135,14 @@ export function AccessGate({
   };
 
   return (
-    <div className="page">
+    <div className="page marketing-page access-page">
       <SiteHeader back="/" />
 
       <main className="page-main is-narrow">
         <div className="access-copy rise">
+          {step !== "checking" ? (
+            <ProductPair className="access-product-pair" />
+          ) : null}
           {step === "email" && (
             <>
               <h1 className="display display-sm">
@@ -207,7 +210,6 @@ export function AccessGate({
 
           {step === "payment" && (
             <>
-              <GameLogoFamily size={54} className="access-mark" />
               <h1 className="display display-sm">
                 Every daily game. One subscription.
               </h1>
@@ -222,10 +224,11 @@ export function AccessGate({
               </div>
               <ul className="benefit-list">
                 <li>
-                  <i aria-hidden="true">✓</i> Three new chapters every day
+                  <i aria-hidden="true">✓</i> Six daily chapters across two
+                  games
                 </li>
                 <li>
-                  <i aria-hidden="true">✓</i> The complete OneGames family
+                  <i aria-hidden="true">✓</i> OneSudoku and OneDNA included
                 </li>
                 <li>
                   <i aria-hidden="true">✓</i> Cancel whenever you like

@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 export default function HomePage() {
   return (
-    <div className="page">
+    <div className="page marketing-page home-page">
       <HomeReveal>
         <header className="site-header reveal-item">
           <a
@@ -41,13 +41,17 @@ export default function HomePage() {
           </h1>
 
           <p className="lede reveal-item reveal-item-3">
-            Two thoughtful daily games, each with Easy, Medium, and Hard
-            chapters. A quiet place to play, finish, and move on.
+            A calm pastel number mosaic and a colorful pairing puzzle. Six daily
+            chapters across OneSudoku and OneDNA — then you&rsquo;re done.
           </p>
 
           <div className="cta-row reveal-item reveal-item-4">
-            <Link href="/play" className="pill-primary">
-              Play OneGames
+            <Link
+              href="/play"
+              className="pill-primary"
+              aria-label="Play OneGames"
+            >
+              Play OneSudoku + OneDNA
             </Link>
             <p className="note">
               $1 / month · Every game included · Cancel anytime

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ProductPair } from "@/components/ProductPair";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -9,36 +10,49 @@ export const metadata: Metadata = {
 };
 
 const VALUES = [
-  ["01", "Calm by design", "No streak anxiety, noisy rewards, or endless loops."],
+  [
+    "01",
+    "Calm by design",
+    "No streak anxiety, noisy rewards, or endless loops.",
+  ],
   ["02", "One membership", "A single $1 plan opens every game in the family."],
-  ["03", "Finished is good", "Complete today’s chapter, enjoy the moment, and carry on."],
+  [
+    "03",
+    "Finished is good",
+    "Complete today’s chapter, enjoy the moment, and carry on.",
+  ],
 ] as const;
 
 export default function AboutPage() {
   return (
-    <div className="page">
+    <div className="page marketing-page about-page">
       <SiteHeader back="/" />
 
       <main className="page-main is-reading">
         <div className="access-copy rise">
           <h1 className="display display-sm">A little space to think.</h1>
           <p className="lede">
-            OneGames is a family of small daily games — made with care, respectful of your
-            attention, and complete when you are.
+            OneGames is a family of small daily games — made with care,
+            respectful of your attention, and complete when you are.
           </p>
         </div>
+
+        <ProductPair className="about-product-pair" />
 
         <div className="reading-body">
           <h2>One clear job.</h2>
           <p>
-            OneGames and OneRead are siblings in the One family — neither sits under the other.
-            OneRead delivers one worthwhile read; OneGames brings the same restraint to play: no
-            feeds, no streak pressure, no attention traps. Same people, same design system, same
-            promise about your time.
+            OneGames and OneRead are siblings in the One family — neither sits
+            under the other. OneRead delivers one worthwhile read; OneGames
+            brings the same restraint to play: no feeds, no streak pressure, no
+            attention traps. Same people, same design system, same promise about
+            your time.
           </p>
           <p>
-            Each game publishes one Easy, one Medium, and one Hard chapter every day. Finish one,
-            finish all three, or simply come back tomorrow.
+            OneSudoku brings a calm pastel number mosaic. OneDNA turns four
+            colors into complementary pairs. Each publishes Easy, Medium, and
+            Hard chapters every day. Finish one, finish all six, or simply come
+            back tomorrow.
           </p>
         </div>
 

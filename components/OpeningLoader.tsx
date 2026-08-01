@@ -52,7 +52,8 @@ function buildFrames(): Frame[] {
   return frames;
 }
 
-const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export function OpeningLoader() {
   const pathname = usePathname();
@@ -118,13 +119,22 @@ export function OpeningLoader() {
   if (!visible) return null;
 
   return (
-    <div className={`opening-loader${fading ? " is-fading" : ""}`} aria-hidden="true">
+    <div
+      className={`opening-loader${fading ? " is-fading" : ""}`}
+      aria-hidden="true"
+    >
       <span className="opening-wordmark">
         <span>One</span>
         <span style={{ color }}>{suffix}</span>
         <span className="opening-caret" style={{ color }}>
           |
         </span>
+      </span>
+      <span className="opening-game-palette">
+        <i />
+        <i />
+        <i />
+        <i />
       </span>
     </div>
   );

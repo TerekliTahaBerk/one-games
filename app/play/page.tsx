@@ -3,7 +3,8 @@ import { AccessGate } from "@/components/AccessGate";
 
 export const metadata: Metadata = {
   title: "Play OneGames",
-  description: "Verify your email or test today’s OneSudoku or OneDNA.",
+  description:
+    "One membership for today’s OneSudoku and OneDNA, with Easy, Medium, and Hard chapters.",
 };
 
 export default async function PlayPage({

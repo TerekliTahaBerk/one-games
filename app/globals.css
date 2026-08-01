@@ -1382,6 +1382,34 @@ button,
   user-select: none;
 }
 
+.opening-game-palette {
+  display: flex;
+  gap: 7px;
+}
+
+.opening-game-palette i {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgb(75 51 43 / 8%);
+}
+
+.opening-game-palette i:nth-child(1) {
+  background: var(--pastel-violet);
+}
+
+.opening-game-palette i:nth-child(2) {
+  background: var(--pastel-rose);
+}
+
+.opening-game-palette i:nth-child(3) {
+  background: var(--pastel-teal);
+}
+
+.opening-game-palette i:nth-child(4) {
+  background: var(--pastel-apricot);
+}
+
 .opening-caret {
   margin-left: 0.04em;
   font-weight: 300;
@@ -1662,6 +1690,174 @@ button,
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+/* The quiet two-product signature used across introduction, access and
+   membership screens. It makes the promise concrete without turning the
+   page into a second game board. */
+.marketing-page {
+  background-color: var(--pastel-canvas);
+  background-image:
+    radial-gradient(circle at 7% 24%, rgb(190 161 192 / 12%), transparent 25%),
+    radial-gradient(circle at 93% 74%, rgb(171 192 193 / 13%), transparent 25%);
+}
+
+.product-pair {
+  width: min(100%, 35rem);
+  margin: 0 auto 30px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.product-chip {
+  position: relative;
+  min-width: 0;
+  min-height: 112px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  text-align: left;
+  box-shadow: 0 10px 28px rgb(77 53 45 / 6%);
+}
+
+.product-chip::after {
+  content: "";
+  position: absolute;
+  right: -24px;
+  bottom: -30px;
+  width: 76px;
+  height: 76px;
+  border-radius: 25px;
+  opacity: 0.34;
+  transform: rotate(18deg);
+}
+
+.product-chip-sudoku {
+  border-color: #d9c1d9;
+  background: #f1e5f0;
+}
+
+.product-chip-sudoku::after {
+  background: var(--pastel-apricot);
+}
+
+.product-chip-dna {
+  border-color: #bad1d0;
+  background: #e5f0ee;
+}
+
+.product-chip-dna::after {
+  border-radius: 50%;
+  background: var(--pastel-rose);
+}
+
+.product-chip .game-logo {
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 4px 9px rgb(65 43 36 / 8%));
+}
+
+.product-chip > span {
+  min-width: 0;
+  display: grid;
+}
+
+.product-chip strong {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.product-chip small {
+  margin-top: 3px;
+  color: #79655d;
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+.product-chip i {
+  margin-top: 9px;
+  color: #967f76;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.access-product-pair {
+  margin-bottom: 34px;
+}
+
+.about-product-pair {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+
+.marketing-page .access-form input {
+  border-color: #dec7bd;
+  background: rgb(255 253 251 / 86%);
+  box-shadow: 0 7px 22px rgb(77 53 45 / 4%);
+}
+
+.marketing-page .pill-primary {
+  background: #302724;
+  box-shadow: 0 7px 20px rgb(48 39 36 / 13%);
+}
+
+.marketing-page .pill-primary:hover {
+  background: #51413b;
+}
+
+.pricing-page .benefit-list,
+.access-page .benefit-list {
+  padding: 18px;
+  border: 1px solid #dfcbc2;
+  border-radius: 20px;
+  background: rgb(255 250 247 / 68%);
+}
+
+.pricing-page .benefit-list li:nth-child(1) i,
+.access-page .benefit-list li:nth-child(1) i {
+  background: #eaddea;
+  color: #6841a9;
+}
+
+.pricing-page .benefit-list li:nth-child(2) i,
+.access-page .benefit-list li:nth-child(2) i {
+  background: #deebea;
+  color: #087689;
+}
+
+.home-page .game-family {
+  margin-top: 62px;
+}
+
+@media (max-width: 520px) {
+  .product-chip {
+    min-height: 132px;
+    padding: 13px 10px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 7px;
+    text-align: center;
+  }
+
+  .product-chip .game-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .product-chip i {
+    font-size: 7px;
+  }
 }
 
 .access-mark {

@@ -1,7 +1,8 @@
 # OneDNA — game design
 
 Status: **design phase, pre-implementation.** Nothing in this document has shipped.
-No production route, component, or puzzle bank has been created.
+The production MVP is implemented at `/dna` with a 28-day archive at
+`/dna/archive`. The rationale below is retained as the record of the approved design.
 
 Companion documents:
 
@@ -23,7 +24,7 @@ test this design before committing to it. Its results are reproduced in the
 balancing pairs and following bonds** (8×8 at Hard). A and T belong to one pair; C and G to
 the other. Every row and column is half A–T and half C–G, uses all four bases,
 and never lets two identical bases touch. A handful of cells are joined by
-curved *bonds* that reach across the board; bonded cells always hold a
+curved _bonds_ that reach across the board; bonded cells always hold a
 complementary pair — A with T, C with G. Four one-line rules, no exceptions, no
 guessing. The bonds are what makes it OneDNA rather than another balance grid:
 a deduction in the top-left corner lands, through a bond, in the bottom-right.
@@ -34,31 +35,31 @@ a deduction in the top-left corner lands, through a bond, in the bottom-right.
 
 ### 2.1 Reusable as-is
 
-| System | Where | Notes |
-| --- | --- | --- |
-| Page shell | `components/SiteHeader.tsx`, `SiteFooter.tsx`, `BrandLogo.tsx` | Fixed-size centred wordmark, back arrow, trailing slot. `tests/shell.spec.ts` asserts every route matches; OneDNA must join `PAGES` there. |
-| Access gate | `lib/access/*`, `app/play/page.tsx` | `getAccessState()` already gates `/sudoku`; `/dna` does the same with two lines. The `onegames_test` cookie path works unchanged. |
-| Design tokens | `app/globals.css` `:root` | Surfaces, ink ramp, hairlines, `--region-*` colour families, Fraunces/Inter, page padding. OneDNA needs one new game accent and zero new primitives. |
-| Date + daily selection | `lib/date.ts`, the `hashDate` pattern in `lib/sudoku/puzzles.ts` | A stable string hash over `${date}-${difficulty}` indexing a curated bank. Port the pattern, not the module. |
-| Archive shape | `app/sudoku/archive/page.tsx` | 28-day list reading local saves. Structurally identical for OneDNA. |
-| Puzzle-bank tooling convention | `scripts/generate-puzzles.mjs`, `scripts/validate-sudoku-puzzles.mjs`, `scripts/lib/sudoku-rules.mjs` | JSON bank + a plain-Node rules mirror for build tooling + a `validate:*` package script. Proven; copy the shape. |
-| Control-surface CSS | `.control-surface`, `.tool-row`, `.number-row`, `.number-key`, `.game-header`, `.difficulty-tabs` | Already generic in everything but the class names. See §2.3. |
-| Modal, settings and completion patterns | `components/sudoku/SettingsPanel.tsx`, `CompletionPanel.tsx` | Toggle rows, danger zone, stats grid, share flow — all game-agnostic in behaviour. |
-| Accessibility patterns | `SudokuBoard.tsx` | `role="grid"`/`gridcell`, roving `tabIndex`, composed `aria-label`, `aria-live` announcer, `.reduce-motion` class. This is the template. |
-| Test organisation | `tests/*.test.ts` (vitest, node env), `tests/*.spec.ts` (Playwright, desktop + mobile projects) | Unchanged. |
+| System                                  | Where                                                                                                 | Notes                                                                                                                                                |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page shell                              | `components/SiteHeader.tsx`, `SiteFooter.tsx`, `BrandLogo.tsx`                                        | Fixed-size centred wordmark, back arrow, trailing slot. `tests/shell.spec.ts` asserts every route matches; OneDNA must join `PAGES` there.           |
+| Access gate                             | `lib/access/*`, `app/play/page.tsx`                                                                   | `getAccessState()` already gates `/sudoku`; `/dna` does the same with two lines. The `onegames_test` cookie path works unchanged.                    |
+| Design tokens                           | `app/globals.css` `:root`                                                                             | Surfaces, ink ramp, hairlines, `--region-*` colour families, Fraunces/Inter, page padding. OneDNA needs one new game accent and zero new primitives. |
+| Date + daily selection                  | `lib/date.ts`, the `hashDate` pattern in `lib/sudoku/puzzles.ts`                                      | A stable string hash over `${date}-${difficulty}` indexing a curated bank. Port the pattern, not the module.                                         |
+| Archive shape                           | `app/sudoku/archive/page.tsx`                                                                         | 28-day list reading local saves. Structurally identical for OneDNA.                                                                                  |
+| Puzzle-bank tooling convention          | `scripts/generate-puzzles.mjs`, `scripts/validate-sudoku-puzzles.mjs`, `scripts/lib/sudoku-rules.mjs` | JSON bank + a plain-Node rules mirror for build tooling + a `validate:*` package script. Proven; copy the shape.                                     |
+| Control-surface CSS                     | `.control-surface`, `.tool-row`, `.number-row`, `.number-key`, `.game-header`, `.difficulty-tabs`     | Already generic in everything but the class names. See §2.3.                                                                                         |
+| Modal, settings and completion patterns | `components/sudoku/SettingsPanel.tsx`, `CompletionPanel.tsx`                                          | Toggle rows, danger zone, stats grid, share flow — all game-agnostic in behaviour.                                                                   |
+| Accessibility patterns                  | `SudokuBoard.tsx`                                                                                     | `role="grid"`/`gridcell`, roving `tabIndex`, composed `aria-label`, `aria-live` announcer, `.reduce-motion` class. This is the template.             |
+| Test organisation                       | `tests/*.test.ts` (vitest, node env), `tests/*.spec.ts` (Playwright, desktop + mobile projects)       | Unchanged.                                                                                                                                           |
 
 ### 2.2 Sudoku-specific — do **not** reuse
 
 - `lib/sudoku/constraints.ts` — the peer model is row/column/box/colored-group.
-  OneDNA's constraint units are *lines with a composition budget*, *orthogonal
-  adjacency*, and *bonds*. Sharing this type would be a false abstraction.
+  OneDNA's constraint units are _lines with a composition budget_, _orthogonal
+  adjacency_, and _bonds_. Sharing this type would be a false abstraction.
 - `lib/sudoku/solver.ts` — a min-remaining-values backtracker over 9 symbols.
   OneDNA's production solver is a **human-technique engine first** and a
   brute-force verifier second; different shape, different output.
 - `lib/sudoku/types.ts` — `Board = number[]` of 0–9, `Notes`, `GameSave` with a
   Sudoku `puzzleId`. OneDNA gets its own types under `lib/dna/`.
 - `hooks/useSudokuGame.ts` — the state machine is close but not identical
-  (bases instead of digits, bonds, a different hint model). Copy the *shape*,
+  (bases instead of digits, bonds, a different hint model). Copy the _shape_,
   not the file.
 - The `--region-*` colour system belongs to Sudoku's colored groups. OneDNA
   borrows two of the same hues for its pair families but under its own names.
@@ -117,7 +118,7 @@ strand      A,C = upper strand        T,G = lower strand       (1 bit)
 With `0=A 1=T 2=C 3=G`, `complement(b) = b ^ 1` and `pair(b) = b >> 1`. That is
 elegant to implement — and dangerous to design around, because **any rule
 phrased as a relation between two cells decomposes into two independent binary
-rules.** "Bonded cells are complementary" means *same pair, opposite strand*: a
+rules.** "Bonded cells are complementary" means _same pair, opposite strand_: a
 constraint on the pair layer and a separate constraint on the strand layer. So
 does "balanced rows". So does "unique rows".
 
@@ -129,32 +130,32 @@ collapses into a costume.
 Only rules that treat the four symbols **jointly** resist this. There are two
 in the proposal's vicinity:
 
-- *no three identical in a line* / *identical bases may not touch* — a
+- _no three identical in a line_ / _identical bases may not touch_ — a
   conjunction across both layers;
-- *every base must appear* / *exact per-base counts* — a constraint on the
+- _every base must appear_ / _exact per-base counts_ — a constraint on the
   joint distribution, not on either margin.
 
 **Every mechanic below is judged first on whether it couples the two layers.**
 
 ### 3.2 Rule-by-rule verdicts
 
-| Mechanic | Verdict | Reasoning |
-| --- | --- | --- |
-| **Complementary connections (bonds)** | **Core — promoted to the signature mechanic** | The only proposed rule that moves information *across* the board rather than along a line. Trivial to explain ("linked cells pair up"), trivial to render, one line in the data model, and it produces the deduction chain — corner to corner — that no other grid puzzle has. Prototype: bonds are worth ≈5 given clues at 6×6, so they also let the board show fewer letters and look calmer. It decomposes per layer, but it is the *reach* that earns it, not the coupling. |
-| **Balanced rows/columns (`#A=#T`, `#C=#G`)** | **Needs redesign → replaced** | As stated it is weak: at 6 wide it permits a row of `CCCGGG` with no A or T at all, so deductions are mushy. Replaced by the two-clause composition rule in §4: *half of every line is A–T, half is C–G*, **and** *all four bases appear*. The second clause is the joint constraint that keeps the layers coupled; ablation shows it is worth ≈3 clues. |
-| **No triples (`AAA`)** | **Needs redesign → strengthened** | Correct instinct, wrong threshold. "No three in a row" almost never binds at 6 wide with four symbols. **Identical bases may not touch orthogonally** is simpler to say, easier to see, works in both axes at once, and is the single highest-value rule in the system: removing it costs ≈5 clues and it fires ~40 times per solve. |
-| **Unique rows / unique columns** | **Save for future expansion** | A lovely late-game rule in binary puzzles, where rows collide often. With four symbols at 6 wide, accidental duplicate rows are rare, so the rule almost never fires — it is a fifth line of tutorial copy that buys nothing. Revisit only if a 4×4 or binary-pair variant ships. |
-| **Mutation cells ("may break one rule")** | **Reject** | Exception-based rules are the enemy of a hint engine. "This cell is allowed to be wrong" makes every deduction conditional, forces the solver to branch on which rule is suspended, and makes the explanation copy ("this must be T, unless…") unwritable. It is also the opposite of calm. The proposal's own instruction is right: if a mutation ships, it must be a *positive* constraint. See §3.3. |
-| **Enzyme cells ("neighbours must include ≥1 A and ≥1 T")** | **Reject** | An at-least-one constraint over an overlapping 4-cell neighbourhood is the weakest useful form of deduction: it rarely forces anything alone, and when it does the player has to hold four overlapping neighbourhoods in working memory. Poor deduction quality, high cognitive load, hard iconography, hard hints. |
-| **PCR regions (`A+T > C+G` inside a region`)** | **Reject** | Inequalities over irregular regions give soft eliminations — you can seldom conclude a specific base, only "not all of these". Combined with irregular region borders on a 6×6 mobile board, the visual cost is high and the logical yield is low. If regions ever ship they must carry an *exact* composition ("this region holds one of each base"), which is crisp — see [roadmap phase 3](./onedna-roadmap.md). |
-| **Restriction sites (forbidden sequence `ATCGAT`)** | **Reject** | A six-long forbidden motif is invisible to a human until it has almost happened, so it functions as a trap rather than a tool. It also overlaps the no-touching rule, is near-impossible to hint gracefully, and makes generation slower for no measured benefit. |
-| **Four symbols entered directly** | **Core — keep, with a caveat** | Keep the four letters as the primary, colour-independent signal. But present the *pair* as a visible property of every chip (tint + strand marker), so the player can read the pair layer at a glance without doing the mapping in their head. The four symbols are the surface; the two questions are the strategy. |
-| **6×6 / 8×8 / 10×10 difficulty ladder** | **Optional — partially kept** | Verified: 6×6 is the right daily size (≈25 cells to fill ≈ Tango's session length), 8×8 is the right Hard (≈42 fills), 10×10 works for a weekly but not a daily. The first prototype used a tighter 8×8 rule and produced 51 forced-but-obvious fills — long and dull. Board size is a session-length dial, not a difficulty dial; both matter and they are not the same. |
+| Mechanic                                                   | Verdict                                       | Reasoning                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Complementary connections (bonds)**                      | **Core — promoted to the signature mechanic** | The only proposed rule that moves information _across_ the board rather than along a line. Trivial to explain ("linked cells pair up"), trivial to render, one line in the data model, and it produces the deduction chain — corner to corner — that no other grid puzzle has. Prototype: bonds are worth ≈5 given clues at 6×6, so they also let the board show fewer letters and look calmer. It decomposes per layer, but it is the _reach_ that earns it, not the coupling. |
+| **Balanced rows/columns (`#A=#T`, `#C=#G`)**               | **Needs redesign → replaced**                 | As stated it is weak: at 6 wide it permits a row of `CCCGGG` with no A or T at all, so deductions are mushy. Replaced by the two-clause composition rule in §4: _half of every line is A–T, half is C–G_, **and** _all four bases appear_. The second clause is the joint constraint that keeps the layers coupled; ablation shows it is worth ≈3 clues.                                                                                                                        |
+| **No triples (`AAA`)**                                     | **Needs redesign → strengthened**             | Correct instinct, wrong threshold. "No three in a row" almost never binds at 6 wide with four symbols. **Identical bases may not touch orthogonally** is simpler to say, easier to see, works in both axes at once, and is the single highest-value rule in the system: removing it costs ≈5 clues and it fires ~40 times per solve.                                                                                                                                            |
+| **Unique rows / unique columns**                           | **Save for future expansion**                 | A lovely late-game rule in binary puzzles, where rows collide often. With four symbols at 6 wide, accidental duplicate rows are rare, so the rule almost never fires — it is a fifth line of tutorial copy that buys nothing. Revisit only if a 4×4 or binary-pair variant ships.                                                                                                                                                                                               |
+| **Mutation cells ("may break one rule")**                  | **Reject**                                    | Exception-based rules are the enemy of a hint engine. "This cell is allowed to be wrong" makes every deduction conditional, forces the solver to branch on which rule is suspended, and makes the explanation copy ("this must be T, unless…") unwritable. It is also the opposite of calm. The proposal's own instruction is right: if a mutation ships, it must be a _positive_ constraint. See §3.3.                                                                         |
+| **Enzyme cells ("neighbours must include ≥1 A and ≥1 T")** | **Reject**                                    | An at-least-one constraint over an overlapping 4-cell neighbourhood is the weakest useful form of deduction: it rarely forces anything alone, and when it does the player has to hold four overlapping neighbourhoods in working memory. Poor deduction quality, high cognitive load, hard iconography, hard hints.                                                                                                                                                             |
+| **PCR regions (`A+T > C+G` inside a region`)**             | **Reject**                                    | Inequalities over irregular regions give soft eliminations — you can seldom conclude a specific base, only "not all of these". Combined with irregular region borders on a 6×6 mobile board, the visual cost is high and the logical yield is low. If regions ever ship they must carry an _exact_ composition ("this region holds one of each base"), which is crisp — see [roadmap phase 3](./onedna-roadmap.md).                                                             |
+| **Restriction sites (forbidden sequence `ATCGAT`)**        | **Reject**                                    | A six-long forbidden motif is invisible to a human until it has almost happened, so it functions as a trap rather than a tool. It also overlaps the no-touching rule, is near-impossible to hint gracefully, and makes generation slower for no measured benefit.                                                                                                                                                                                                               |
+| **Four symbols entered directly**                          | **Core — keep, with a caveat**                | Keep the four letters as the primary, colour-independent signal. But present the _pair_ as a visible property of every chip (tint + strand marker), so the player can read the pair layer at a glance without doing the mapping in their head. The four symbols are the surface; the two questions are the strategy.                                                                                                                                                            |
+| **6×6 / 8×8 / 10×10 difficulty ladder**                    | **Optional — partially kept**                 | Verified: 6×6 is the right daily size (≈25 cells to fill ≈ Tango's session length), 8×8 is the right Hard (≈42 fills), 10×10 works for a weekly but not a daily. The first prototype used a tighter 8×8 rule and produced 51 forced-but-obvious fills — long and dull. Board size is a session-length dial, not a difficulty dial; both matter and they are not the same.                                                                                                       |
 
 ### 3.3 If a "mutation" mechanic ever ships
 
 Rewritten as a positive constraint, the interesting version is a **repeat
-bond**: a bond drawn with a doubled stroke means the two cells hold the *same*
+bond**: a bond drawn with a doubled stroke means the two cells hold the _same_
 base rather than complementary ones. It is precise, it needs no exception to
 any existing rule, it reuses the entire bond data model and renderer, it doubles
 the bond vocabulary without doubling the tutorial, and it is thematically honest
@@ -173,82 +174,82 @@ the [rule specification](./onedna-rule-specification.md).
 Bases placed directly; `#A=#T`, `#C=#G`; no triples; unique rows and columns;
 complementary connections.
 
-*Sample turn:* a row holds two A and one T with three cells open, so one of the
+_Sample turn:_ a row holds two A and one T with three cells open, so one of the
 open cells is T and the others are C/G.
-*Main deductions:* count saturation, triple prevention, row uniqueness.
-*Advantages:* familiar, easy to generate.
-*Risks:* **decomposes into two independent binary puzzles** (§3.1); unique-rows
+_Main deductions:_ count saturation, triple prevention, row uniqueness.
+_Advantages:_ familiar, easy to generate.
+_Risks:_ **decomposes into two independent binary puzzles** (§3.1); unique-rows
 almost never fires; `#A=#T` permits pair-starved lines, so deductions are soft.
-*Similarity:* Binairo/Takuzu with extra letters.
-*Generator:* fine. *Mobile:* fine. *Depth:* shallow once the decomposition is seen.
+_Similarity:_ Binairo/Takuzu with extra letters.
+_Generator:_ fine. _Mobile:_ fine. _Depth:_ shallow once the decomposition is seen.
 
 ### Direction B — double strand
 
 The board is two linked strands; strand 2 is the reverse complement of strand 1.
 
-*Sample turn:* fill a cell on the top strand and the mirrored bottom cell fills
+_Sample turn:_ fill a cell on the top strand and the mirrored bottom cell fills
 itself.
-*Main deductions:* palindromic tension between a row and its own reverse.
-*Advantages:* the most thematically literal; beautiful symmetry motifs.
-*Risks:* **half the board carries no decision.** Every derived cell is
+_Main deductions:_ palindromic tension between a row and its own reverse.
+_Advantages:_ the most thematically literal; beautiful symmetry motifs.
+_Risks:_ **half the board carries no decision.** Every derived cell is
 free information, so the effective puzzle is n×n/2 with an awkward mirror
 constraint layered on. Players experience the bottom half as decoration, and the
 completion moment happens twice.
-*Similarity:* symmetry variants of Nonogram/Kakuro.
-*Generator:* constrained but workable. *Mobile:* fine. *Depth:* low; the mirror
+_Similarity:_ symmetry variants of Nonogram/Kakuro.
+_Generator:_ constrained but workable. _Mobile:_ fine. _Depth:_ low; the mirror
 is the only idea and it is fully understood in one game.
 
 ### Direction C — base-pair tiles
 
 Each logical unit is a domino: A–T or C–G, placed with an orientation.
 
-*Sample turn:* drop a C–G tile horizontally, choosing which end is C.
-*Main deductions:* packing plus orientation.
-*Advantages:* makes the pair concept literal; four visible letters, two logical
+_Sample turn:_ drop a C–G tile horizontally, choosing which end is C.
+_Main deductions:_ packing plus orientation.
+_Advantages:_ makes the pair concept literal; four visible letters, two logical
 objects.
-*Risks:* the packing sub-problem dominates the logic — the player spends their
-attention on tiling geometry rather than deduction, which is a *different game*
+_Risks:_ the packing sub-problem dominates the logic — the player spends their
+attention on tiling geometry rather than deduction, which is a _different game_
 (closer to Dominosa). It also doubles the input model (choose tile, choose
 orientation, choose position) on the exact device where taps are expensive, and
 tile boundaries fight the grid lines visually.
-*Similarity:* Dominosa, Fillomino.
-*Generator:* harder — tilings and uniqueness interact badly. *Mobile:* poor.
-*Depth:* real, but it is packing depth, not reading depth.
+_Similarity:_ Dominosa, Fillomino.
+_Generator:_ harder — tilings and uniqueness interact badly. _Mobile:_ poor.
+_Depth:_ real, but it is packing depth, not reading depth.
 
 ### Direction D — **Strand Balance** (recommended)
 
 Bases placed directly. Four rules: pair balance per line, all four bases per
 line, identical bases may not touch, and long-range complement bonds.
 
-*Sample turn:* row 3 already shows three C/G cells, so every remaining cell in
+_Sample turn:_ row 3 already shows three C/G cells, so every remaining cell in
 row 3 is A or T; the cell at r3c3 is bonded to r3c6, so those two are A and T in
 some order; r3c3 sits beside a T, so r3c3 is A and r3c6 is T.
-*Main deductions:* neighbour exclusion, pair saturation, base saturation, bond
+_Main deductions:_ neighbour exclusion, pair saturation, base saturation, bond
 propagation, bond narrowing, line completion — see the
 [deduction library](./onedna-rule-specification.md#6-deduction-library).
-*Advantages:* four one-line rules; every rule measurably earns its place;
+_Advantages:_ four one-line rules; every rule measurably earns its place;
 bonds give long-range chains that no binary grid puzzle has; generation is
 trivially reliable (300/300 unique and logic-only, ~1400 puzzles/second).
-*Risks:* the required-technique ceiling is tier 2 — see §7.
-*Similarity:* shares the balance skeleton with Binairo and the relational-hint
+_Risks:_ the required-technique ceiling is tier 2 — see §7.
+_Similarity:_ shares the balance skeleton with Binairo and the relational-hint
 idea with Tango, but neither is a four-symbol game and neither has long-range
 constraints.
-*Generator:* excellent. *Mobile:* excellent — 6×6, 4-key pad. *Depth:* good, with
+_Generator:_ excellent. _Mobile:_ excellent — 6×6, 4-key pad. _Depth:_ good, with
 a clear expansion path.
 
 ### Scoring
 
-| Criterion | A four-base balance | B double strand | C pair tiles | **D Strand Balance** |
-| --- | --- | --- | --- | --- |
-| Learnability | 6 | 7 | 5 | **9** |
-| Logical depth | 4 | 3 | 6 | **7** |
-| Originality | 4 | 7 | 6 | **8** |
-| Visual identity | 6 | 8 | 7 | **9** |
-| Generator reliability | 6 | 5 | 4 | **10** |
-| Daily replayability | 5 | 3 | 5 | **8** |
-| Accessibility | 6 | 5 | 4 | **8** |
-| Implementation risk *(10 = safest)* | 6 | 5 | 3 | **8** |
-| **Total** | 43 | 43 | 40 | **67** |
+| Criterion                           | A four-base balance | B double strand | C pair tiles | **D Strand Balance** |
+| ----------------------------------- | ------------------- | --------------- | ------------ | -------------------- |
+| Learnability                        | 6                   | 7               | 5            | **9**                |
+| Logical depth                       | 4                   | 3               | 6            | **7**                |
+| Originality                         | 4                   | 7               | 6            | **8**                |
+| Visual identity                     | 6                   | 8               | 7            | **9**                |
+| Generator reliability               | 6                   | 5               | 4            | **10**               |
+| Daily replayability                 | 5                   | 3               | 5            | **8**                |
+| Accessibility                       | 6                   | 5               | 4            | **8**                |
+| Implementation risk _(10 = safest)_ | 6                   | 5               | 3            | **8**                |
+| **Total**                           | 43                  | 43              | 40           | **67**               |
 
 **Direction D is recommended.** It is the only direction where every rule was
 individually ablated and shown to pay for itself, where generation was proven at
@@ -284,12 +285,12 @@ controls, board full width. Reuse `.board-frame`, `.control-surface`,
 
 Four cues per filled cell, so colour is never load-bearing:
 
-| Cue | Encodes | A | T | C | G |
-| --- | --- | --- | --- | --- | --- |
-| Letter (primary) | the base | A | T | C | G |
-| Chip tint | the **pair** | sky wash | sky wash | coral wash | coral wash |
-| Strand marker | upper/lower | top-left tick | bottom-right tick | top-left tick | bottom-right tick |
-| Letter weight | given vs entered | 600 ink | 500 accent | 600 ink | 500 accent |
+| Cue              | Encodes          | A             | T                 | C             | G                 |
+| ---------------- | ---------------- | ------------- | ----------------- | ------------- | ----------------- |
+| Letter (primary) | the base         | A             | T                 | C             | G                 |
+| Chip tint        | the **pair**     | sky wash      | sky wash          | coral wash    | coral wash        |
+| Strand marker    | upper/lower      | top-left tick | bottom-right tick | top-left tick | bottom-right tick |
+| Letter weight    | given vs entered | 600 ink       | 500 accent        | 600 ink       | 500 accent        |
 
 The strand marker is the quiet payoff: a bond always joins one top-tick cell to
 one bottom-tick cell of the same tint, so a correct bond is visible as a shape
@@ -313,19 +314,19 @@ than Sudoku's 3×3 and legible at 6×6 on a 320px screen.
 
 ### 5.4 Input
 
-| Gesture | Action | Rationale |
-| --- | --- | --- |
-| Tap an unselected cell | select it | matches OneSudoku |
-| Tap the **selected** cell again | cycle A → T → C → G → empty | one-handed play with no reach to the pad; the Tango affordance |
-| Tap a base on the pad | write it into the selected cell | 4 keys at ~72×64px on a 375px screen |
-| Long-press a pad key | write it as a candidate note | avoids a mode switch for a single note |
-| Notes toggle | persistent notes mode | unmistakable active state, as in the Sudoku redesign |
-| `A` `T` `C` `G` | write | keyboard |
-| Arrows | move selection, wrapping | keyboard |
-| `Backspace` / `Delete` | erase | keyboard |
-| `N` | notes | keyboard |
-| `H` | nudge hint | keyboard |
-| `Escape` | resume from pause | keyboard |
+| Gesture                         | Action                          | Rationale                                                      |
+| ------------------------------- | ------------------------------- | -------------------------------------------------------------- |
+| Tap an unselected cell          | select it                       | matches OneSudoku                                              |
+| Tap the **selected** cell again | cycle A → T → C → G → empty     | one-handed play with no reach to the pad; the Tango affordance |
+| Tap a base on the pad           | write it into the selected cell | 4 keys at ~72×64px on a 375px screen                           |
+| Long-press a pad key            | write it as a candidate note    | avoids a mode switch for a single note                         |
+| Notes toggle                    | persistent notes mode           | unmistakable active state, as in the Sudoku redesign           |
+| `A` `T` `C` `G`                 | write                           | keyboard                                                       |
+| Arrows                          | move selection, wrapping        | keyboard                                                       |
+| `Backspace` / `Delete`          | erase                           | keyboard                                                       |
+| `N`                             | notes                           | keyboard                                                       |
+| `H`                             | nudge hint                      | keyboard                                                       |
+| `Escape`                        | resume from pause               | keyboard                                                       |
 
 **Decision: both direct entry and cycling ship.** The pad is discoverable and
 fast for two-handed play; cycling is what makes the game usable one-handed on a
@@ -336,12 +337,12 @@ because cycling requires the cell to already be selected.
 
 - **Correct entry:** the one-off `cell-settle` flash already in `globals.css`.
 - **Rule conflict:** the offending cells take an alert ring. Because OneDNA has
-  four rules, the conflict record carries *which* rule broke — the same
+  four rules, the conflict record carries _which_ rule broke — the same
   precedence system as Sudoku's colored groups, and the same "no banner" policy.
   A bond conflict additionally tints the bond arc and its badges.
 - **Mistake vs conflict:** with "check mistakes" on, a value that contradicts the
-  stored solution is a *mistake* (counted once, however many rules it breaks). A
-  value that breaks a rule against the current board is a *conflict* (shown, not
+  stored solution is a _mistake_ (counted once, however many rules it breaks). A
+  value that breaks a rule against the current board is a _conflict_ (shown, not
   counted). Same distinction OneSudoku draws.
 - **Pause:** full-board overlay, blurred, "Take your time." — reused.
 - **Completion:** the board settles, then the completion panel. Both flourishes
@@ -362,26 +363,26 @@ Beats 2 to 5 teach on a **single 6-cell strip** — one row, lifted out of a rea
 board — so each rule can be demonstrated in isolation with no other rule able to
 explain the same move. Beat 6 is a full **4×4 board**, which under OneDNA's rules
 is exactly "one of each base in every row and column". That is worth knowing:
-at 4×4 the no-twins rule is *implied* by the other two composition rules, so a
+at 4×4 the no-twins rule is _implied_ by the other two composition rules, so a
 player who has just met it cannot get the tiny puzzle wrong by forgetting it.
 The safety net is a property of the rule set, not a special case in the code.
 
 Seven beats, each a single interaction, target 30 seconds:
 
-| # | Board | Copy | Interaction |
-| --- | --- | --- | --- |
-| 1 | — | "Four bases. **A** pairs with **T**. **C** pairs with **G**." | Two chips drift together into a pair. Tap to continue. |
-| 2 | strip | "Every row is half A–T, half C–G." | The strip's three A/T and three C/G cells pulse once. |
-| 3 | strip | "This row already has its three C–G cells. So this one is A or T." | Player taps the cell; only A and T are offered. **First real deduction, ~12 seconds in.** |
-| 4 | strip | "And identical bases never touch." | The strip is arranged so the row rule alone leaves both A and T open; the neighbouring T is what rules T out. Player taps A. |
-| 5 | strip | "Linked cells always pair: A–T, C–G." | A bond arc draws to a cell at the far end; the partner fills itself. |
-| 6 | 4×4 | "Your turn." | 3 clues, 2 bonds, 12 cells, all tier-1. |
-| 7 | — | "That's the whole game. Today's sample is ready." | Primary button → today's Easy. |
+| #   | Board | Copy                                                               | Interaction                                                                                                                  |
+| --- | ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| 1   | —     | "Four bases. **A** pairs with **T**. **C** pairs with **G**."      | Two chips drift together into a pair. Tap to continue.                                                                       |
+| 2   | strip | "Every row is half A–T, half C–G."                                 | The strip's three A/T and three C/G cells pulse once.                                                                        |
+| 3   | strip | "This row already has its three C–G cells. So this one is A or T." | Player taps the cell; only A and T are offered. **First real deduction, ~12 seconds in.**                                    |
+| 4   | strip | "And identical bases never touch."                                 | The strip is arranged so the row rule alone leaves both A and T open; the neighbouring T is what rules T out. Player taps A. |
+| 5   | strip | "Linked cells always pair: A–T, C–G."                              | A bond arc draws to a cell at the far end; the partner fills itself.                                                         |
+| 6   | 4×4   | "Your turn."                                                       | 3 clues, 2 bonds, 12 cells, all tier-1.                                                                                      |
+| 7   | —     | "That's the whole game. Today's sample is ready."                  | Primary button → today's Easy.                                                                                               |
 
 Beat 4 is the one that has to be constructed carefully: on a board where a base
 can only appear once per line, base saturation would explain the same move, and
 the player would learn the wrong lesson. The strip is 6 wide precisely so a base
-*can* appear twice, which makes the neighbour the only possible reason.
+_can_ appear twice, which makes the neighbour the only possible reason.
 
 Rules:
 
@@ -401,17 +402,17 @@ Rules:
 
 ## 7. Phase 12 — the hint engine
 
-The logical solver *is* the hint engine. It records a `Deduction` for every
+The logical solver _is_ the hint engine. It records a `Deduction` for every
 elimination and every placement, so a hint is "run the solver from the player's
 current board, take the first deduction, describe it".
 
 Three levels, escalating cost:
 
-| Level | Player-facing label | Shows | Score cost |
-| --- | --- | --- | --- |
-| 1 | **Nudge** | Highlights the target cell and the supporting cells. No value, no reason. | −3 |
-| 2 | **Explain** | The sentence for the technique. Still no value unless the technique is a placement. | −6 |
-| 3 | **Reveal** | Writes the base. | −12 |
+| Level | Player-facing label | Shows                                                                               | Score cost |
+| ----- | ------------------- | ----------------------------------------------------------------------------------- | ---------- |
+| 1     | **Nudge**           | Highlights the target cell and the supporting cells. No value, no reason.           | −3         |
+| 2     | **Explain**         | The sentence for the technique. Still no value unless the technique is a placement. | −6         |
+| 3     | **Reveal**          | Writes the base.                                                                    | −12        |
 
 Level 2 is the product. Example sentences, keyed by technique:
 
@@ -429,7 +430,7 @@ here" without the reason, never use a technique name in the UI.
 **Honest limitation, measured:** across 128 generated puzzles spanning every
 configuration, **no puzzle ever required a tier-3 technique.** Naked subsets and
 spacing squeezes were implemented in the prototype and never fired as
-*necessary* steps. The consequence is a deliberate cut: **ship a two-tier
+_necessary_ steps. The consequence is a deliberate cut: **ship a two-tier
 technique library.** Building subset machinery for the hint engine would be
 dead code with a maintenance cost. This also means OneDNA's difficulty is
 carried by chain length and board size rather than by exotic techniques — the
@@ -522,7 +523,7 @@ quiet centred footer.
 
 Explicitly avoided: neon, laboratory dashboards, glow, molecule illustrations,
 cartoon science, dense technical labels, gamified clutter. The theme lives in
-the *language* — bases, pairs, bonds, strand, sample, sequenced, Lab — and in
+the _language_ — bases, pairs, bonds, strand, sample, sequenced, Lab — and in
 the bond arcs. The grid stays the hero.
 
 ---

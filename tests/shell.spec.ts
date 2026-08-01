@@ -15,6 +15,8 @@ const PAGES = [
   { path: "/terms", name: "terms" },
   { path: "/sudoku", name: "game" },
   { path: "/sudoku/archive", name: "archive" },
+  { path: "/dna", name: "dna game" },
+  { path: "/dna/archive", name: "dna archive" },
 ];
 
 const FOOTER_LINKS = ["Terms", "Privacy", "Pricing"];
@@ -38,14 +40,22 @@ test.describe("Shared shell", () => {
       const footer = page.getByRole("contentinfo");
       await expect(footer).toContainText("One good game at a time.");
       for (const label of FOOTER_LINKS) {
-        await expect(footer.getByRole("link", { name: label, exact: true })).toBeVisible();
+        await expect(
+          footer.getByRole("link", { name: label, exact: true }),
+        ).toBeVisible();
       }
     });
   }
 
-  test("the lockup is the same size and centred on every page", async ({ page }) => {
-    const measurements: { path: string; width: number; height: number; centreOffset: number }[] =
-      [];
+  test("the lockup is the same size and centred on every page", async ({
+    page,
+  }) => {
+    const measurements: {
+      path: string;
+      width: number;
+      height: number;
+      centreOffset: number;
+    }[] = [];
 
     for (const { path } of PAGES) {
       await page.goto(path);
@@ -54,13 +64,17 @@ test.describe("Shared shell", () => {
       const markBox = await lockup.locator(".brand-logo-mark").boundingBox();
       const lockupBox = await lockup.boundingBox();
       const headerBox = await header.boundingBox();
-      if (!markBox || !lockupBox || !headerBox) throw new Error(`No lockup measured on ${path}`);
+      if (!markBox || !lockupBox || !headerBox)
+        throw new Error(`No lockup measured on ${path}`);
 
       measurements.push({
         path,
         width: markBox.width,
         height: markBox.height,
-        centreOffset: lockupBox.x + lockupBox.width / 2 - (headerBox.x + headerBox.width / 2),
+        centreOffset:
+          lockupBox.x +
+          lockupBox.width / 2 -
+          (headerBox.x + headerBox.width / 2),
       });
     }
 
@@ -70,26 +84,34 @@ test.describe("Shared shell", () => {
     expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1);
 
     for (const entry of measurements) {
-      expect(Math.abs(entry.centreOffset), `${entry.path} is off centre`).toBeLessThan(1.5);
+      expect(
+        Math.abs(entry.centreOffset),
+        `${entry.path} is off centre`,
+      ).toBeLessThan(1.5);
     }
   });
 
-  test("the lockup artwork loads and keeps its proportions", async ({ page }) => {
+  test("the lockup artwork loads and keeps its proportions", async ({
+    page,
+  }) => {
     await page.goto("/");
 
     // A missing or broken asset still occupies a box, so assert the bitmap
     // actually decoded rather than trusting the layout.
-    const image = await page.locator(".brand-logo-mark").first().evaluate((node) => {
-      const element = node as HTMLImageElement;
-      return {
-        complete: element.complete,
-        naturalWidth: element.naturalWidth,
-        naturalHeight: element.naturalHeight,
-        renderedWidth: element.getBoundingClientRect().width,
-        renderedHeight: element.getBoundingClientRect().height,
-        src: element.currentSrc || element.src,
-      };
-    });
+    const image = await page
+      .locator(".brand-logo-mark")
+      .first()
+      .evaluate((node) => {
+        const element = node as HTMLImageElement;
+        return {
+          complete: element.complete,
+          naturalWidth: element.naturalWidth,
+          naturalHeight: element.naturalHeight,
+          renderedWidth: element.getBoundingClientRect().width,
+          renderedHeight: element.getBoundingClientRect().height,
+          src: element.currentSrc || element.src,
+        };
+      });
 
     expect(image.complete).toBe(true);
     expect(image.naturalWidth).toBeGreaterThan(0);
@@ -119,7 +141,9 @@ test.describe("Shared shell", () => {
     expect([...paddings]).toHaveLength(1);
   });
 
-  test("footer navigation links keep an accessible touch height", async ({ page }) => {
+  test("footer navigation links keep an accessible touch height", async ({
+    page,
+  }) => {
     // Scoped to the nav row specifically: the maker credit at the very bottom
     // is supplementary, not primary navigation, so it isn't held to the same
     // touch-target guarantee.
@@ -138,7 +162,9 @@ test.describe("Shared shell", () => {
     for (const { path } of PAGES) {
       await page.goto(path);
       const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
       );
       expect(overflow, `${path} overflows horizontally`).toBeLessThanOrEqual(1);
     }
@@ -146,12 +172,16 @@ test.describe("Shared shell", () => {
 });
 
 test.describe("Homepage", () => {
-  test("shows the opening animation once per session, then reveals the page", async ({ page }) => {
+  test("shows the opening animation once per session, then reveals the page", async ({
+    page,
+  }) => {
     await page.goto("/");
 
     // The loader owns the first frame and hands off to the content reveal.
     await expect(page.locator(".opening-loader")).toBeVisible();
-    await expect(page.locator(".opening-loader")).toHaveCount(0, { timeout: 15000 });
+    await expect(page.locator(".opening-loader")).toHaveCount(0, {
+      timeout: 15000,
+    });
     await expect(
       page.getByRole("heading", { name: "One thoughtful game at a time." }),
     ).toBeVisible();
@@ -163,13 +193,17 @@ test.describe("Homepage", () => {
 
   test("introduces the family and its state", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Meet the OneGames family." })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Meet the OneGames family." }),
+    ).toBeVisible();
 
-    // Two games, one playable today and one announced.
-    await expect(page.getByRole("link", { name: "Play OneSudoku" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "OneDNA", exact: true })).toBeVisible();
+    // Both games are playable today.
+    await expect(
+      page.getByRole("link", { name: "Play OneSudoku" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Play OneDNA" })).toBeVisible();
     await expect(page.locator(".game-card")).toHaveCount(2);
-    await expect(page.getByText("Coming soon")).toHaveCount(1);
+    await expect(page.getByText("Coming soon")).toHaveCount(0);
 
     // The retired placeholders must not linger anywhere on the page.
     for (const name of ["OneWord", "OneMatch", "OneNumbers"]) {
@@ -177,7 +211,9 @@ test.describe("Homepage", () => {
     }
   });
 
-  test("the primary call to action reaches the access flow", async ({ page }) => {
+  test("the primary call to action reaches the access flow", async ({
+    page,
+  }) => {
     await page.goto("/");
     await page.getByRole("link", { name: "Play OneGames" }).click();
     await expect(page).toHaveURL(/\/play/);
@@ -209,7 +245,8 @@ test.describe("Family credit", () => {
     const creditBox = await credit.boundingBox();
     const lockupBox = await page.locator(".brand-logo").boundingBox();
     const headerBox = await page.locator("header.site-header").boundingBox();
-    if (!creditBox || !lockupBox || !headerBox) throw new Error("Header not measured");
+    if (!creditBox || !lockupBox || !headerBox)
+      throw new Error("Header not measured");
 
     expect(creditBox.x).toBeLessThan(headerBox.x + 4);
     expect(creditBox.x + creditBox.width).toBeLessThanOrEqual(lockupBox.x);
@@ -239,16 +276,24 @@ test.describe("About link", () => {
 
     // Not duplicated at the bottom of the page it appears on.
     await expect(
-      page.getByRole("contentinfo").getByRole("link", { name: "About", exact: true }),
+      page
+        .getByRole("contentinfo")
+        .getByRole("link", { name: "About", exact: true }),
     ).toHaveCount(0);
   });
 
-  test("does not appear on any other page's header or footer", async ({ page }) => {
+  test("does not appear on any other page's header or footer", async ({
+    page,
+  }) => {
     for (const { path } of PAGES.filter((entry) => entry.path !== "/")) {
       await page.goto(path);
-      await expect(page.getByRole("link", { name: "About OneGames" })).toHaveCount(0);
       await expect(
-        page.getByRole("contentinfo").getByRole("link", { name: "About", exact: true }),
+        page.getByRole("link", { name: "About OneGames" }),
+      ).toHaveCount(0);
+      await expect(
+        page
+          .getByRole("contentinfo")
+          .getByRole("link", { name: "About", exact: true }),
       ).toHaveCount(0);
     }
   });
@@ -258,7 +303,9 @@ test.describe("Footer statement and credit", () => {
   const MANIFESTO =
     "No feed to check. Just something worth opening. For people who want better inputs without another app to open.";
 
-  test("the homepage carries the fuller statement under the tagline", async ({ page }) => {
+  test("the homepage carries the fuller statement under the tagline", async ({
+    page,
+  }) => {
     await page.goto("/");
     await expect(page.getByRole("contentinfo")).toContainText(MANIFESTO);
   });
@@ -270,21 +317,30 @@ test.describe("Footer statement and credit", () => {
     }
   });
 
-  test("the maker credit is the last line of the footer, on every page", async ({ page }) => {
+  test("the maker credit is the last line of the footer, on every page", async ({
+    page,
+  }) => {
     for (const { path } of PAGES) {
       await page.goto(path);
 
       const footer = page.getByRole("contentinfo");
       const credit = footer.locator(".site-footer-credit");
-      await expect(credit).toContainText("digital products, thoughtfully crafted.");
+      await expect(credit).toContainText(
+        "digital products, thoughtfully crafted.",
+      );
 
       const link = credit.getByRole("link", { name: "yula.co" });
       await expect(link).toHaveAttribute("href", "https://yula.co");
 
       const isLastChild = await footer.evaluate(
-        (node) => node.lastElementChild?.classList.contains("site-footer-credit") ?? false,
+        (node) =>
+          node.lastElementChild?.classList.contains("site-footer-credit") ??
+          false,
       );
-      expect(isLastChild, `credit is not the last element in the footer on ${path}`).toBe(true);
+      expect(
+        isLastChild,
+        `credit is not the last element in the footer on ${path}`,
+      ).toBe(true);
     }
   });
 });

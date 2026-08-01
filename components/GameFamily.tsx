@@ -11,15 +11,23 @@ const GAMES: {
     key: "sudoku",
     name: "OneSudoku",
     description: "A clear grid for a clear mind",
-    href: "/play",
+    href: "/sudoku",
   },
-  { key: "dna", name: "OneDNA", description: "Pairs that belong together" },
+  {
+    key: "dna",
+    name: "OneDNA",
+    description: "Pairs that belong together",
+    href: "/dna",
+  },
 ];
 
 /** The family at homepage scale — shown rather than described. */
 export function GameFamily() {
   return (
-    <section className="game-family reveal-item reveal-item-4" aria-labelledby="game-family-heading">
+    <section
+      className="game-family reveal-item reveal-item-4"
+      aria-labelledby="game-family-heading"
+    >
       <div className="game-family-heading">
         <h2 id="game-family-heading" className="section-title">
           Meet the OneGames family.
@@ -33,7 +41,7 @@ export function GameFamily() {
               <GameLogo game={game.key} size={104} decorative />
               <h3>{game.name}</h3>
               <p>{game.description}</p>
-              <small>{game.href ? "Play today" : "Coming soon"}</small>
+              <small>Play today</small>
             </>
           );
 

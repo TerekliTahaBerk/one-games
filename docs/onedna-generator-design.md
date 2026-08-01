@@ -1,5 +1,9 @@
 # OneDNA — generator, solver and difficulty design
 
+Status: **implemented.** `npm run generate:dna` deterministically creates the
+shipped 400-puzzle bank per difficulty; `npm run validate:dna` independently
+checks structure, rules, uniqueness, logical solvability, metadata, and duplicates.
+
 Status: **design phase.** A working prototype of everything below exists at
 `scripts/prototypes/onedna-feasibility.mjs` and its measured results are in §9.
 The production version is a TypeScript port, not a copy.
@@ -14,12 +18,12 @@ The single most important architectural decision here is that these are
 **separate, independently testable components with different jobs**. Conflating
 them is how puzzle generators end up rating difficulty by recursion depth.
 
-| Component | Question it answers | Technique | Must not |
-| --- | --- | --- | --- |
-| **Verifier** `countSolutions` | "How many solutions does this have — 0, 1, or more than 1?" | MRV backtracking with forward checking | know anything about human techniques |
-| **Logical solver** `solveLogically` | "Can a person crack this with no guessing, and how?" | cheapest-technique-first constraint propagation, emitting `Deduction` records | ever branch or guess |
-| **Difficulty evaluator** `rate` | "How hard is this for a person?" | weighted sum over the solver's recorded path | look at the verifier |
-| **Generator** `generate` | "Produce a puzzle matching this spec." | solution synthesis → bond placement → clue removal | accept a puzzle the other three reject |
+| Component                           | Question it answers                                         | Technique                                                                     | Must not                               |
+| ----------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------- |
+| **Verifier** `countSolutions`       | "How many solutions does this have — 0, 1, or more than 1?" | MRV backtracking with forward checking                                        | know anything about human techniques   |
+| **Logical solver** `solveLogically` | "Can a person crack this with no guessing, and how?"        | cheapest-technique-first constraint propagation, emitting `Deduction` records | ever branch or guess                   |
+| **Difficulty evaluator** `rate`     | "How hard is this for a person?"                            | weighted sum over the solver's recorded path                                  | look at the verifier                   |
+| **Generator** `generate`            | "Produce a puzzle matching this spec."                      | solution synthesis → bond placement → clue removal                            | accept a puzzle the other three reject |
 
 The verifier and the logical solver are deliberately written from different
 primitives so that a bug in one cannot hide behind the other. Every generated
@@ -66,7 +70,7 @@ Notes:
 
 ## 3. Stage 2 — bond placement
 
-Bonds are chosen *after* the solution exists, so they can never make it
+Bonds are chosen _after_ the solution exists, so they can never make it
 unsatisfiable.
 
 ```
@@ -120,7 +124,7 @@ elimination, it could "solve" to a different grid; asserting equality turns a
 silent correctness bug into a generation failure. It costs one array comparison.
 
 Because a full logic-only solve implies a unique solution, uniqueness is a
-*consequence* of this loop, not a separate constraint — but it is still verified
+_consequence_ of this loop, not a separate constraint — but it is still verified
 independently in stage 5.
 
 **The `floor` parameter is the difficulty dial that matters.** Removing to
@@ -204,15 +208,15 @@ A logically perfect puzzle can still look bad. Reject and re-roll when:
 Difficulty is computed from **what a person has to do**, never from search
 depth. Inputs, in descending order of influence:
 
-| Input | Symbol | Source |
-| --- | --- | --- |
-| Weighted technique usage | `W` | `Σ weight(t) × uses(t)` over the solver path |
-| Cells the player must fill | `E` | `n² − givens` |
-| Longest deduction chain | `L` | maximal run of dependent deductions |
-| Highest tier actually required | `T` | cheapest tier that fully solves |
-| Mean open candidates at the midpoint | `C` | solver snapshot at 50% filled |
-| Bond count | `B` | fewer bonds ⇒ fewer long-range anchors ⇒ harder |
-| Board size | `n` | already inside `E`, not double-counted |
+| Input                                | Symbol | Source                                          |
+| ------------------------------------ | ------ | ----------------------------------------------- |
+| Weighted technique usage             | `W`    | `Σ weight(t) × uses(t)` over the solver path    |
+| Cells the player must fill           | `E`    | `n² − givens`                                   |
+| Longest deduction chain              | `L`    | maximal run of dependent deductions             |
+| Highest tier actually required       | `T`    | cheapest tier that fully solves                 |
+| Mean open candidates at the midpoint | `C`    | solver snapshot at 50% filled                   |
+| Bond count                           | `B`    | fewer bonds ⇒ fewer long-range anchors ⇒ harder |
+| Board size                           | `n`    | already inside `E`, not double-counted          |
 
 ```
 score = W
@@ -225,13 +229,13 @@ score = W
 
 Measured bands (seed `20260801`, 24 samples per tier):
 
-| Tier | Board | Clue floor | Bonds | Max tier | Score band | Cells to fill | Target time |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Tutorial | 4×4 | 0 | 2 | 1 | 60 – 85 | ~12 | under 1 min |
-| Easy | 6×6 | 18 | 5 | 2 | 75 – 105 | ~18 | 2 – 3 min |
-| Medium | 6×6 | 0 | 5 | 2 | 120 – 160 | ~25 | 4 – 6 min |
-| Hard | 8×8 | 0 | 7 | 2 | 195 – 245 | ~42 | 7 – 10 min |
-| Weekly Lab | 10×10 | 0 | 9 | 2 | 300 – 380 | ~64 | 12 – 20 min |
+| Tier       | Board | Clue floor | Bonds | Max tier | Score band | Cells to fill | Target time |
+| ---------- | ----- | ---------- | ----- | -------- | ---------- | ------------- | ----------- |
+| Tutorial   | 4×4   | 0          | 2     | 1        | 60 – 85    | ~12           | under 1 min |
+| Easy       | 6×6   | 18         | 5     | 2        | 75 – 105   | ~18           | 2 – 3 min   |
+| Medium     | 6×6   | 0          | 5     | 2        | 120 – 160  | ~25           | 4 – 6 min   |
+| Hard       | 8×8   | 0          | 7     | 2        | 195 – 245  | ~42           | 7 – 10 min  |
+| Weekly Lab | 10×10 | 0          | 9     | 2        | 300 – 380  | ~64           | 12 – 20 min |
 
 The bands do not overlap, which is the property that matters: a generated
 puzzle either lands in its tier's band or is rejected and re-rolled.
@@ -260,29 +264,29 @@ node scripts/prototypes/onedna-feasibility.mjs 20260801 0 --teach
 
 6×6, 24 samples per configuration. **Every configuration produced 24/24 puzzles
 that were both uniquely solvable and solvable by logic alone**, so the
-comparison is on clue economy — how much the rule *knows*, expressed as how many
+comparison is on clue economy — how much the rule _knows_, expressed as how many
 given letters it replaces.
 
-| Configuration | Clues needed | Cost of dropping the rule |
-| --- | --- | --- |
-| All four rules, 6 bonds | **8.8** | — |
-| … with 3 bonds | 12.5 | +3.7 |
-| … with 0 bonds | 13.9 | **+5.1 (R4)** |
-| … without "no twins" | 14.0 | **+5.2 (R3)** |
-| … without "all four bases" | 11.6 | **+2.8 (R2)** |
+| Configuration              | Clues needed | Cost of dropping the rule |
+| -------------------------- | ------------ | ------------------------- |
+| All four rules, 6 bonds    | **8.8**      | —                         |
+| … with 3 bonds             | 12.5         | +3.7                      |
+| … with 0 bonds             | 13.9         | **+5.1 (R4)**             |
+| … without "no twins"       | 14.0         | **+5.2 (R3)**             |
+| … without "all four bases" | 11.6         | **+2.8 (R2)**             |
 
 Every rule pays for itself. R3 and R4 are each worth roughly five given letters,
 which is why the board can show only nine clues at Medium and still be fair.
 
 ### 9.2 Does the difficulty ladder separate?
 
-| Configuration | Gen | Unique + logic-only | Clues | Fills | Score | ms | Required tier (1/2/3) |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Tutorial 4×4, 2 bonds | 24/24 | **24/24** | 3.5 | 12 | 73 | <1 | 24 / 0 / 0 |
-| Easy 6×6, floor 18 | 24/24 | **24/24** | 18.0 | 18 | 86 | <1 | 22 / 2 / 0 |
-| Medium 6×6 | 24/24 | **24/24** | 10.5 | 25 | 139 | 1 | 1 / 23 / 0 |
-| Hard 8×8, 7 bonds | 24/24 | **24/24** | 22.4 | 42 | 219 | 2 | 0 / 24 / 0 |
-| Weekly Lab 10×10, 9 bonds | 8/8 | **8/8** | 36.3 | 64 | 335 | 6 | 0 / 8 / 0 |
+| Configuration             | Gen   | Unique + logic-only | Clues | Fills | Score | ms  | Required tier (1/2/3) |
+| ------------------------- | ----- | ------------------- | ----- | ----- | ----- | --- | --------------------- |
+| Tutorial 4×4, 2 bonds     | 24/24 | **24/24**           | 3.5   | 12    | 73    | <1  | 24 / 0 / 0            |
+| Easy 6×6, floor 18        | 24/24 | **24/24**           | 18.0  | 18    | 86    | <1  | 22 / 2 / 0            |
+| Medium 6×6                | 24/24 | **24/24**           | 10.5  | 25    | 139   | 1   | 1 / 23 / 0            |
+| Hard 8×8, 7 bonds         | 24/24 | **24/24**           | 22.4  | 42    | 219   | 2   | 0 / 24 / 0            |
+| Weekly Lab 10×10, 9 bonds | 8/8   | **8/8**             | 36.3  | 64    | 335   | 6   | 0 / 8 / 0             |
 
 Scores separate cleanly (73 / 86 / 139 / 219 / 335) and the required-tier
 distribution moves the way it should: Tutorial and Easy are tier 1, Medium and
@@ -307,8 +311,8 @@ second to generate and can be regenerated from a seed at any time.
 
 **Tier 3 was never required. Not once, in 128 puzzles, across every
 configuration tested.** `naked-subset` and `spacing-squeeze` were fully
-implemented and measured; they fire occasionally as *available* moves but never
-as *necessary* ones, because tier 1 and 2 are strong enough to finish first.
+implemented and measured; they fire occasionally as _available_ moves but never
+as _necessary_ ones, because tier 1 and 2 are strong enough to finish first.
 
 Consequences, all acted on:
 
@@ -323,7 +327,7 @@ Consequences, all acted on:
 
 ### 9.5 The finding that killed the first design
 
-The initial system was 8×8 with *exact* per-base counts (two A, two T, two C,
+The initial system was 8×8 with _exact_ per-base counts (two A, two T, two C,
 two G in every line). It generated perfectly — 24/24 unique and logic-only — but
 needed only **12.3 clues, leaving 52 cells to fill**, almost all through tier-1
 moves. That is the worst combination a puzzle can have: long and obvious. It was

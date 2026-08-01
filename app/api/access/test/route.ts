@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const response = NextResponse.redirect(new URL("/sudoku", request.url), 303);
+  const form = await request.formData();
+  const response = NextResponse.redirect(
+    new URL(form.get("game") === "dna" ? "/dna" : "/sudoku", request.url),
+    303,
+  );
   response.cookies.set("onegames_test", "1", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

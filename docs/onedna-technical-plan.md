@@ -1,5 +1,11 @@
 # OneDNA — technical plan
 
+Status: **MVP shipped in the repository.** The implemented save schema is
+`onegames:v1:dna:*`, record version 1. OneDNA stats remain isolated for launch;
+the proposed shared-stats v2 migration was deliberately deferred to protect
+existing Sudoku history. Candidate notes and optional sound feedback are not
+exposed in the launch UI. Hints use the structured tier-1/tier-2 taxonomy.
+
 Status: **design phase.** No file below exists yet.
 
 Companion: [game design](./onedna-game-design.md) · [rules](./onedna-rule-specification.md) · [generator](./onedna-generator-design.md) · [roadmap](./onedna-roadmap.md)
@@ -91,11 +97,14 @@ Strict typing throughout. No `any`, no non-null assertions, no unchecked casts �
 /** 0 = A, 1 = T, 2 = C, 3 = G. See lib/dna/rules.ts for the bit identities. */
 export type Base = 0 | 1 | 2 | 3;
 export type BaseLetter = "A" | "T" | "C" | "G";
-export type Pair = 0 | 1;                     // 0 = A–T, 1 = C–G
-export type Strand = 0 | 1;                   // 0 = upper (A,C), 1 = lower (T,G)
+export type Pair = 0 | 1; // 0 = A–T, 1 = C–G
+export type Strand = 0 | 1; // 0 = upper (A,C), 1 = lower (T,G)
 
-export type CellIndex = number;               // 0 .. size² − 1
-export interface Coord { row: number; column: number }
+export type CellIndex = number; // 0 .. size² − 1
+export interface Coord {
+  row: number;
+  column: number;
+}
 
 export type BoardSize = 4 | 6 | 8 | 10;
 export type Difficulty = "easy" | "medium" | "hard";
@@ -107,7 +116,10 @@ export type Board = Int8Array;
 export type CandidateMask = number;
 
 export type LineKind = "row" | "column";
-export interface LineRef { kind: LineKind; index: number }
+export interface LineRef {
+  kind: LineKind;
+  index: number;
+}
 ```
 
 ### 3.2 Puzzle definition — immutable, shipped
@@ -121,11 +133,11 @@ export interface Bond {
 }
 
 export interface DnaPuzzle {
-  id: string;                    // "medium-07", positional and stable
+  id: string; // "medium-07", positional and stable
   difficulty: Difficulty;
   size: BoardSize;
-  clues: Board;                  // −1 for empty
-  solution: Board;               // fully filled
+  clues: Board; // −1 for empty
+  solution: Board; // fully filled
   bonds: Bond[];
   meta: GeneratorMeta;
 }
@@ -146,14 +158,14 @@ export interface GeneratorMeta {
 export const DNA_SAVE_VERSION = 1;
 
 export interface DnaSnapshot {
-  board: number[];                          // −1 for empty; plain array for JSON
+  board: number[]; // −1 for empty; plain array for JSON
   notes: Record<CellIndex, Base[]>;
 }
 
 export interface DnaGameSave extends DnaSnapshot {
   version: typeof DNA_SAVE_VERSION;
-  puzzleId: string;                         // ties the save to the definition
-  date: string;                             // YYYY-MM-DD
+  puzzleId: string; // ties the save to the definition
+  date: string; // YYYY-MM-DD
   difficulty: Difficulty;
   elapsed: number;
   started: boolean;
@@ -161,7 +173,7 @@ export interface DnaGameSave extends DnaSnapshot {
   completedAt?: string;
   mistakes: number;
   hints: { nudge: number; explain: number; reveal: number };
-  history: DnaSnapshot[];                   // board + notes only
+  history: DnaSnapshot[]; // board + notes only
   future: DnaSnapshot[];
 }
 ```
@@ -180,7 +192,7 @@ export interface CellConflict {
 export type ConflictMap = Map<CellIndex, CellConflict>;
 
 export interface DerivedState {
-  candidates: Int8Array;              // CandidateMask per cell
+  candidates: Int8Array; // CandidateMask per cell
   conflicts: ConflictMap;
   remaining: Record<BaseLetter, number>;
   filled: number;
@@ -227,9 +239,9 @@ export interface SolveResult {
 interface SolverState {
   candidates: Int8Array;
   value: Int8Array;
-  baseCount: Int8Array;      // [line * 4 + base]
-  pairCount: Int8Array;      // [line * 2 + pair]
-  partner: Int16Array;       // −1 when unbonded
+  baseCount: Int8Array; // [line * 4 + base]
+  pairCount: Int8Array; // [line * 2 + pair]
+  partner: Int16Array; // −1 when unbonded
   bondIdOf: Int16Array;
   path: Deduction[];
 }
@@ -285,7 +297,7 @@ onegames:v1:dna:tutorial-seen               "1"
 onegames:v1:stats                           OneGamesStats  (shared, v2)
 ```
 
-- The `onegames:v1` prefix stays. It is the *storage namespace*, not a schema
+- The `onegames:v1` prefix stays. It is the _storage namespace_, not a schema
   version; per-record `version` fields carry migration. This is the arrangement
   the Sudoku v1→v2 migration proved out.
 - `loadDnaGame(date, difficulty, puzzleId)` discards — and only discards — a
@@ -297,7 +309,7 @@ onegames:v1:stats                           OneGamesStats  (shared, v2)
   fold the existing flat fields into `perGame.sudoku`, preserve
   `completedDates`, `currentStreak` and `longestStreak` verbatim, and be
   idempotent. It needs its own test with a real v1 payload, and it must ship
-  *before or with* OneDNA, never after.
+  _before or with_ OneDNA, never after.
 - Settings are per game. OneDNA's set: `checkMistakes`, `highlightRelated`,
   `highlightMatching`, `showBondBadges`, `autoRemoveNotes`, `sound`,
   `reducedMotion`. `showBondBadges` defaults **on** — it is an accessibility
@@ -308,16 +320,16 @@ onegames:v1:stats                           OneGamesStats  (shared, v2)
 
 ## 5. Routing and integration
 
-| Change | File | Note |
-| --- | --- | --- |
-| Game route | `app/dna/page.tsx` | `getAccessState()` → redirect `/play`; `?date=` validated `^\d{4}-\d{2}-\d{2}$` |
-| Archive | `app/dna/archive/page.tsx` | mirrors the Sudoku archive |
-| Sitemap | `app/sitemap.ts` | add `/dna` (`daily`) and `/dna/archive` |
-| Shell test | `tests/shell.spec.ts` | add both paths to `PAGES` — **this test fails until you do** |
-| Family lineup | `components/GameFamily.tsx` | OneDNA takes an active slot |
-| Logo | `components/GameLogo.tsx`, `scripts/build-og.mjs` | new `"dna"` key, mark, palette entry; regenerate `public/og.png` |
-| Access copy | `components/AccessGate.tsx`, `app/play/page.tsx` | currently says "OneSudoku"; becomes game-aware |
-| Shared keypad CSS | `app/globals.css` | rename `.number-row`/`.number-key` → `.key-pad`/`.key`, keep Sudoku modifiers |
+| Change            | File                                              | Note                                                                            |
+| ----------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Game route        | `app/dna/page.tsx`                                | `getAccessState()` → redirect `/play`; `?date=` validated `^\d{4}-\d{2}-\d{2}$` |
+| Archive           | `app/dna/archive/page.tsx`                        | mirrors the Sudoku archive                                                      |
+| Sitemap           | `app/sitemap.ts`                                  | add `/dna` (`daily`) and `/dna/archive`                                         |
+| Shell test        | `tests/shell.spec.ts`                             | add both paths to `PAGES` — **this test fails until you do**                    |
+| Family lineup     | `components/GameFamily.tsx`                       | OneDNA takes an active slot                                                     |
+| Logo              | `components/GameLogo.tsx`, `scripts/build-og.mjs` | new `"dna"` key, mark, palette entry; regenerate `public/og.png`                |
+| Access copy       | `components/AccessGate.tsx`, `app/play/page.tsx`  | currently says "OneSudoku"; becomes game-aware                                  |
+| Shared keypad CSS | `app/globals.css`                                 | rename `.number-row`/`.number-key` → `.key-pad`/`.key`, keep Sudoku modifiers   |
 
 ---
 

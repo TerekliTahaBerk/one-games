@@ -1,5 +1,8 @@
 # OneDNA — roadmap, risks and recommendation
 
+Status: **launch scope implemented in the repository.** Deferred mechanics in
+this document remain roadmap items and are not exposed by the MVP.
+
 Status: **design phase.** This document ends with a go/no-go.
 
 Companion: [game design](./onedna-game-design.md) · [rules](./onedna-rule-specification.md) · [generator](./onedna-generator-design.md) · [technical plan](./onedna-technical-plan.md)
@@ -65,7 +68,7 @@ distribution.
 
 ### Phase 3 — themed content
 
-4. **Exact regions.** Irregular regions with an *exact* composition ("this
+4. **Exact regions.** Irregular regions with an _exact_ composition ("this
    region holds one of each base"), which is crisp where the rejected PCR
    inequality was mushy. Needs new iconography and a region renderer.
 5. **Seasonal sample sets** — a named bank with a distinct bond aesthetic
@@ -93,17 +96,17 @@ distribution.
 
 ## 3. Risks
 
-| # | Risk | Severity | How to test it *before* full implementation |
-| --- | --- | --- | --- |
-| 1 | **Depth ceiling.** Tier 3 is never required, so Hard is a longer chain, not a cleverer one. Strong solvers may find the game shallow after a month. | High | Playtest with 5 experienced puzzle solvers on 3 Hard boards each. Ask specifically: "did anything surprise you after board 2?" If not, pull repeat bonds forward from phase 2 into launch. |
-| 2 | **Bond legibility on a 320px screen.** Eight arcs over a 6×6 grid may read as clutter, and the whole identity rests on them. | High | Build a static HTML board with the worst realistic bond set (8 bonds, 2 crossings) at 320/375/414px before writing any React. Test grayscaled. If it fails, cap bonds at 5 and lean harder on badges. |
-| 3 | **Session length at Hard.** ~42 fills at 8×8 may run past 10 minutes and past a daily player's patience. | Medium | Time 5 internal solvers on generated Hard boards. If the median exceeds 11 minutes, move Hard to 6×6 with a lower clue floor and reserve 8×8 for the Lab. |
-| 4 | **"This is just Sudoku."** R1+R2 read as a composition rule, and the first impression may be "four-letter Sudoku". | Medium | Show the four-rule card plus a screenshot to 10 people who have not seen it. Ask what it reminds them of. If Sudoku dominates, lead the marketing and the tutorial with **bonds**, not with balance. |
-| 5 | **Tap cost.** 25 fills × (select + choose) ≈ 50 taps at Medium. | Medium | Instrument the prototype board with a tap counter; compare cycle-on-tap against pad entry for the same solve. Cycling should cut it to ~30. |
-| 6 | **Stats migration breaking Sudoku streaks.** The `OneGamesStats` v2 migration touches live player data. | Medium | Unit-test with a real captured v1 payload; verify idempotency; ship the migration in its own commit *ahead* of OneDNA so a rollback does not need to unpick two things. |
-| 7 | **Bank exhaustion / repetition.** A short bank repeats within weeks. | Low | Generation runs at ~1 400/second, so 400 per difficulty is free; add a CI check asserting the bank covers at least 12 months of daily selection from the current date. |
-| 8 | **Par calibration.** The Logic Score's `par` values are estimates, and a wrong par makes every score feel unfair. | Low | Ship time logging on day one; recalibrate at 2 weeks. Until then, cap the time penalty at 20 points so a bad par cannot dominate a score. |
-| 9 | **`GameFamily` slot.** Adding OneDNA changes the advertised lineup. | Low | Product decision, not technical. See §4. |
+| #   | Risk                                                                                                                                                | Severity | How to test it _before_ full implementation                                                                                                                                                           |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Depth ceiling.** Tier 3 is never required, so Hard is a longer chain, not a cleverer one. Strong solvers may find the game shallow after a month. | High     | Playtest with 5 experienced puzzle solvers on 3 Hard boards each. Ask specifically: "did anything surprise you after board 2?" If not, pull repeat bonds forward from phase 2 into launch.            |
+| 2   | **Bond legibility on a 320px screen.** Eight arcs over a 6×6 grid may read as clutter, and the whole identity rests on them.                        | High     | Build a static HTML board with the worst realistic bond set (8 bonds, 2 crossings) at 320/375/414px before writing any React. Test grayscaled. If it fails, cap bonds at 5 and lean harder on badges. |
+| 3   | **Session length at Hard.** ~42 fills at 8×8 may run past 10 minutes and past a daily player's patience.                                            | Medium   | Time 5 internal solvers on generated Hard boards. If the median exceeds 11 minutes, move Hard to 6×6 with a lower clue floor and reserve 8×8 for the Lab.                                             |
+| 4   | **"This is just Sudoku."** R1+R2 read as a composition rule, and the first impression may be "four-letter Sudoku".                                  | Medium   | Show the four-rule card plus a screenshot to 10 people who have not seen it. Ask what it reminds them of. If Sudoku dominates, lead the marketing and the tutorial with **bonds**, not with balance.  |
+| 5   | **Tap cost.** 25 fills × (select + choose) ≈ 50 taps at Medium.                                                                                     | Medium   | Instrument the prototype board with a tap counter; compare cycle-on-tap against pad entry for the same solve. Cycling should cut it to ~30.                                                           |
+| 6   | **Stats migration breaking Sudoku streaks.** The `OneGamesStats` v2 migration touches live player data.                                             | Medium   | Unit-test with a real captured v1 payload; verify idempotency; ship the migration in its own commit _ahead_ of OneDNA so a rollback does not need to unpick two things.                               |
+| 7   | **Bank exhaustion / repetition.** A short bank repeats within weeks.                                                                                | Low      | Generation runs at ~1 400/second, so 400 per difficulty is free; add a CI check asserting the bank covers at least 12 months of daily selection from the current date.                                |
+| 8   | **Par calibration.** The Logic Score's `par` values are estimates, and a wrong par makes every score feel unfair.                                   | Low      | Ship time logging on day one; recalibrate at 2 weeks. Until then, cap the time penalty at 20 points so a bad par cannot dominate a score.                                                             |
+| 9   | **`GameFamily` slot.** Adding OneDNA changes the advertised lineup.                                                                                 | Low      | Product decision, not technical. See §4.                                                                                                                                                              |
 
 ---
 
@@ -147,11 +150,11 @@ overlaps R3); unique rows and columns (almost never fires with four symbols at
 6 wide — a tutorial line that buys nothing); `#A=#T`/`#C=#G` balance (replaced —
 it permits pair-starved lines and gives mushy deductions); no-triples (replaced
 by the strictly stronger and simpler no-touching); and the 8×8 exact-count
-system that was the *first* version of this design — measured at 52 forced-but-obvious
+system that was the _first_ version of this design — measured at 52 forced-but-obvious
 fills and cut for being long rather than hard.
 
 **4. What makes it different from existing binary-grid puzzles?**
-Bonds. Every other rule in the genre is *local* (adjacency) or *linear*
+Bonds. Every other rule in the genre is _local_ (adjacency) or _linear_
 (row/column counting). A bond is the only constraint in a puzzle of this class
 that carries a deduction across the board — a counting insight in the top-left
 resolves a cell in the bottom-right, which then propagates locally through
@@ -171,7 +174,7 @@ naked single. Tier 2: pair completion, base completion, bond narrowing. Eight
 total. Tier 3 was implemented and measured as never required, and is cut.
 
 **7. How is difficulty measured?**
-A weighted sum over the *human* solve path — technique weights, cells to fill,
+A weighted sum over the _human_ solve path — technique weights, cells to fill,
 longest dependent chain, highest tier required, mid-solve candidate breadth,
 minus a bond credit. Never brute-force recursion depth. Bands: Tutorial 60–85,
 Easy 75–105, Medium 120–160, Hard 195–245, Lab 300–380, non-overlapping.

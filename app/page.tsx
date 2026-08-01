@@ -15,13 +15,19 @@ export default function HomePage() {
             className="parent-brand"
             aria-label="The One family — visit OneRead"
           >
-            <span className="parent-brand-name link-underline">The One family</span>
+            <span className="parent-brand-name link-underline">
+              The One family
+            </span>
             <span className="parent-brand-note">Sibling to OneRead</span>
           </a>
 
           <BrandLogo />
           <div className="header-trailing">
-            <Link href="/about" className="header-text-link" aria-label="About OneGames">
+            <Link
+              href="/about"
+              className="header-text-link"
+              aria-label="About OneGames"
+            >
               {/* The hairline belongs to the word, not to the 44px touch target —
                   the same arrangement the family credit uses on the left. */}
               <span className="link-underline">About</span>
@@ -30,18 +36,22 @@ export default function HomePage() {
         </header>
 
         <main className="page-main">
-          <h1 className="display reveal-item reveal-item-2">One thoughtful game at a time.</h1>
+          <h1 className="display reveal-item reveal-item-2">
+            One thoughtful game at a time.
+          </h1>
 
           <p className="lede reveal-item reveal-item-3">
-            Three fresh chapters every day — Easy, Medium, and Hard. A quiet place to play, finish,
-            and move on.
+            Two thoughtful daily games, each with Easy, Medium, and Hard
+            chapters. A quiet place to play, finish, and move on.
           </p>
 
           <div className="cta-row reveal-item reveal-item-4">
             <Link href="/play" className="pill-primary">
               Play OneGames
             </Link>
-            <p className="note">$1 / month · Every game included · Cancel anytime</p>
+            <p className="note">
+              $1 / month · Every game included · Cancel anytime
+            </p>
           </div>
 
           <GameFamily />

@@ -1,8 +1,7 @@
 # OneDNA — rule specification
 
-Status: **design phase.** This document is the contract between the design and
-the implementation. It is precise enough to translate directly into
-`lib/dna/rules.ts`, `lib/dna/solver.ts` and their tests.
+Status: **MVP implemented (August 2026).** This remains the rule contract for
+`lib/dna/rules.ts`, the exact and logical solvers, validation, and player UI.
 
 Companion: [game design](./onedna-game-design.md) · [generator](./onedna-generator-design.md) · [technical plan](./onedna-technical-plan.md) · [roadmap](./onedna-roadmap.md)
 
@@ -37,7 +36,7 @@ Half         h = n / 2
 
 Presented to the player as four one-line cards, in this order.
 
-### R1 — Balance *(pair composition, per line)*
+### R1 — Balance _(pair composition, per line)_
 
 > **Every row and column is half A–T and half C–G.**
 
@@ -50,7 +49,7 @@ Presented to the player as four one-line cards, in this order.
 **Invalid.** `A T A G C A` → A/T = 4, C/G = 2 ✗
 
 **Edge cases.** `n` must be even or R1 is unsatisfiable; the generator only
-emits even `n`. A line with `n/2` A/T cells placed is *saturated* for that pair
+emits even `n`. A line with `n/2` A/T cells placed is _saturated_ for that pair
 even if no C/G cell is placed yet — saturation is one-sided and fires early.
 
 **Deduction contribution.** The workhorse of the counting layer. Fires ≈13
@@ -61,7 +60,7 @@ half sky".
 
 **Data.** Implicit in `n`. Nothing stored per puzzle.
 
-### R2 — All four *(base presence, per line)*
+### R2 — All four _(base presence, per line)_
 
 > **Every row and column uses all four bases.**
 
@@ -90,7 +89,7 @@ per-base remaining counter on the base pad.
 
 **Data.** Implicit in `n`.
 
-### R3 — No twins *(adjacency, global)*
+### R3 — No twins _(adjacency, global)_
 
 > **Identical bases never touch.**
 
@@ -104,7 +103,7 @@ per-base remaining counter on the base pad.
 **Not invalid.** An A diagonally adjacent to an A ✓
 
 **Edge cases.** At `n = 4`, R1 and R2 already force every line to be a
-permutation, so any board satisfying them satisfies R3 too — R3 is *implied*, not
+permutation, so any board satisfying them satisfies R3 too — R3 is _implied_, not
 vacuous, and the solver still uses it to eliminate candidates mid-solve. Border cells have 2 or 3 neighbours,
 interior cells 4; the constraint is symmetric so the solver evaluates each edge
 once.
@@ -117,7 +116,7 @@ which never shows a doubled letter.
 
 **Data.** Implicit.
 
-### R4 — Bonds *(complement, per puzzle)*
+### R4 — Bonds _(complement, per puzzle)_
 
 > **Linked cells always pair: A–T, C–G.**
 
@@ -144,7 +143,7 @@ holding A and a cell holding G ✗ (same strand parity, different pair)
 powerful configuration in the game: it consumes one cell of each strand from
 that line's budget, and since both endpoints share a pair, it also consumes two
 of that pair's `n/2` slots. The generator deliberately includes some. A bond
-whose endpoints are in the same line *and* adjacent is excluded by the distance
+whose endpoints are in the same line _and_ adjacent is excluded by the distance
 rule.
 
 **Deduction contribution.** ≈4.5 `bond-complement` placements and ≈5.5
@@ -190,18 +189,28 @@ only in board size and how many clues are given.
 
 ```jsonc
 {
-  "id": "medium-07",              // positional and stable
+  "id": "medium-07", // positional and stable
   "difficulty": "medium",
   "size": 6,
-  "clues": "..C.A..G............A..C..........T.",   // n² chars, '.' = empty
-  "solution": "CTACGA...",                            // n² chars, no '.'
-  "bonds": [[2, 17], [8, 31], [12, 33], [20, 29], [25, 34]],
+  "clues": "..C.A..G............A..C..........T.", // n² chars, '.' = empty
+  "solution": "CTACGA...", // n² chars, no '.'
+  "bonds": [
+    [2, 17],
+    [8, 31],
+    [12, 33],
+    [20, 29],
+    [25, 34],
+  ],
   "meta": {
     "score": 139,
     "requiredTier": 2,
-    "techniques": { "neighbour-exclusion": 40, "pair-saturation": 12, "...": 0 },
-    "generator": { "seed": 20260801, "revision": 1 }
-  }
+    "techniques": {
+      "neighbour-exclusion": 40,
+      "pair-saturation": 12,
+      "...": 0,
+    },
+    "generator": { "seed": 20260801, "revision": 1 },
+  },
 }
 ```
 
@@ -221,16 +230,16 @@ A cell's candidate set is a 4-bit mask. The rules map onto masks directly:
 
 ```ts
 const ALL = 0b1111;
-const PAIR_MASK = [0b0011, 0b1100];      // A|T , C|G
-const COMPLEMENT_MASK: number[];          // precomputed, 16 entries
+const PAIR_MASK = [0b0011, 0b1100]; // A|T , C|G
+const COMPLEMENT_MASK: number[]; // precomputed, 16 entries
 ```
 
 For an unsolved cell `i`, starting from `ALL`, remove:
 
-1. every base held by an orthogonal neighbour *(R3)*;
-2. every base whose count in either of `i`'s lines has reached `n/2 − 1` *(R2 upper bound)*;
-3. all bases of a pair whose count in either line has reached `n/2` *(R1)*;
-4. anything outside `COMPLEMENT_MASK[candidates(partner)]` when `i` is bonded *(R4)*.
+1. every base held by an orthogonal neighbour _(R3)_;
+2. every base whose count in either of `i`'s lines has reached `n/2 − 1` _(R2 upper bound)_;
+3. all bases of a pair whose count in either line has reached `n/2` _(R1)_;
+4. anything outside `COMPLEMENT_MASK[candidates(partner)]` when `i` is bonded _(R4)_.
 
 A mask of one base is a placement. A mask of zero is a contradiction.
 
@@ -245,24 +254,24 @@ configuration, no puzzle required anything beyond tier 2
 
 ### Tier 1 — taught by the tutorial, needed by every puzzle
 
-| Technique | Player-facing explanation | Prerequisites | Example | Cognitive load | Weight |
-| --- | --- | --- | --- | --- | --- |
-| `naked-single` | "Only one base can still go here." | none | A cell whose mask has collapsed to `{G}` | trivial | 1 |
-| `neighbour-exclusion` | "The cell above is T, and identical bases never touch." | R3 | r2c3 is T ⟹ r3c3 ≠ T | trivial | 1 |
-| `bond-complement` | "Bond 3 links this to r5c2, which is C. Bonded cells pair up, so this is G." | R4 | one endpoint solved | trivial | 1 |
-| `pair-saturation` | "Row 4 already has its three C–G cells, so this one is A or T." | R1 | 3 of 3 C/G placed in a 6-line | low | 2 |
-| `base-saturation` | "Column 2 has used both of its A's." | R1+R2 | 2 of max 2 A placed in a 6-line | low | 2 |
+| Technique             | Player-facing explanation                                                    | Prerequisites | Example                                  | Cognitive load | Weight |
+| --------------------- | ---------------------------------------------------------------------------- | ------------- | ---------------------------------------- | -------------- | ------ |
+| `naked-single`        | "Only one base can still go here."                                           | none          | A cell whose mask has collapsed to `{G}` | trivial        | 1      |
+| `neighbour-exclusion` | "The cell above is T, and identical bases never touch."                      | R3            | r2c3 is T ⟹ r3c3 ≠ T                     | trivial        | 1      |
+| `bond-complement`     | "Bond 3 links this to r5c2, which is C. Bonded cells pair up, so this is G." | R4            | one endpoint solved                      | trivial        | 1      |
+| `pair-saturation`     | "Row 4 already has its three C–G cells, so this one is A or T."              | R1            | 3 of 3 C/G placed in a 6-line            | low            | 2      |
+| `base-saturation`     | "Column 2 has used both of its A's."                                         | R1+R2         | 2 of max 2 A placed in a 6-line          | low            | 2      |
 
 ### Tier 2 — needed by Medium and Hard
 
-| Technique | Player-facing explanation | Prerequisites | Example | Cognitive load | Weight |
-| --- | --- | --- | --- | --- | --- |
-| `pair-completion` | "Three cells left in column 5, and all three must be A–T." | R1 | open cells that can hold a pair = the pair's remaining budget | medium | 3 |
-| `base-completion` | "Row 6 still owes a G, and this is the only cell that can hold one." | R2 | candidate cells for `b` = `b`'s remaining minimum | medium | 3 |
-| `bond-narrowing` | "Its partner can only be A or C, so this can only be T or G." | R4 | two-way mask intersection, neither endpoint solved | medium | 4 |
+| Technique         | Player-facing explanation                                            | Prerequisites | Example                                                       | Cognitive load | Weight |
+| ----------------- | -------------------------------------------------------------------- | ------------- | ------------------------------------------------------------- | -------------- | ------ |
+| `pair-completion` | "Three cells left in column 5, and all three must be A–T."           | R1            | open cells that can hold a pair = the pair's remaining budget | medium         | 3      |
+| `base-completion` | "Row 6 still owes a G, and this is the only cell that can hold one." | R2            | candidate cells for `b` = `b`'s remaining minimum             | medium         | 3      |
+| `bond-narrowing`  | "Its partner can only be A or C, so this can only be T or G."        | R4            | two-way mask intersection, neither endpoint solved            | medium         | 4      |
 
 `bond-narrowing` is the technique that makes bonds feel clever rather than
-mechanical: it works before *either* endpoint is known, and it is the move that
+mechanical: it works before _either_ endpoint is known, and it is the move that
 most often unlocks a stalled Medium board.
 
 ### Tier 3 — implemented in the prototype, **not shipping**
@@ -275,7 +284,7 @@ with a looser rule set knows where to look.
 
 ### Chain depth
 
-A *chain* is a maximal run of deductions where each one's supporting cells
+A _chain_ is a maximal run of deductions where each one's supporting cells
 include a cell placed by the previous one. Chain length is a difficulty input
 (see [difficulty model](./onedna-generator-design.md#8-difficulty-model)), and is
 the honest source of OneDNA's difficulty: Hard is not a harder technique, it is a
@@ -327,10 +336,10 @@ error, not a warning.
 
 10. `solution` satisfies R1, R2 and R3.
 11. `clues` violate no rule (a partial board cannot satisfy R1/R2, but it must
-    not *break* them: no pair over budget, no base over its maximum, no touching
+    not _break_ them: no pair over budget, no base over its maximum, no touching
     twins, no bond contradiction).
 
-**Solvability** *(expensive; run in the generator and in tests, not at import)*
+**Solvability** _(expensive; run in the generator and in tests, not at import)_
 
 12. An independent brute-force search finds **exactly one** solution.
 13. The human-style solver reaches that solution using tier ≤ 2 only.
@@ -371,14 +380,14 @@ why it is the tutorial's final beat rather than where the rule is taught.
 
 Intended path (first six placements, machine-verified):
 
-| # | Cell | Value | Because |
-| --- | --- | --- | --- |
-| 1 | r2c4 | C | bond **b** partner r2c1 is G |
-| 2 | r2c3 | T | row 2's C–G half is full, and the neighbour is C |
-| 3 | r2c2 | A | row 2 has used its T; C–G half full |
-| 4 | r1c3 | C | column 3's A–T half is full; neighbour above is G |
-| 5 | r4c3 | G | column 3 has used its C; A–T half full |
-| 6 | r3c4 | T | column 4's C–G half is full; neighbour is G |
+| #   | Cell | Value | Because                                           |
+| --- | ---- | ----- | ------------------------------------------------- |
+| 1   | r2c4 | C     | bond **b** partner r2c1 is G                      |
+| 2   | r2c3 | T     | row 2's C–G half is full, and the neighbour is C  |
+| 3   | r2c2 | A     | row 2 has used its T; C–G half full               |
+| 4   | r1c3 | C     | column 3's A–T half is full; neighbour above is G |
+| 5   | r4c3 | G     | column 3 has used its C; A–T half full            |
+| 6   | r3c4 | T     | column 4's C–G half is full; neighbour is G       |
 
 Techniques used: `bond-complement`, `pair-saturation`, `base-saturation`,
 `neighbour-exclusion`, `naked-single`. **Tier 1 only. No guessing.**
@@ -399,14 +408,14 @@ bonds:  a r3c3↔r3c6   b r2c4↔r6c6   c r1c3↔r4c6   d r3c1↔r3c4   e r2c2�
 
 Intended path (first six placements):
 
-| # | Cell | Value | Because |
-| --- | --- | --- | --- |
-| 1 | r3c6 | A | bond **a** partner r3c3 is T |
-| 2 | r6c6 | C | bond **b** partner r2c4 is G |
-| 3 | r1c3 | C | bond **c** partner r4c6 is G |
-| 4 | r1c5 | T | row 1's C–G half is full; neighbour r1c4 is A |
-| 5 | r3c4 | C | bond **d** partner r3c1 plus row 3's A–T half being full |
-| 6 | r6c3 | C | row 6's A–T half is full; neighbours exclude G |
+| #   | Cell | Value | Because                                                  |
+| --- | ---- | ----- | -------------------------------------------------------- |
+| 1   | r3c6 | A     | bond **a** partner r3c3 is T                             |
+| 2   | r6c6 | C     | bond **b** partner r2c4 is G                             |
+| 3   | r1c3 | C     | bond **c** partner r4c6 is G                             |
+| 4   | r1c5 | T     | row 1's C–G half is full; neighbour r1c4 is A            |
+| 5   | r3c4 | C     | bond **d** partner r3c1 plus row 3's A–T half being full |
+| 6   | r6c3 | C     | row 6's A–T half is full; neighbours exclude G           |
 
 **Why it is Easy:** half the board is given, three of the first three moves are
 single-step bond reads, and the whole solve stays in tier 1 (22 of 24 sampled
@@ -433,19 +442,19 @@ bonds:  a r1c2↔r6c5   b r2c1↔r6c2   c r4c4↔r5c2   d r2c5↔r3c2   e r3c1�
 
 Intended path (first seven placements):
 
-| # | Cell | Value | Because |
-| --- | --- | --- | --- |
-| 1 | r5c2 | T | bond **c** partner r4c4 is A |
-| 2 | r3c1 | C | bond **e** partner r3c4 is G |
-| 3 | r1c3 | T | row 1 has used both its A's; C–G half full; neighbour excludes |
-| 4 | r1c2 | C | **bond narrowing** — partner r6c5 is limited to A or G, so r1c2 is T or C; the neighbour r1c1 is A, and r1c3 is T |
-| 5 | r6c5 | G | bond **a**, now that r1c2 is C |
-| 6 | r3c2 | G | bond **d** narrowing, plus row 3 still owing a G |
-| 7 | r2c5 | C | bond **d** complement |
+| #   | Cell | Value | Because                                                                                                           |
+| --- | ---- | ----- | ----------------------------------------------------------------------------------------------------------------- |
+| 1   | r5c2 | T     | bond **c** partner r4c4 is A                                                                                      |
+| 2   | r3c1 | C     | bond **e** partner r3c4 is G                                                                                      |
+| 3   | r1c3 | T     | row 1 has used both its A's; C–G half full; neighbour excludes                                                    |
+| 4   | r1c2 | C     | **bond narrowing** — partner r6c5 is limited to A or G, so r1c2 is T or C; the neighbour r1c1 is A, and r1c3 is T |
+| 5   | r6c5 | G     | bond **a**, now that r1c2 is C                                                                                    |
+| 6   | r3c2 | G     | bond **d** narrowing, plus row 3 still owing a G                                                                  |
+| 7   | r2c5 | C     | bond **d** complement                                                                                             |
 
 **Why it is Medium:** only 9 of 36 cells are given, no bond has a given endpoint,
 and step 4 requires `bond-narrowing` — a tier-2 technique that reasons about two
-*unsolved* cells at once. 23 of 24 sampled Medium puzzles need tier 2.
+_unsolved_ cells at once. 23 of 24 sampled Medium puzzles need tier 2.
 
 ### 8.4 Hard — 8×8 concept
 
@@ -465,10 +474,10 @@ every shipped puzzle, and the regression test asserts the tier distribution.
 
 ```ts
 type ConflictReason =
-  | "pair-over-budget"    // R1
-  | "base-over-budget"    // R2's implied maximum
-  | "twins-touching"      // R3
-  | "bond-mismatch";      // R4
+  | "pair-over-budget" // R1
+  | "base-over-budget" // R2's implied maximum
+  | "twins-touching" // R3
+  | "bond-mismatch"; // R4
 ```
 
 - A cell may carry several reasons at once.

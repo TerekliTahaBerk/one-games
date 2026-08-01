@@ -7,6 +7,8 @@ const PATHS = [
   "/pricing",
   "/sudoku",
   "/sudoku/archive",
+  "/dna",
+  "/dna/archive",
   "/about",
   "/privacy",
   "/terms",
@@ -15,7 +17,8 @@ const PATHS = [
 export default function sitemap(): MetadataRoute.Sitemap {
   return PATHS.map((path) => ({
     url: absoluteUrl(path),
-    changeFrequency: path === "/sudoku" ? "daily" : "monthly",
+    changeFrequency:
+      path === "/sudoku" || path === "/dna" ? "daily" : "monthly",
     priority: path === "/" ? 1 : 0.8,
   }));
 }

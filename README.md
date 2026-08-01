@@ -1,9 +1,9 @@
 # OneGames
 
 OneGames is the daily-games member of the One family — sibling to OneRead, not
-a product beneath it. It ships with **OneSudoku**: one Easy, one Medium, and
-one Hard chapter every day, behind email-code verification and a $1/month Polar
-membership, plus an explicit no-payment test path.
+a product beneath it. It ships with **OneSudoku** and **OneDNA**, each with an
+Easy, Medium, and Hard chapter every day, behind email-code verification and a
+$1/month Polar membership, plus an explicit no-payment test path.
 
 > One thoughtful game at a time.
 
@@ -64,10 +64,10 @@ share one construction language — a 3.2 outer stroke, a 2 inner stroke, a
 9-unit corner radius, a pale cell rhythm, and a single solid accent moment —
 while staying individually recognisable at 16px:
 
-| Mark | Idea | Accent |
-| --- | --- | --- |
+| Mark      | Idea                                                                             | Accent                   |
+| --------- | -------------------------------------------------------------------------------- | ------------------------ |
 | OneSudoku | Rounded logic grid, three colour families crossing it, one solid completion cell | Pale blue + region tints |
-| OneDNA | Free-standing twisted ladder, three rungs, the middle one solid | Pale teal |
+| OneDNA    | Free-standing twisted ladder, three rungs, the middle one solid                  | Pale teal                |
 
 They are used large on the homepage, as a small family lockup on the access and
 pricing pages, and as the product mark in the game. There are no characters,
@@ -104,11 +104,11 @@ Open `http://localhost:3000`. No credentials are needed — use the
 
 The app builds for two hosts from one codebase.
 
-| | Cloudflare / Sites | Vercel |
-| --- | --- | --- |
-| Build | `npm run build` (vinext → `dist/`) | `npm run build:vercel` (`next build` → `.next/`) |
-| Config | `.openai/hosting.json` | `vercel.json` |
-| Storage | native D1 binding `DB` | Postgres (`POSTGRES_URL`) |
+|         | Cloudflare / Sites                 | Vercel                                           |
+| ------- | ---------------------------------- | ------------------------------------------------ |
+| Build   | `npm run build` (vinext → `dist/`) | `npm run build:vercel` (`next build` → `.next/`) |
+| Config  | `.openai/hosting.json`             | `vercel.json`                                    |
+| Storage | native D1 binding `DB`             | Postgres (`POSTGRES_URL`)                        |
 
 `vercel.json` pins the build command, so a Vercel project needs no dashboard
 setup. If a Build Command is already set in project settings it overrides
@@ -140,6 +140,9 @@ node scripts/build-og.mjs
 node scripts/generate-puzzles.mjs               # regrid and recolour the bank
 node scripts/generate-puzzles.mjs --groups-only  # keep the grids, redraw colours
 npm run validate:sudoku                          # check the shipped bank
+npm run generate:dna                             # deterministic 400-per-tier bank
+npm run generate:dna -- --dry-run                # generate and validate without writing
+npm run validate:dna                             # exact + logical validation
 ```
 
 ## Project structure
@@ -152,9 +155,11 @@ app/api/webhook/        Signed Polar billing lifecycle
 db/postgres/            Postgres migrations
 components/             Shared shell: header, footer, logos, access, legal
 components/sudoku/      Board, controls, settings, completion
+components/dna/         OneDNA board, SVG bonds, tutorial, controls, completion
 hooks/                  Gameplay state and timer orchestration
 lib/access/             Crypto, storage adapters, store, session, webhooks
 lib/sudoku/             Solver, puzzle bank, persistence
+lib/dna/                Rules, exact/logical solvers, bank, validation, persistence
 scripts/                Social card and puzzle-bank generators
 tests/                  Vitest unit tests and Playwright specs
 drizzle/                D1 schema migration
@@ -175,13 +180,13 @@ postgres.ts` rewrites `?` placeholders to `$1…$n` (skipping quoted strings) so
 one set of queries serves both, and runs `batch` inside a real transaction —
 something the D1 HTTP client cannot offer.
 
-| Table | Holds |
-| --- | --- |
-| `players` | every address ever entered, with request count and verification date |
-| `verification_codes` | keyed hashes, expiry, attempt count |
-| `access_sessions` | SHA-256 of the cookie value, never the value itself |
-| `subscriptions` | billing status per address |
-| `billing_events` | delivered webhook ids, for idempotency |
+| Table                | Holds                                                                |
+| -------------------- | -------------------------------------------------------------------- |
+| `players`            | every address ever entered, with request count and verification date |
+| `verification_codes` | keyed hashes, expiry, attempt count                                  |
+| `access_sessions`    | SHA-256 of the cookie value, never the value itself                  |
+| `subscriptions`      | billing status per address                                           |
+| `billing_events`     | delivered webhook ids, for idempotency                               |
 
 `players` is recorded the moment an address is entered, not once it verifies —
 the top of the funnel is worth knowing.
@@ -228,20 +233,20 @@ real code was sent or a real payment was taken.**
 
 See `.env.example`. Summary of what breaks without each:
 
-| Variable | Needed for | Without it |
-| --- | --- | --- |
-| `EMAIL_VERIFICATION_SECRET` | Hashing verification codes | Code requests return `email_not_configured` |
-| `RESEND_API_KEY` | Delivering codes | Same as above |
-| `ONEGAMES_EMAIL_FROM` | Sender identity | Falls back to `OneGames <hello@oneread.email>` |
-| `POLAR_ACCESS_TOKEN` | Opening checkout | Checkout returns `billing_not_configured` |
-| `POLAR_ONEGAMES_PRODUCT_ID` | The $1/month product | Same as above |
-| `POLAR_WEBHOOK_SECRET` | Verifying webhooks | Webhook returns 503; nothing becomes `active` |
-| `POLAR_SERVER` | Sandbox vs production | Defaults to `sandbox` |
-| `PUBLIC_BASE_URL` | Checkout return URLs, sitemap, robots | Falls back to the production origin |
-| `POSTGRES_URL` / `PRISMA_DATABASE_URL` | Storage off Cloudflare | Falls back to the D1 binding, then D1 HTTP, then no storage |
-| `CLOUDFLARE_ACCOUNT_ID` | D1 over HTTP | Only consulted when Postgres is unset |
-| `CLOUDFLARE_D1_DATABASE_ID` | Same | Same |
-| `CLOUDFLARE_API_TOKEN` | Same (needs D1 Edit) | Same |
+| Variable                               | Needed for                            | Without it                                                  |
+| -------------------------------------- | ------------------------------------- | ----------------------------------------------------------- |
+| `EMAIL_VERIFICATION_SECRET`            | Hashing verification codes            | Code requests return `email_not_configured`                 |
+| `RESEND_API_KEY`                       | Delivering codes                      | Same as above                                               |
+| `ONEGAMES_EMAIL_FROM`                  | Sender identity                       | Falls back to `OneGames <hello@oneread.email>`              |
+| `POLAR_ACCESS_TOKEN`                   | Opening checkout                      | Checkout returns `billing_not_configured`                   |
+| `POLAR_ONEGAMES_PRODUCT_ID`            | The $1/month product                  | Same as above                                               |
+| `POLAR_WEBHOOK_SECRET`                 | Verifying webhooks                    | Webhook returns 503; nothing becomes `active`               |
+| `POLAR_SERVER`                         | Sandbox vs production                 | Defaults to `sandbox`                                       |
+| `PUBLIC_BASE_URL`                      | Checkout return URLs, sitemap, robots | Falls back to the production origin                         |
+| `POSTGRES_URL` / `PRISMA_DATABASE_URL` | Storage off Cloudflare                | Falls back to the D1 binding, then D1 HTTP, then no storage |
+| `CLOUDFLARE_ACCOUNT_ID`                | D1 over HTTP                          | Only consulted when Postgres is unset                       |
+| `CLOUDFLARE_D1_DATABASE_ID`            | Same                                  | Same                                                        |
+| `CLOUDFLARE_API_TOKEN`                 | Same (needs D1 Edit)                  | Same                                                        |
 
 ## Sudoku architecture
 

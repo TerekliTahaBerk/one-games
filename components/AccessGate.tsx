@@ -13,7 +13,10 @@ async function postJson(url: string, body?: unknown) {
     headers: body ? { "content-type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
-  const data = ((await response.json().catch(() => ({}))) ?? {}) as Record<string, unknown>;
+  const data = ((await response.json().catch(() => ({}))) ?? {}) as Record<
+    string,
+    unknown
+  >;
   return { ok: response.ok, data };
 }
 
@@ -45,7 +48,14 @@ function messageFor(error: unknown): string {
   }
 }
 
-export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolean }) {
+export function AccessGate({
+  checkoutReturn = false,
+  game = "sudoku",
+}: {
+  checkoutReturn?: boolean;
+  game?: "sudoku" | "dna";
+}) {
+  const destination = game === "dna" ? "/dna" : "/sudoku";
   const [step, setStep] = useState<Step>(checkoutReturn ? "checking" : "email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -57,10 +67,13 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
     let active = true;
     const check = async () => {
       const response = await fetch("/api/access/status");
-      const state = (await response.json()) as { allowed?: boolean; authenticated?: boolean };
+      const state = (await response.json()) as {
+        allowed?: boolean;
+        authenticated?: boolean;
+      };
       if (!active) return;
       if (state.allowed) {
-        window.location.href = "/sudoku";
+        window.location.href = destination;
         return;
       }
       setStep(state.authenticated ? "payment" : "email");
@@ -69,7 +82,7 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
     return () => {
       active = false;
     };
-  }, [checkoutReturn]);
+  }, [checkoutReturn, destination]);
 
   const submitEmail = async (event: FormEvent) => {
     event.preventDefault();
@@ -103,7 +116,7 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
       return;
     }
     if (result.data.allowed) {
-      window.location.href = "/sudoku";
+      window.location.href = destination;
       return;
     }
     setStep("payment");
@@ -112,7 +125,7 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
   const checkout = async () => {
     setBusy(true);
     setError("");
-    const result = await postJson("/api/access/checkout");
+    const result = await postJson("/api/access/checkout", { game });
     setBusy(false);
     if (result.ok && typeof result.data.url === "string") {
       window.location.href = result.data.url;
@@ -129,9 +142,12 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
         <div className="access-copy rise">
           {step === "email" && (
             <>
-              <h1 className="display display-sm">Where should we send your code?</h1>
+              <h1 className="display display-sm">
+                Where should we send your code?
+              </h1>
               <p className="lede">
-                Enter your email and we’ll send a six-digit code. No password, no noise.
+                Enter your email and we’ll send a six-digit code. No password,
+                no noise.
               </p>
               {/* noValidate keeps validation messaging in our own voice and styling. */}
               <form onSubmit={submitEmail} className="access-form" noValidate>
@@ -157,7 +173,8 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
             <>
               <h1 className="display display-sm">Check your inbox.</h1>
               <p className="lede">
-                We sent a six-digit code to <strong>{email}</strong>. It expires in ten minutes.
+                We sent a six-digit code to <strong>{email}</strong>. It expires
+                in ten minutes.
               </p>
               <form onSubmit={submitCode} className="access-form" noValidate>
                 <label className="sr-only" htmlFor="access-code">
@@ -178,7 +195,11 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
                   {busy ? "Please wait…" : "Verify email"}
                 </button>
               </form>
-              <button className="text-action" type="button" onClick={() => setStep("email")}>
+              <button
+                className="text-action"
+                type="button"
+                onClick={() => setStep("email")}
+              >
                 Use another email
               </button>
             </>
@@ -187,9 +208,12 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
           {step === "payment" && (
             <>
               <GameLogoFamily size={54} className="access-mark" />
-              <h1 className="display display-sm">Every daily game. One subscription.</h1>
+              <h1 className="display display-sm">
+                Every daily game. One subscription.
+              </h1>
               <p className="lede">
-                Today’s Easy, Medium, and Hard chapters — and every new game that joins the family.
+                Today’s Easy, Medium, and Hard chapters — and every new game
+                that joins the family.
               </p>
               <div className="price-lockup">
                 <sup>$</sup>
@@ -208,7 +232,12 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
                 </li>
               </ul>
               <div className="cta-row">
-                <button className="pill-primary" type="button" onClick={checkout} disabled={busy}>
+                <button
+                  className="pill-primary"
+                  type="button"
+                  onClick={checkout}
+                  disabled={busy}
+                >
                   {busy ? "Please wait…" : "Subscribe for $1 / month"}
                 </button>
                 <p className="note">Billing is handled securely by Polar.</p>
@@ -220,7 +249,8 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
             <>
               <h1 className="display display-sm">Checking your access.</h1>
               <p className="lede">
-                Polar is confirming your subscription. This usually takes only a moment.
+                Polar is confirming your subscription. This usually takes only a
+                moment.
               </p>
               <span className="soft-loader" aria-label="Checking">
                 <i />
@@ -238,6 +268,7 @@ export function AccessGate({ checkoutReturn = false }: { checkoutReturn?: boolea
 
           {step === "email" && (
             <form action="/api/access/test" method="post">
+              <input type="hidden" name="game" value={game} />
               <button className="quiet-link" type="submit" disabled={busy}>
                 {/* The underline hugs the text rather than the 44px touch box. */}
                 <span className="link-underline">

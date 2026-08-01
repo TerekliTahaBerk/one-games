@@ -9,7 +9,7 @@ import type { CSSProperties } from "react";
  *
  * - the same 3.2 outer stroke and 2 inner stroke, in ink
  * - the same 9-unit corner radius and round joins
- * - one pale accent per game, plus a single solid accent moment
+ * - a pale cell rhythm, plus a single solid accent moment
  *
  * The marks are purely geometric. There are no characters, faces, or mascots,
  * and none of them borrow another puzzle brand's silhouette or palette.
@@ -36,6 +36,19 @@ const INK = "#1A1A1A";
 const OUTER = 3.2;
 const INNER = 2;
 
+/**
+ * The colored-group palette, at mark strength.
+ *
+ * These are the same families the OneSudoku board uses — `--region-*` in
+ * app/globals.css — carried a step deeper, because the board's washes sit under
+ * a 30px numeral while these have to survive a 20px lockup.
+ */
+export const SUDOKU_REGION_PALE = {
+  coral: "#F1D9D4",
+  mint: "#D8E8DE",
+  gold: "#EFE3C8",
+} as const;
+
 /** Third-lines of the OneSudoku panel, shared by the grid and its cells. */
 const T0 = 6;
 const T1 = 23.333;
@@ -45,7 +58,7 @@ const T3 = 58;
 const NUMBERS_PANEL =
   "M7 22C7 13.716 13.716 7 22 7H52C54.761 7 57 9.239 57 12V42C57 50.284 50.284 57 42 57H12C9.239 57 7 54.761 7 52Z";
 
-function SudokuMark({ accent, pale }: Palette) {
+function SudokuMark({ accent }: Palette) {
   const cell = (column: number, row: number, fill: string) => (
     <rect
       x={[T0, T1, T2][column]}
@@ -58,11 +71,17 @@ function SudokuMark({ accent, pale }: Palette) {
 
   return (
     <>
-      {/* A pale cell rhythm resolving into one solid completion cell. */}
+      {/*
+        Three colour families crossing the grid, resolving into one solid
+        completion cell. The tinted cells share no row and no column, so the
+        mark is a valid colored group in miniature — the rule the game plays by,
+        drawn rather than described. The solid accent keeps its original corner.
+      */}
       <g clipPath="url(#one-sudoku-clip)">
         <rect x={T0} y={T0} width={T3 - T0} height={T3 - T0} fill="#FFFFFF" />
-        {cell(0, 0, pale)}
-        {cell(1, 1, pale)}
+        {cell(0, 2, SUDOKU_REGION_PALE.coral)}
+        {cell(1, 1, SUDOKU_REGION_PALE.mint)}
+        {cell(2, 0, SUDOKU_REGION_PALE.gold)}
         {cell(2, 2, accent)}
       </g>
       <path

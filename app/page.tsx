@@ -21,8 +21,10 @@ export default function HomePage() {
 
           <BrandLogo />
           <div className="header-trailing">
-            <Link href="/about" className="header-text-link link-underline" aria-label="About OneGames">
-              About
+            <Link href="/about" className="header-text-link" aria-label="About OneGames">
+              {/* The hairline belongs to the word, not to the 44px touch target —
+                  the same arrangement the family credit uses on the left. */}
+              <span className="link-underline">About</span>
             </Link>
           </div>
         </header>

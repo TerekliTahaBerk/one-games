@@ -61,12 +61,12 @@ strictly geometric — no faces anywhere in them.
 `components/GameLogo.tsx` draws all four marks in code on a shared 64×64 grid,
 so they are sharp at any size and there is no raster asset to regenerate. They
 share one construction language — a 3.2 outer stroke, a 2 inner stroke, a
-9-unit corner radius, one pale accent per game, and a single solid accent
-moment — while staying individually recognisable at 16px:
+9-unit corner radius, a pale cell rhythm, and a single solid accent moment —
+while staying individually recognisable at 16px:
 
 | Mark | Idea | Accent |
 | --- | --- | --- |
-| OneSudoku | Rounded logic grid, pale cell rhythm, one solid completion cell | Pale blue |
+| OneSudoku | Rounded logic grid, three colour families crossing it, one solid completion cell | Pale blue + region tints |
 | OneWord | Three tiles leaning on a shared base, the middle one solid | Pale lilac |
 | OneMatch | Three rings whose centres each sit one radius from a shared middle | Pale rose |
 | OneNumbers | Asymmetric-cornered 2×2 arithmetic panel | Pale green |

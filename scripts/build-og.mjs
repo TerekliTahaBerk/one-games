@@ -26,6 +26,9 @@ const PALETTE = {
 const INK = "#1A1A1A";
 const OUTER = 3.2;
 const INNER = 2;
+
+/** Mirrors SUDOKU_REGION_PALE in components/GameLogo.tsx. */
+const REGION_PALE = { coral: "#F1D9D4", mint: "#D8E8DE", gold: "#EFE3C8" };
 const NUMBERS_PANEL =
   "M7 22C7 13.716 13.716 7 22 7H52C54.761 7 57 9.239 57 12V42C57 50.284 50.284 57 42 57H12C9.239 57 7 54.761 7 52Z";
 
@@ -38,8 +41,9 @@ function mark(game, size) {
       <defs><clipPath id="c-sudoku"><rect x="6" y="6" width="52" height="52" rx="9"/></clipPath></defs>
       <g clip-path="url(#c-sudoku)">
         <rect x="6" y="6" width="52" height="52" fill="#fff"/>
-        <rect x="6" y="6" width="17.333" height="17.333" fill="${pale}"/>
-        <rect x="23.333" y="23.333" width="17.333" height="17.333" fill="${pale}"/>
+        <rect x="6" y="40.667" width="17.333" height="17.333" fill="${REGION_PALE.coral}"/>
+        <rect x="23.333" y="23.333" width="17.333" height="17.333" fill="${REGION_PALE.mint}"/>
+        <rect x="40.667" y="6" width="17.333" height="17.333" fill="${REGION_PALE.gold}"/>
         <rect x="40.667" y="40.667" width="17.333" height="17.333" fill="${accent}"/>
       </g>
       <path d="M23.333 6V58M40.667 6V58M6 23.333H58M6 40.667H58" stroke="${INK}" stroke-width="${INNER}" stroke-linecap="round"/>

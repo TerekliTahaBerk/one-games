@@ -24,7 +24,7 @@ describe("Daily scheduling", () => {
 
   it("publishes three distinct chapters for a day, stable across calls", () => {
     const boards = DIFFICULTIES.map((difficulty) => getDailyPuzzle("2026-07-31", difficulty));
-    const signatures = new Set(boards.map((board) => board.join("")));
+    const signatures = new Set(boards.map((puzzle) => puzzle.clues.join("")));
     expect(signatures.size).toBe(3);
 
     for (const difficulty of DIFFICULTIES) {
@@ -36,7 +36,7 @@ describe("Daily scheduling", () => {
 
   it("varies the puzzle across the archive window", () => {
     const easy = getArchiveDates("2026-07-31").map((date) =>
-      getDailyPuzzle(date, "easy").join(""),
+      getDailyPuzzle(date, "easy").id,
     );
     expect(new Set(easy).size).toBeGreaterThan(1);
   });

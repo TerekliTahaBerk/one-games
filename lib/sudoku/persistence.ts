@@ -1,8 +1,19 @@
-import type { Difficulty, GameSave, Settings, Stats } from "./types";
+import { SAVE_VERSION } from "./types";
+import type { Difficulty, GameSave, Notes, Settings, Snapshot, Stats } from "./types";
+
+/**
+ * Local persistence.
+ *
+ * The storage prefix is deliberately stable: settings, stats and the onboarding
+ * flag survive every schema change. Only an individual game save is discarded,
+ * and only when it cannot be matched to the puzzle definition it was played
+ * against — see `loadGame`.
+ */
 
 const PREFIX = "onegames:v1";
 const SETTINGS_KEY = `${PREFIX}:settings`;
 const STATS_KEY = `${PREFIX}:stats`;
+const COLORED_INTRO_KEY = `${PREFIX}:sudoku:colored-intro-seen`;
 
 export const DEFAULT_SETTINGS: Settings = {
   checkMistakes: true,
@@ -49,14 +60,115 @@ export function gameKey(date: string, difficulty: Difficulty): string {
   return `${PREFIX}:game:${date}:${difficulty}`;
 }
 
-export function loadGame(date: string, difficulty: Difficulty): GameSave | null {
-  const value = safeRead<GameSave | null>(gameKey(date, difficulty), null);
-  if (!value || value.version !== 1 || !Array.isArray(value.board) || value.board.length !== 81) return null;
-  return value;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isBoard(value: unknown): value is number[] {
+  return Array.isArray(value) && value.length === 81 && value.every((cell) => typeof cell === "number");
+}
+
+function readNotes(value: unknown): Notes {
+  if (!isRecord(value)) return {};
+  const notes: Notes = {};
+  for (const [key, candidates] of Object.entries(value)) {
+    const index = Number(key);
+    if (!Number.isInteger(index) || !Array.isArray(candidates)) continue;
+    notes[index] = candidates.filter((note): note is number => typeof note === "number");
+  }
+  return notes;
+}
+
+function readSnapshots(value: unknown): Snapshot[] {
+  if (!Array.isArray(value)) return [];
+  const snapshots: Snapshot[] = [];
+  for (const entry of value) {
+    if (!isRecord(entry) || !isBoard(entry.board)) return [];
+    snapshots.push({ board: [...entry.board], notes: readNotes(entry.notes) });
+  }
+  return snapshots;
+}
+
+function readCount(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+/**
+ * Reads one saved game, migrating safely.
+ *
+ * Anything written by an older schema — or written against a different puzzle
+ * definition than the one now served for this date — is dropped and the game
+ * starts fresh. Settings and stats are stored under their own keys and are
+ * never touched here.
+ */
+export function loadGame(
+  date: string,
+  difficulty: Difficulty,
+  puzzleId?: string,
+): GameSave | null {
+  if (typeof window === "undefined") return null;
+  const key = gameKey(date, difficulty);
+
+  let value: unknown;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    value = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+
+  // Anything the current schema cannot vouch for is discarded — an old
+  // version: 1 save, a truncated board, or a save made against a different
+  // puzzle definition for this date.
+  const discard = () => {
+    clearGame(date, difficulty);
+    return null;
+  };
+
+  if (!isRecord(value) || value.version !== SAVE_VERSION) return discard();
+  const { puzzleId: savedId, board } = value;
+  if (typeof savedId !== "string" || !isBoard(board)) return discard();
+  if (puzzleId !== undefined && savedId !== puzzleId) return discard();
+
+  return {
+    version: SAVE_VERSION,
+    puzzleId: savedId,
+    date,
+    difficulty,
+    board: [...board],
+    notes: readNotes(value.notes),
+    elapsed: readCount(value.elapsed),
+    started: value.started === true,
+    completed: value.completed === true,
+    completedAt: typeof value.completedAt === "string" ? value.completedAt : undefined,
+    mistakes: readCount(value.mistakes),
+    hints: readCount(value.hints),
+    history: readSnapshots(value.history),
+    future: readSnapshots(value.future),
+  };
 }
 
 export function saveGame(game: GameSave): boolean {
   return safeWrite(gameKey(game.date, game.difficulty), game);
+}
+
+/** Whether the colored-groups explainer has already been dismissed on this device. */
+export function hasSeenColoredIntro(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    return window.localStorage.getItem(COLORED_INTRO_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function markColoredIntroSeen(): void {
+  try {
+    window.localStorage.setItem(COLORED_INTRO_KEY, "1");
+  } catch {
+    /* storage unavailable */
+  }
 }
 
 export function loadSettings(): Settings {

@@ -1,8 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { candidatesFor, conflictIndices, isComplete, peers, solve } from "@/lib/sudoku/solver";
+import {
+  candidatesFor,
+  conflictDetails,
+  getAllPeers,
+  getGroupFor,
+  isComplete,
+  NO_GROUPS,
+  solve,
+} from "@/lib/sudoku/solver";
 import { getDailyPuzzle } from "@/lib/sudoku/puzzles";
+import { regionName } from "@/lib/sudoku/regions";
 import {
   clearGame,
   DEFAULT_SETTINGS,
@@ -12,14 +21,26 @@ import {
   saveGame,
   saveSettings,
 } from "@/lib/sudoku/persistence";
-import type { Difficulty, GameSave, Notes, Settings, Snapshot, Stats } from "@/lib/sudoku/types";
+import {
+  SAVE_VERSION,
+  type Board,
+  type ColoredGroup,
+  type Difficulty,
+  type GameSave,
+  type Notes,
+  type Settings,
+  type Snapshot,
+  type Stats,
+  type SudokuPuzzle,
+} from "@/lib/sudoku/types";
 
-function createGame(date: string, difficulty: Difficulty): GameSave {
+function createGame(date: string, difficulty: Difficulty, puzzle: SudokuPuzzle): GameSave {
   return {
-    version: 1,
+    version: SAVE_VERSION,
+    puzzleId: puzzle.id,
     date,
     difficulty,
-    board: getDailyPuzzle(date, difficulty),
+    board: [...puzzle.clues],
     notes: {},
     elapsed: 0,
     started: false,
@@ -31,17 +52,23 @@ function createGame(date: string, difficulty: Difficulty): GameSave {
   };
 }
 
-function removePeerNotes(notes: Notes, index: number, value: number): Notes {
+/** Placing a value clears it from every peer's notes — colored peers included. */
+function removePeerNotes(
+  notes: Notes,
+  index: number,
+  value: number,
+  groups: readonly ColoredGroup[],
+): Notes {
   const next = { ...notes };
-  peers(index).forEach((peer) => {
+  getAllPeers(index, groups).forEach((peer) => {
     if (next[peer]?.includes(value)) next[peer] = next[peer].filter((note) => note !== value);
   });
   return next;
 }
 
-function allCandidates(board: number[]): Notes {
+function allCandidates(board: Board, groups: readonly ColoredGroup[]): Notes {
   return Object.fromEntries(
-    board.map((value, index) => [index, value ? [] : candidatesFor(board, index)]),
+    board.map((value, index) => [index, value ? [] : candidatesFor(board, index, groups)]),
   );
 }
 
@@ -62,7 +89,11 @@ function playSoftTone(): void {
 }
 
 export function useSudokuGame(date: string, difficulty: Difficulty) {
-  const [game, setGame] = useState<GameSave>(() => createGame(date, difficulty));
+  const puzzle = useMemo(() => getDailyPuzzle(date, difficulty), [date, difficulty]);
+  const clues = puzzle.clues;
+  const coloredGroups = puzzle.coloredGroups;
+
+  const [game, setGame] = useState<GameSave>(() => createGame(date, difficulty, puzzle));
   const [selected, setSelected] = useState<number | null>(null);
   const [notesMode, setNotesMode] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -71,22 +102,23 @@ export function useSudokuGame(date: string, difficulty: Difficulty) {
   const [announcement, setAnnouncement] = useState("");
   const [hintMessage, setHintMessage] = useState("");
   const [completionStats, setCompletionStats] = useState<Stats | null>(null);
-  const solution = useMemo(() => solve(getDailyPuzzle(date, difficulty)), [date, difficulty]);
-  const clues = useMemo(() => getDailyPuzzle(date, difficulty), [date, difficulty]);
+  const [lastEntry, setLastEntry] = useState<number | null>(null);
+  const solution = useMemo(() => solve(clues, coloredGroups), [clues, coloredGroups]);
   const recorded = useRef(false);
 
   useEffect(() => {
     queueMicrotask(() => {
-      setGame(loadGame(date, difficulty) ?? createGame(date, difficulty));
+      setGame(loadGame(date, difficulty, puzzle.id) ?? createGame(date, difficulty, puzzle));
       setSettings(loadSettings());
       setSelected(null);
       setPaused(false);
       setHintMessage("");
       setCompletionStats(null);
+      setLastEntry(null);
       recorded.current = false;
       setHydrated(true);
     });
-  }, [date, difficulty]);
+  }, [date, difficulty, puzzle]);
 
   useEffect(() => {
     if (hydrated) saveGame(game);
@@ -111,56 +143,98 @@ export function useSudokuGame(date: string, difficulty: Difficulty) {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [game.started, game.completed]);
 
-  const finishIfComplete = useCallback((next: GameSave): GameSave => {
-    if (!isComplete(next.board) || !solution || next.board.some((value, index) => value !== solution[index])) return next;
-    const completed = { ...next, completed: true, completedAt: new Date().toISOString() };
-    if (!recorded.current) {
-      recorded.current = true;
-      setCompletionStats(recordCompletion(completed));
-      setAnnouncement("Puzzle complete. Nicely done.");
-    }
-    return completed;
-  }, [solution]);
+  // A short-lived flag so a correct entry can flash without a motion library.
+  useEffect(() => {
+    if (lastEntry === null) return;
+    const timer = window.setTimeout(() => setLastEntry(null), 450);
+    return () => window.clearTimeout(timer);
+  }, [lastEntry]);
 
-  const pushSnapshot = useCallback((current: GameSave): GameSave => ({
-    ...current,
-    history: [...current.history.slice(-49), { board: current.board, notes: current.notes }],
-    future: [],
-    started: true,
-  }), []);
-
-  const enter = useCallback((value: number) => {
-    if (selected === null || clues[selected] || paused || game.completed) return;
-    setGame((current) => {
-      const withHistory = pushSnapshot(current);
-      if (notesMode) {
-        const existing = withHistory.notes[selected] ?? [];
-        const nextValues = existing.includes(value)
-          ? existing.filter((note) => note !== value)
-          : [...existing, value].sort();
-        setAnnouncement(`Candidate ${value} ${existing.includes(value) ? "removed" : "added"}`);
-        return { ...withHistory, notes: { ...withHistory.notes, [selected]: nextValues } };
+  const finishIfComplete = useCallback(
+    (next: GameSave): GameSave => {
+      if (
+        !isComplete(next.board, coloredGroups) ||
+        !solution ||
+        next.board.some((value, index) => value !== solution[index])
+      ) {
+        return next;
       }
-      const board = [...withHistory.board];
-      board[selected] = value;
-      const incorrect = settings.checkMistakes && solution?.[selected] !== value;
-      const cleanedNotes = settings.autoRemoveNotes ? removePeerNotes(withHistory.notes, selected, value) : withHistory.notes;
-      const notes = settings.autoCandidates ? allCandidates(board) : { ...cleanedNotes, [selected]: [] };
-      if (settings.sound && !incorrect) playSoftTone();
-      setAnnouncement(incorrect ? `${value} conflicts with the solution` : `${value} entered`);
-      return finishIfComplete({
-        ...withHistory,
-        board,
-        notes,
-        mistakes: withHistory.mistakes + (incorrect ? 1 : 0),
+      const completed = { ...next, completed: true, completedAt: new Date().toISOString() };
+      if (!recorded.current) {
+        recorded.current = true;
+        setCompletionStats(recordCompletion(completed));
+        setAnnouncement("Puzzle complete. Nicely done.");
+      }
+      return completed;
+    },
+    [solution, coloredGroups],
+  );
+
+  const pushSnapshot = useCallback(
+    (current: GameSave): GameSave => ({
+      ...current,
+      history: [...current.history.slice(-49), { board: current.board, notes: current.notes }],
+      future: [],
+      started: true,
+    }),
+    [],
+  );
+
+  const enter = useCallback(
+    (value: number) => {
+      if (selected === null || clues[selected] || paused || game.completed) return;
+      setGame((current) => {
+        const withHistory = pushSnapshot(current);
+        if (notesMode) {
+          const existing = withHistory.notes[selected] ?? [];
+          const nextValues = existing.includes(value)
+            ? existing.filter((note) => note !== value)
+            : [...existing, value].sort();
+          setAnnouncement(`Candidate ${value} ${existing.includes(value) ? "removed" : "added"}`);
+          return { ...withHistory, notes: { ...withHistory.notes, [selected]: nextValues } };
+        }
+        const board = [...withHistory.board];
+        board[selected] = value;
+        // One entry is at most one mistake, however many rules it happens to break.
+        const incorrect = settings.checkMistakes && solution?.[selected] !== value;
+        const cleanedNotes = settings.autoRemoveNotes
+          ? removePeerNotes(withHistory.notes, selected, value, coloredGroups)
+          : withHistory.notes;
+        const notes = settings.autoCandidates
+          ? allCandidates(board, coloredGroups)
+          : { ...cleanedNotes, [selected]: [] };
+        if (settings.sound && !incorrect) playSoftTone();
+        if (!incorrect) setLastEntry(selected);
+        setAnnouncement(incorrect ? `${value} conflicts with the solution` : `${value} entered`);
+        return finishIfComplete({
+          ...withHistory,
+          board,
+          notes,
+          mistakes: withHistory.mistakes + (incorrect ? 1 : 0),
+        });
       });
-    });
-  }, [selected, clues, paused, game.completed, pushSnapshot, notesMode, settings.checkMistakes, settings.autoRemoveNotes, settings.autoCandidates, settings.sound, solution, finishIfComplete]);
+    },
+    [
+      selected,
+      clues,
+      paused,
+      game.completed,
+      pushSnapshot,
+      notesMode,
+      settings.checkMistakes,
+      settings.autoRemoveNotes,
+      settings.autoCandidates,
+      settings.sound,
+      solution,
+      coloredGroups,
+      finishIfComplete,
+    ],
+  );
 
   const erase = useCallback(() => {
     if (selected === null || clues[selected] || paused || game.completed) return;
     setGame((current) => {
-      if (!current.board[selected] && !(current.notes[selected]?.length)) return current;
+      if (!current.board[selected] && !current.notes[selected]?.length) return current;
       const withHistory = pushSnapshot(current);
       const board = [...withHistory.board];
       board[selected] = 0;
@@ -201,37 +275,51 @@ export function useSudokuGame(date: string, difficulty: Difficulty) {
 
   const hint = useCallback(() => {
     if (!solution || paused || game.completed) return;
-    let target = game.board.findIndex((value, index) => !value && candidatesFor(game.board, index).length === 1);
+    let target = game.board.findIndex(
+      (value, index) => !value && candidatesFor(game.board, index, coloredGroups).length === 1,
+    );
     if (target === -1) target = game.board.findIndex((value) => !value);
     if (target === -1) return;
     const row = Math.floor(target / 9) + 1;
     const column = (target % 9) + 1;
-    const logical = candidatesFor(game.board, target).length === 1;
+    const withColour = candidatesFor(game.board, target, coloredGroups);
+    const withoutColour = candidatesFor(game.board, target, NO_GROUPS);
+    const group = getGroupFor(target, coloredGroups);
     setSelected(target);
-    setHintMessage(logical
-      ? `Only ${solution[target]} can go in row ${row}, column ${column}.`
-      : `Look again at row ${row}, column ${column}. One value fits cleanly.`);
+    if (withColour.length === 1 && withoutColour.length > 1 && group) {
+      setHintMessage(
+        `Only ${solution[target]} can go in row ${row}, column ${column} — the other options already sit in its ${regionName(group.color)} cells.`,
+      );
+    } else if (withColour.length === 1) {
+      setHintMessage(`Only ${solution[target]} can go in row ${row}, column ${column}.`);
+    } else {
+      setHintMessage(`Look again at row ${row}, column ${column}. One value fits cleanly.`);
+    }
     setGame((current) => ({ ...current, hints: current.hints + 1, started: true }));
     setAnnouncement(`Hint: row ${row}, column ${column} selected`);
-  }, [solution, paused, game]);
+  }, [solution, paused, game, coloredGroups]);
 
-  const updateSettings = useCallback((next: Settings) => {
-    setSettings(next);
-    if (next.autoCandidates && !settings.autoCandidates) {
-      setGame((current) => ({ ...current, notes: allCandidates(current.board) }));
-    }
-    saveSettings(next);
-  }, [settings.autoCandidates]);
+  const updateSettings = useCallback(
+    (next: Settings) => {
+      setSettings(next);
+      if (next.autoCandidates && !settings.autoCandidates) {
+        setGame((current) => ({ ...current, notes: allCandidates(current.board, coloredGroups) }));
+      }
+      saveSettings(next);
+    },
+    [settings.autoCandidates, coloredGroups],
+  );
 
   const reset = useCallback(() => {
     clearGame(date, difficulty);
-    setGame(createGame(date, difficulty));
+    setGame(createGame(date, difficulty, puzzle));
     setSelected(null);
     setPaused(false);
     setHintMessage("");
     setCompletionStats(null);
+    setLastEntry(null);
     recorded.current = false;
-  }, [date, difficulty]);
+  }, [date, difficulty, puzzle]);
 
   const togglePause = useCallback(() => {
     setPaused((value) => {
@@ -240,9 +328,16 @@ export function useSudokuGame(date: string, difficulty: Difficulty) {
     });
   }, []);
 
+  const conflicts = useMemo(
+    () => conflictDetails(game.board, coloredGroups),
+    [game.board, coloredGroups],
+  );
+
   return {
     game,
+    puzzle,
     clues,
+    coloredGroups,
     selected,
     setSelected,
     notesMode,
@@ -255,7 +350,8 @@ export function useSudokuGame(date: string, difficulty: Difficulty) {
     announcement,
     hintMessage,
     completionStats,
-    conflicts: conflictIndices(game.board),
+    conflicts,
+    lastEntry,
     enter,
     erase,
     undo,

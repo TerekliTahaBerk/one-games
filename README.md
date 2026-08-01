@@ -86,7 +86,8 @@ file and the same fonts, so a shared link previews as the product it opens.
 - Cloudflare D1 for verification codes, sessions, and billing state
 - Resend for six-digit email verification
 - Polar for $1/month checkout and signed billing webhooks
-- Versioned `localStorage` for device-local puzzle progress
+- Versioned `localStorage` for device-local puzzle progress, with a safe reset
+  path for saves an older schema wrote
 - Vitest for domain logic, Playwright for desktop and mobile flows
 
 ## Local setup
@@ -138,7 +139,9 @@ Asset and content tooling:
 ```bash
 node scripts/build-brand-assets.mjs
 node scripts/build-og.mjs
-node scripts/generate-puzzles.mjs
+node scripts/generate-puzzles.mjs               # regrid and recolour the bank
+node scripts/generate-puzzles.mjs --groups-only  # keep the grids, redraw colours
+npm run validate:sudoku                          # check the shipped bank
 ```
 
 ## Project structure
@@ -244,58 +247,99 @@ See `.env.example`. Summary of what breaks without each:
 
 ## Sudoku architecture
 
-`lib/sudoku/solver.ts` is UI-independent: it validates boards, detects
-conflicts, computes candidates, solves with a minimum-remaining-values
-backtracking strategy, and counts solutions to prove uniqueness. Puzzle strings
-hold clues only; solutions are derived when a game starts.
+`lib/sudoku/constraints.ts` is the single rule engine and is UI-independent. It
+models one neighbourhood per cell — row, column and box peers, plus the peers
+that share the cell's colored group — and every downstream question is answered
+from it: candidates, conflicts (with the rule each one breaks), and completion.
+`lib/sudoku/solver.ts` adds the minimum-remaining-values search and the
+uniqueness count on top, so a solution can never violate a colored group.
 
 The gameplay hook keeps each move as a snapshot for undo/redo, pauses timing
 when the document is hidden, and writes a versioned save after state changes.
 
+### Colored groups
+
+A colored group is a named set of cells whose non-zero values must all differ,
+on top of the usual rules. In the interface it reads as
+“Matching colored cells cannot repeat a number.”
+
+Puzzle data stores a semantic palette key, never a CSS value:
+
+```json
+{ "id": "coral", "color": "coral", "cells": [0, 31, 43, 62] }
+```
+
+`app/globals.css` binds each key (`coral`, `violet`, `mint`, `gold`, `sky`) to
+`--region` and `--region-soft`, and `lib/sudoku/regions.ts` gives it a
+player-facing name and a corner-marker shape so groups stay separable without
+relying on hue. A cell belongs to at most one group; `lib/sudoku/puzzle-validation.ts`
+enforces that, along with cell ranges, in-group duplicates, minimum size, and
+given clues that would already break the rule.
+
+Layouts are legible figures — diagonals, arcs, crowns, pinwheels, constellations
+— drawn so no two cells in a group share a row or a column and every group spans
+at least two boxes. Easy carries 3 groups of 3–4 cells, medium 4 of 4–5, hard 4–5
+of 4–6, never more than a third of the board. Puzzles with no colored groups are
+still fully supported and behave exactly as before.
+
 ### Daily puzzle selection
 
 The browser's local date becomes a `YYYY-MM-DD` key. A stable hash of that key
-and the difficulty picks from the curated bank, so a date always maps to the
-same puzzle.
+and the difficulty picks from the curated bank in `lib/sudoku/puzzle-bank.json`,
+so a date always maps to the same puzzle. Ids are positional and stable
+(`easy-01`, `medium-07`, …).
 
 `scripts/generate-puzzles.mjs` regenerates the bank: it carves rotationally
 symmetric holes from randomly generated solved grids, keeping a candidate only
 while exactly one solution remains, to a clue budget per difficulty (easy 38–42,
-medium 30–34, hard 24–28). The banks are disjoint. Tests assert that every
-single puzzle in every bank has a unique solution, that no grid repeats, that
-clue counts strictly decrease with difficulty, and that a given day serves three
-different grids.
+medium 30–34, hard 24–28). It then fits each grid with the largest legible set of
+non-overlapping colour figures whose cells already hold nine distinct values in
+that grid's own solution — which is what keeps the single solution intact once
+the colored rule applies. `--groups-only` redraws the colours without touching
+the grids. `npm run validate:sudoku` re-checks everything from the command line.
 
 ### Persistence
 
 Keys use the `onegames:v1` namespace, stored per date and difficulty: values,
 candidates, elapsed time, status, mistakes, hints, and undo/redo history.
-Settings and aggregate stats are separate records. Reads are guarded so
-malformed or unavailable storage degrades safely. A streak counts calendar dates
-with at least one completed difficulty.
+Settings, aggregate stats, and the colored-rule onboarding flag are separate
+records under the same namespace.
+
+The save schema is at **version 2**, which added the `puzzleId` field. `loadGame`
+discards — and only discards — a game save it cannot vouch for: an older schema
+version, a malformed board, or a save written against a different puzzle
+definition than the one now served for that date. Settings and historical stats
+live under their own keys and are never touched by that reset. A streak counts
+calendar dates with at least one completed difficulty.
 
 ## Accessibility
 
-Semantic `grid`/`gridcell` roles, row/column/value labels, roving focus,
-arrow-key movement, number and delete keys, visible focus rings, live
-announcements, labelled dialogs, non-colour conflict markers, 44px touch
-targets in the footer and controls, and reduced-motion support (both the OS
+Semantic `grid`/`gridcell` roles, row/column/value labels that also name a
+cell's colored group, roving focus, arrow-key movement, number and delete keys,
+visible focus rings, live announcements, labelled dialogs, non-colour conflict
+markers, a distinct corner-marker shape per colour so groups never depend on hue
+alone, 44px touch targets in the footer and controls, and reduced-motion support (both the OS
 preference and an in-game toggle). `banner`, `main`, and `contentinfo`
 landmarks are page-level on every route, which the Playwright suite asserts.
 
 ## Testing
 
-- `npm test` — 41 unit tests over the solver, puzzle bank, daily scheduling,
-  webhook interpretation, the D1 HTTP client, and Postgres placeholder
-  translation. Offline; the integration suite skips itself.
+- `npm test` — 61 unit tests over the rule engine (standard and colored peers,
+  candidate exclusion, conflict reasons, the solver, completion), puzzle-data
+  validation, the puzzle bank, save migration, daily scheduling, webhook
+  interpretation, the D1 HTTP client, and Postgres placeholder translation.
+  Offline; the integration suite skips itself.
+- `npm run validate:sudoku` — checks every shipped puzzle from the command line:
+  well-formed groups, one solution under the colored rules, and layout budgets.
 - `npm run test:db` — 11 checks that walk the whole lifecycle against a real
   database: code request, cooldown, attempt counting, verification, session
   resolution, checkout, webhook grant and revoke, idempotency, and purge.
-- `npm run test:e2e` — 72 Playwright checks across a desktop and a mobile
+- `npm run test:e2e` — 90 Playwright checks across a desktop and a mobile
   project, covering the no-account play path, the access gate, number entry by pad
   and keyboard, notes mode, arrow-key movement, undo/redo/erase, hints,
   pause/resume, difficulty switching, reload persistence, puzzle completion,
-  the archive, and shell consistency (wordmark size and centring, equal top padding, identical footer,
+  the colored-rule onboarding and legend, colored-group conflicts, colored-group
+  accessible labels, the reduced-motion toggle, the archive, and shell consistency (wordmark size and centring, equal top padding, identical footer,
   touch heights, and no horizontal overflow) on every route.
 
 ## Deployment

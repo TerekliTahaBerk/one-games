@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { GameLogo } from "@/components/GameLogo";
 import { formatShortDate } from "@/lib/date";
-import type { Difficulty, GameSave, Stats } from "@/lib/sudoku/types";
+import { regionClass, REGION_STYLES } from "@/lib/sudoku/regions";
+import type { ColoredGroup, Difficulty, GameSave, Stats } from "@/lib/sudoku/types";
 
 function formatTime(total: number): string {
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
@@ -12,17 +13,22 @@ function formatTime(total: number): string {
 interface Props {
   game: GameSave;
   difficulty: Difficulty;
+  coloredGroups: readonly ColoredGroup[];
   stats: Stats;
   onClose: () => void;
 }
 
-export function CompletionPanel({ game, difficulty, stats, onClose }: Props) {
+export function CompletionPanel({ game, difficulty, coloredGroups, stats, onClose }: Props) {
+  const colored = coloredGroups.length;
   const shareText = [
     `OneSudoku · ${formatShortDate(game.date)}`,
     `${difficulty[0].toUpperCase()}${difficulty.slice(1)} · ${formatTime(game.elapsed)}`,
+    colored ? `${colored} colored groups kept clean` : null,
     `Mistakes ${game.mistakes} · Hints ${game.hints}`,
     "One good game at a time.",
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   const share = async () => {
     try {
@@ -54,9 +60,26 @@ export function CompletionPanel({ game, difficulty, stats, onClose }: Props) {
           ×
         </button>
 
-        <GameLogo game="sudoku" size={64} decorative style={{ margin: "0 auto" }} />
+        <div className="completion-mark">
+          <GameLogo game="sudoku" size={64} decorative />
+        </div>
         <h2 id="complete-title">Nicely done.</h2>
         <p>One puzzle down. Take that quiet focus with you.</p>
+
+        {colored > 0 && (
+          <p className="completion-rule">
+            <span className="completion-swatches" aria-hidden="true">
+              {coloredGroups.map((group) => (
+                <i
+                  key={group.id}
+                  className={`rule-swatch ${regionClass(group.color)}`}
+                  data-marker={REGION_STYLES[group.color].marker}
+                />
+              ))}
+            </span>
+            {colored} colored {colored === 1 ? "group" : "groups"} — and not a repeat among them.
+          </p>
+        )}
 
         <dl className="completion-stats">
           <div>

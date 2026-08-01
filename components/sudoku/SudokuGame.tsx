@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { formatLongDate } from "@/lib/date";
-import { clearAllData } from "@/lib/sudoku/persistence";
+import {
+  clearAllData,
+  hasSeenColoredIntro,
+  markColoredIntroSeen,
+} from "@/lib/sudoku/persistence";
 import { DIFFICULTIES } from "@/lib/sudoku/puzzles";
 import type { Difficulty } from "@/lib/sudoku/types";
 import { useSudokuGame } from "@/hooks/useSudokuGame";
@@ -14,6 +18,9 @@ import { GameControls } from "./GameControls";
 import { SudokuBoard } from "./SudokuBoard";
 import { SettingsPanel } from "./SettingsPanel";
 import { CompletionPanel } from "./CompletionPanel";
+import { ColoredRuleLegend } from "./ColoredRuleLegend";
+import { ColoredRuleIntro } from "./ColoredRuleIntro";
+import { PauseIcon, PlayIcon } from "./ControlIcons";
 
 function formatTimer(total: number): string {
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
@@ -28,11 +35,27 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
   const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [completionOpen, setCompletionOpen] = useState(true);
+  const [introOpen, setIntroOpen] = useState(false);
   const game = useSudokuGame(date, difficulty);
+  const hasColoredGroups = game.coloredGroups.length > 0;
+  const filled = game.game.board.filter(Boolean).length;
 
   useEffect(() => {
     if (game.game.completed) queueMicrotask(() => setCompletionOpen(true));
   }, [game.game.completed]);
+
+  // The explainer is only for puzzles that actually use the rule, and only once.
+  useEffect(() => {
+    if (!game.hydrated || !hasColoredGroups) return;
+    queueMicrotask(() => {
+      if (!hasSeenColoredIntro()) setIntroOpen(true);
+    });
+  }, [game.hydrated, hasColoredGroups]);
+
+  const dismissIntro = useCallback(() => {
+    markColoredIntroSeen();
+    setIntroOpen(false);
+  }, []);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -53,6 +76,8 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
       </main>
     );
   }
+
+  const locked = game.paused || game.game.completed;
 
   return (
     <div className={`page${game.settings.reducedMotion ? " reduce-motion" : ""}`}>
@@ -80,30 +105,33 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
       />
 
       <main className="game-main">
-        <div className="game-title-row">
-          <p className="caption">Daily puzzle · {formatLongDate(date)}</p>
-          <div className="game-title-line">
-            <div className="game-title-lockup">
-              <GameLogo game="sudoku" size={52} decorative />
+        <header className="game-header">
+          <div className="game-title-lockup">
+            <GameLogo game="sudoku" size={52} decorative />
+            <div>
+              <p className="caption">Daily puzzle · {formatLongDate(date)}</p>
               <h1>OneSudoku</h1>
             </div>
-            <div className="timer-group">
-              <span className="timer" aria-label={`Elapsed time ${formatTimer(game.game.elapsed)}`}>
-                {formatTimer(game.game.elapsed)}
-              </span>
-              <button
-                type="button"
-                className="pause-button"
-                onClick={game.togglePause}
-                disabled={!game.game.started || game.game.completed}
-              >
-                {game.paused ? "Resume" : "Pause"}
-              </button>
-            </div>
           </div>
-        </div>
 
-        <div className="difficulty-tabs" aria-label="Difficulty">
+          <div className="game-status">
+            <span className="timer" aria-label={`Elapsed time ${formatTimer(game.game.elapsed)}`}>
+              {formatTimer(game.game.elapsed)}
+            </span>
+            <button
+              type="button"
+              className="pause-button"
+              onClick={game.togglePause}
+              disabled={!game.game.started || game.game.completed}
+              aria-label={game.paused ? "Resume" : "Pause"}
+            >
+              {game.paused ? <PlayIcon /> : <PauseIcon />}
+              <span>{game.paused ? "Resume" : "Pause"}</span>
+            </button>
+          </div>
+        </header>
+
+        <div className="difficulty-tabs" role="group" aria-label="Difficulty">
           {DIFFICULTIES.map((level) => (
             <button
               type="button"
@@ -116,55 +144,73 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
               }}
             >
               {level}
-              {difficulty === level && <span aria-hidden="true" />}
             </button>
           ))}
+          <span className="difficulty-progress" aria-hidden="true">
+            {filled}/81
+          </span>
         </div>
 
         <div className="play-layout">
           <section className="board-wrap" aria-label={`${difficulty} Sudoku`}>
-            <SudokuBoard
-              board={game.game.board}
-              clues={game.clues}
-              notes={game.game.notes}
-              selected={game.selected}
-              conflicts={game.conflicts}
-              settings={game.settings}
-              onSelect={game.setSelected}
-              onEnter={game.enter}
-              onErase={game.erase}
-            />
-            {game.paused && (
-              <div className="pause-overlay">
-                <GameLogo game="sudoku" size={56} decorative />
-                <h2>Take your time.</h2>
-                <p>The puzzle is paused.</p>
-                <button className="pill-primary" type="button" onClick={game.togglePause}>
-                  Resume puzzle
-                </button>
-              </div>
-            )}
+            <div className="board-frame">
+              <SudokuBoard
+                board={game.game.board}
+                clues={game.clues}
+                notes={game.game.notes}
+                selected={game.selected}
+                conflicts={game.conflicts}
+                coloredGroups={game.coloredGroups}
+                settings={game.settings}
+                lastEntry={game.lastEntry}
+                completed={game.game.completed}
+                onSelect={game.setSelected}
+                onEnter={game.enter}
+                onErase={game.erase}
+              />
+              {game.paused && (
+                <div className="pause-overlay">
+                  <GameLogo game="sudoku" size={56} decorative />
+                  <h2>Take your time.</h2>
+                  <p>The puzzle is paused.</p>
+                  <button className="pill-primary" type="button" onClick={game.togglePause}>
+                    Resume puzzle
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <ColoredRuleLegend groups={game.coloredGroups} onExplain={() => setIntroOpen(true)} />
           </section>
 
           <aside className="control-wrap">
+            {introOpen && hasColoredGroups && (
+              <ColoredRuleIntro groups={game.coloredGroups} onDismiss={dismissIntro} />
+            )}
+
             {game.hintMessage && (
               <div className="hint-note" role="status">
                 <span>Hint</span>
                 {game.hintMessage}
               </div>
             )}
-            <GameControls
-              board={game.game.board}
-              notesMode={game.notesMode}
-              canUndo={game.game.history.length > 0}
-              canRedo={game.game.future.length > 0}
-              onNumber={game.enter}
-              onNotes={() => game.setNotesMode((value) => !value)}
-              onUndo={game.undo}
-              onRedo={game.redo}
-              onErase={game.erase}
-              onHint={game.hint}
-            />
+
+            <div className="control-surface">
+              <GameControls
+                board={game.game.board}
+                notesMode={game.notesMode}
+                canUndo={game.game.history.length > 0}
+                canRedo={game.game.future.length > 0}
+                disabled={locked}
+                onNumber={game.enter}
+                onNotes={() => game.setNotesMode((value) => !value)}
+                onUndo={game.undo}
+                onRedo={game.redo}
+                onErase={game.erase}
+                onHint={game.hint}
+              />
+            </div>
+
             <p className="keyboard-note">
               <span className="keyboard-keys">
                 <kbd>N</kbd> notes · <kbd>1–9</kbd> enter · <kbd>⌫</kbd> erase · <kbd>↑↓←→</kbd>{" "}
@@ -202,6 +248,7 @@ export function SudokuGame({ date, initialDifficulty = "medium" }: Props) {
         <CompletionPanel
           game={game.game}
           difficulty={difficulty}
+          coloredGroups={game.coloredGroups}
           stats={game.completionStats}
           onClose={() => setCompletionOpen(false)}
         />

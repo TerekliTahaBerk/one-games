@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { getTodayKey } from "../lib/date";
 import { getDailyPuzzle } from "../lib/sudoku/puzzles";
-import { solve } from "../lib/sudoku/solver";
+import { candidatesFor, getStandardPeers, solve } from "../lib/sudoku/solver";
 
 /**
  * Pins the first empty cell to a stable locator. Resolving `[aria-label*=empty]`
@@ -156,6 +156,75 @@ test.describe("OneSudoku", () => {
     await expect(page.locator(`[data-cell="${label}"]`)).toContainText("8");
   });
 
+  test("explains the colored rule once and remembers the dismissal", async ({ page }) => {
+    const intro = page.getByRole("heading", { name: "Something new in the grid." });
+    await expect(intro).toBeVisible();
+    await page.getByRole("button", { name: "Got it" }).click();
+    await expect(intro).toHaveCount(0);
+
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "OneSudoku" })).toBeVisible();
+    await expect(intro).toHaveCount(0);
+
+    // The legend keeps the rule in view, and the info button can bring it back.
+    await expect(page.getByText("Matching colored cells cannot repeat a number.")).toBeVisible();
+    await page.getByRole("button", { name: "How colored cells work" }).click();
+    await expect(intro).toBeVisible();
+  });
+
+  test("names the colored group in the cell's accessible label", async ({ page }) => {
+    const colored = page.locator("[data-cell][data-region]").first();
+    await expect(colored).toHaveAttribute("aria-label", /(coral|violet|mint|gold|sky) group/);
+    // Cells outside a group say nothing about colour.
+    const plain = page.locator("[data-cell]:not([data-region])").first();
+    await expect(plain).not.toHaveAttribute("aria-label", /group/);
+  });
+
+  test("marks both cells when a colored group repeats a number", async ({ page }) => {
+    // The screen opens on medium; find two empty cells that share a colour but
+    // no row, column or box, so only the colored rule can be the complaint.
+    const puzzle = getDailyPuzzle(getTodayKey(), "medium");
+    let pair: [number, number, number] | null = null;
+    for (const group of puzzle.coloredGroups) {
+      const empty = group.cells.filter((cell) => puzzle.clues[cell] === 0);
+      for (const a of empty) {
+        for (const b of empty) {
+          if (a >= b || getStandardPeers(a).includes(b)) continue;
+          const value = candidatesFor(puzzle.clues, a).find((option) =>
+            candidatesFor(puzzle.clues, b).includes(option),
+          );
+          if (value !== undefined && !pair) pair = [a, b, value];
+        }
+      }
+    }
+    if (!pair) throw new Error("Today's medium grid has no testable colored pair");
+    const [first, second, value] = pair;
+
+    await page.locator(`[data-cell="${first}"]`).click();
+    await page.keyboard.press(String(value));
+    await page.locator(`[data-cell="${second}"]`).click();
+    await page.keyboard.press(String(value));
+
+    await expect(page.locator(`[data-cell="${first}"]`)).toHaveAttribute("aria-invalid", "true");
+    await expect(page.locator(`[data-cell="${second}"]`)).toHaveAttribute("aria-invalid", "true");
+    await expect(page.locator(`[data-cell="${second}"]`)).toHaveAttribute(
+      "aria-label",
+      /repeats a number in the \w+ group/,
+    );
+  });
+
+  test("keeps the reduced-motion preference", async ({ page }) => {
+    await expect(page.locator(".page.reduce-motion")).toHaveCount(0);
+    await page.getByRole("button", { name: "Open settings" }).click();
+    const settings = page.getByRole("dialog", { name: "Settings" });
+    await settings.getByText("Reduce motion", { exact: true }).click();
+    await page.getByRole("button", { name: "Close settings" }).click();
+    await expect(page.locator(".page.reduce-motion")).toHaveCount(1);
+
+    await page.reload();
+    await expect(page.locator(".page.reduce-motion")).toHaveCount(1);
+  });
+
   test("reaches the archive from the game", async ({ page }) => {
     // The footer no longer carries it, so the game itself has to.
     await page.getByRole("link", { name: "Archive" }).click();
@@ -169,8 +238,9 @@ test.describe("Finishing a puzzle", () => {
   test("shows the completion summary on the final entry", async ({ page, context }) => {
     const date = getTodayKey();
     const difficulty = "easy";
-    const clues = getDailyPuzzle(date, difficulty);
-    const solution = solve(clues);
+    const puzzle = getDailyPuzzle(date, difficulty);
+    const clues = puzzle.clues;
+    const solution = solve(clues, puzzle.coloredGroups);
     if (!solution) throw new Error("Today's easy grid has no solution");
 
     // Seed a save that is one entry short, so the test exercises the real
@@ -186,7 +256,8 @@ test.describe("Finishing a puzzle", () => {
       {
         key: `onegames:v1:game:${date}:${difficulty}`,
         save: {
-          version: 1,
+          version: 2,
+          puzzleId: puzzle.id,
           date,
           difficulty,
           board,
@@ -213,6 +284,9 @@ test.describe("Finishing a puzzle", () => {
     await expect(summary).toBeVisible();
     await expect(summary).toContainText("00:42");
     await expect(summary).toContainText("easy");
+    if (puzzle.coloredGroups.length) {
+      await expect(summary).toContainText(`${puzzle.coloredGroups.length} colored groups`);
+    }
     await expect(summary.getByRole("button", { name: "Share result" })).toBeVisible();
 
     await summary.getByRole("button", { name: "Close completion summary" }).click();

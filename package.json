@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run tests/access-store.integration.test.ts",
     "test:e2e": "playwright test",
+    "validate:sudoku": "node scripts/validate-sudoku-puzzles.mjs",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

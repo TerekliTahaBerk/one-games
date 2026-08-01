@@ -1,26 +1,45 @@
 /**
- * Regenerates the curated puzzle bank in lib/sudoku/puzzles.ts.
+ * Regenerates the curated puzzle bank in lib/sudoku/puzzle-bank.json.
  *
- * Every candidate is dug out of a randomly generated solved grid and kept only
- * if it still has exactly one solution, so the bank can never contain an
+ * Every candidate grid is dug out of a randomly generated solved grid and kept
+ * only if it still has exactly one solution, so the bank can never contain an
  * ambiguous or unsolvable grid. Difficulty is expressed as a clue budget, and
  * the three banks are guaranteed to be disjoint.
  *
- *   node scripts/generate-puzzles.mjs [seed]
+ * Each puzzle then gets its own colored-group layout, chosen from the shared
+ * shape catalogue so that the puzzle's single solution still holds once the
+ * "matching colored cells cannot repeat a number" rule is added.
+ *
+ *   node scripts/generate-puzzles.mjs [seed]     regenerate grids and groups
+ *   node scripts/generate-puzzles.mjs --groups-only
+ *                                                keep today's grids, redraw the
+ *                                                colored layouts only
  */
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  assertShapeCatalogue,
+  assignColoredGroups,
+  candidates,
+  countSolutions,
+  parseClues,
+  solve,
+  validatePuzzleRecord,
+} from "./lib/sudoku-rules.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const TARGET = resolve(ROOT, "lib/sudoku/puzzles.ts");
+const TARGET = resolve(ROOT, "lib/sudoku/puzzle-bank.json");
 
+const DIFFICULTIES = ["easy", "medium", "hard"];
 const PER_DIFFICULTY = 12;
 const CLUE_BUDGET = {
   easy: { min: 38, max: 42 },
   medium: { min: 30, max: 34 },
   hard: { min: 24, max: 28 },
 };
+
+const groupsOnly = process.argv.includes("--groups-only");
 
 /* --- seeded RNG so a given seed always yields the same bank --------------- */
 function mulberry32(seed) {
@@ -43,58 +62,13 @@ function shuffle(values) {
   return result;
 }
 
-/* --- solver (mirrors lib/sudoku/solver.ts, kept local for build tooling) --- */
-const PEERS = Array.from({ length: 81 }, (_, index) => {
-  const row = Math.floor(index / 9);
-  const column = index % 9;
-  const boxRow = Math.floor(row / 3) * 3;
-  const boxColumn = Math.floor(column / 3) * 3;
-  const set = new Set();
-  for (let i = 0; i < 9; i += 1) {
-    set.add(row * 9 + i);
-    set.add(i * 9 + column);
-    set.add((boxRow + Math.floor(i / 3)) * 9 + boxColumn + (i % 3));
-  }
-  set.delete(index);
-  return [...set];
-});
-
-function candidates(board, index) {
-  const used = new Set();
-  for (const peer of PEERS[index]) if (board[peer]) used.add(board[peer]);
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((value) => !used.has(value));
-}
-
-function countSolutions(board, limit, randomise = false) {
-  let target = -1;
-  let options = [];
-  for (let index = 0; index < 81; index += 1) {
-    if (board[index] !== 0) continue;
-    const next = candidates(board, index);
-    if (next.length === 0) return 0;
-    if (target === -1 || next.length < options.length) {
-      target = index;
-      options = next;
-      if (next.length === 1) break;
-    }
-  }
-  if (target === -1) return 1;
-
-  let found = 0;
-  for (const value of randomise ? shuffle(options) : options) {
-    board[target] = value;
-    found += countSolutions(board, limit - found, randomise);
-    board[target] = 0;
-    if (found >= limit) break;
-  }
-  return found;
-}
+const NO_GROUPS = new Map();
 
 function solvedGrid() {
   const board = new Array(81).fill(0);
   const fill = (index) => {
     if (index === 81) return true;
-    for (const value of shuffle(candidates(board, index))) {
+    for (const value of shuffle(candidates(board, index, NO_GROUPS))) {
       board[index] = value;
       if (fill(index + 1)) return true;
       board[index] = 0;
@@ -122,7 +96,7 @@ function carve(solution, { min, max }) {
       board[cell] = 0;
     });
 
-    if (countSolutions([...board], 2) === 1) {
+    if (countSolutions([...board], 2, NO_GROUPS) === 1) {
       clues -= removing.length;
     } else {
       removing.forEach((cell, position) => {
@@ -148,35 +122,51 @@ function generate(difficulty) {
   return [...bank];
 }
 
-const banks = {
-  easy: generate("easy"),
-  medium: generate("medium"),
-  hard: generate("hard"),
-};
+assertShapeCatalogue();
 
-const seen = new Set();
-for (const [difficulty, bank] of Object.entries(banks)) {
-  for (const puzzle of bank) {
-    if (seen.has(puzzle)) throw new Error(`Duplicate puzzle across banks in ${difficulty}`);
-    seen.add(puzzle);
-  }
-  const clues = bank.map((puzzle) => 81 - (puzzle.match(/0/g)?.length ?? 0));
-  console.log(`${difficulty}: ${bank.length} puzzles, ${Math.min(...clues)}–${Math.max(...clues)} clues`);
+/** Puzzle ids are positional and therefore stable: easy-01, easy-02, … */
+const puzzleId = (difficulty, position) => `${difficulty}-${String(position + 1).padStart(2, "0")}`;
+
+let clueStrings;
+if (groupsOnly) {
+  const existing = JSON.parse(await readFile(TARGET, "utf8"));
+  clueStrings = Object.fromEntries(
+    DIFFICULTIES.map((difficulty) => [difficulty, existing[difficulty].map((item) => item.clues)]),
+  );
+} else {
+  clueStrings = Object.fromEntries(DIFFICULTIES.map((d) => [d, generate(d)]));
 }
 
-const source = await readFile(TARGET, "utf8");
-const rendered = Object.entries(banks)
-  .map(
-    ([difficulty, bank]) =>
-      `  ${difficulty}: [\n${bank.map((puzzle) => `    "${puzzle}",`).join("\n")}\n  ],`,
-  )
-  .join("\n");
+const seen = new Set();
+const bank = {};
 
-const next = source.replace(
-  /const BASE_PUZZLES: Record<Difficulty, string\[\]> = \{[\s\S]*?\n\};/,
-  `const BASE_PUZZLES: Record<Difficulty, string[]> = {\n${rendered}\n};`,
-);
+for (const difficulty of DIFFICULTIES) {
+  bank[difficulty] = clueStrings[difficulty].map((clues, position) => {
+    if (seen.has(clues)) throw new Error(`Duplicate grid in ${difficulty}`);
+    seen.add(clues);
+    const id = puzzleId(difficulty, position);
+    const board = parseClues(clues);
+    const solution = solve(board);
+    if (!solution) throw new Error(`${id} has no solution`);
+    return { id, clues, coloredGroups: assignColoredGroups(id, board, solution) };
+  });
+}
 
-if (next === source) throw new Error("Could not locate BASE_PUZZLES in lib/sudoku/puzzles.ts");
-await writeFile(TARGET, next);
+for (const difficulty of DIFFICULTIES) {
+  for (const record of bank[difficulty]) {
+    const issues = validatePuzzleRecord(record, difficulty);
+    if (issues.length) throw new Error(`${record.id}: ${issues.join("; ")}`);
+  }
+  const clueCounts = bank[difficulty].map(
+    (record) => 81 - (record.clues.match(/0/g)?.length ?? 0),
+  );
+  const groupCounts = bank[difficulty].map((record) => record.coloredGroups.length);
+  console.log(
+    `${difficulty}: ${bank[difficulty].length} puzzles, ` +
+      `${Math.min(...clueCounts)}–${Math.max(...clueCounts)} clues, ` +
+      `${Math.min(...groupCounts)}–${Math.max(...groupCounts)} colored groups`,
+  );
+}
+
+await writeFile(TARGET, `${JSON.stringify(bank, null, 2)}\n`);
 console.log(`Updated ${TARGET}`);

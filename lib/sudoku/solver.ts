@@ -1,58 +1,48 @@
-import type { Board } from "./types";
+import {
+  candidatesFor,
+  CELL_COUNT,
+  conflictDetails,
+  isValidBoard,
+  NO_GROUPS,
+} from "./constraints";
+import type { Board, ColoredGroup } from "./types";
 
-const SIZE = 9;
-const CELL_COUNT = 81;
+/**
+ * Search built on the shared constraint engine — every candidate the solver
+ * considers already respects the colored-group rule, so a solution that
+ * repeats a number inside a colored group can never be returned.
+ */
 
-export function isValidBoard(board: Board): boolean {
-  return (
-    board.length === CELL_COUNT &&
-    board.every((value) => Number.isInteger(value) && value >= 0 && value <= 9)
-  );
-}
+export {
+  boxOf,
+  candidatesFor,
+  CELL_COUNT,
+  columnOf,
+  conflictDetails,
+  conflictIndices,
+  getAllPeers,
+  getColoredPeers,
+  getGroupFor,
+  getStandardPeers,
+  isComplete,
+  isValidBoard,
+  NO_GROUPS,
+  rowOf,
+  SIZE,
+} from "./constraints";
 
-export function peers(index: number): number[] {
-  const row = Math.floor(index / SIZE);
-  const column = index % SIZE;
-  const boxRow = Math.floor(row / 3) * 3;
-  const boxColumn = Math.floor(column / 3) * 3;
-  const result = new Set<number>();
-  for (let i = 0; i < SIZE; i += 1) {
-    result.add(row * SIZE + i);
-    result.add(i * SIZE + column);
-    result.add((boxRow + Math.floor(i / 3)) * SIZE + boxColumn + (i % 3));
-  }
-  result.delete(index);
-  return [...result];
-}
-
-export function candidatesFor(board: Board, index: number): number[] {
-  if (!isValidBoard(board) || board[index] !== 0) return [];
-  const used = new Set(peers(index).map((peer) => board[peer]).filter(Boolean));
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((value) => !used.has(value));
-}
-
-export function conflictIndices(board: Board): Set<number> {
-  const conflicts = new Set<number>();
-  if (!isValidBoard(board)) return conflicts;
-  board.forEach((value, index) => {
-    if (!value) return;
-    peers(index).forEach((peer) => {
-      if (board[peer] === value) {
-        conflicts.add(index);
-        conflicts.add(peer);
-      }
-    });
-  });
-  return conflicts;
-}
-
-function solveMutable(board: Board, solutions: Board[], limit: number): void {
+function solveMutable(
+  board: Board,
+  groups: readonly ColoredGroup[],
+  solutions: Board[],
+  limit: number,
+): void {
   if (solutions.length >= limit) return;
   let target = -1;
   let options: number[] = [];
   for (let index = 0; index < CELL_COUNT; index += 1) {
     if (board[index] !== 0) continue;
-    const next = candidatesFor(board, index);
+    const next = candidatesFor(board, index, groups);
     if (next.length === 0) return;
     if (target === -1 || next.length < options.length) {
       target = index;
@@ -66,27 +56,29 @@ function solveMutable(board: Board, solutions: Board[], limit: number): void {
   }
   options.forEach((value) => {
     board[target] = value;
-    solveMutable(board, solutions, limit);
+    solveMutable(board, groups, solutions, limit);
     board[target] = 0;
   });
 }
 
-export function solve(board: Board): Board | null {
-  if (!isValidBoard(board) || conflictIndices(board).size > 0) return null;
+export function solve(
+  board: Board,
+  groups: readonly ColoredGroup[] = NO_GROUPS,
+): Board | null {
+  if (!isValidBoard(board) || conflictDetails(board, groups).size > 0) return null;
   const solutions: Board[] = [];
-  solveMutable([...board], solutions, 1);
+  solveMutable([...board], groups, solutions, 1);
   return solutions[0] ?? null;
 }
 
-export function hasUniqueSolution(board: Board): boolean {
-  if (!isValidBoard(board) || conflictIndices(board).size > 0) return false;
+export function hasUniqueSolution(
+  board: Board,
+  groups: readonly ColoredGroup[] = NO_GROUPS,
+): boolean {
+  if (!isValidBoard(board) || conflictDetails(board, groups).size > 0) return false;
   const solutions: Board[] = [];
-  solveMutable([...board], solutions, 2);
+  solveMutable([...board], groups, solutions, 2);
   return solutions.length === 1;
-}
-
-export function isComplete(board: Board): boolean {
-  return isValidBoard(board) && board.every(Boolean) && conflictIndices(board).size === 0;
 }
 
 export function parsePuzzle(puzzle: string): Board {
@@ -94,3 +86,6 @@ export function parsePuzzle(puzzle: string): Board {
   if (!isValidBoard(board)) throw new Error("Invalid puzzle data");
   return board;
 }
+
+/** Kept as the historical name for the classic row/column/box neighbourhood. */
+export { getStandardPeers as peers } from "./constraints";

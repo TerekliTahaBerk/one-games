@@ -32,9 +32,12 @@
   --sudoku: #3f6fa8;
   --sudoku-pale: #dce8f7;
   --sudoku-wash: #eff5fc;
-  --word: #6e5598;
-  --match: #9b5c72;
-  --numbers: #3f7652;
+  --dna: #2f7d95;
+  --dna-pale: #dcebf1;
+  --dna-wash: #eff6f9;
+
+  /* Quiet green for guidance and completion — not a game accent. */
+  --guide: #3f7652;
 
   /* Colored groups — the palette keys puzzle data refers to by name.
      Each pair is a readable ink for markers and hairlines, and a wash light
@@ -879,8 +882,9 @@ button,
   }
 
   .game-family-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    max-width: 30rem;
+    margin-inline: auto;
+    gap: 32px;
   }
 }
 
@@ -1279,12 +1283,12 @@ button,
 }
 
 .archive-status.is-complete {
-  color: var(--numbers);
+  color: var(--guide);
 }
 
 .archive-status.is-complete i {
-  background: var(--numbers);
-  border-color: var(--numbers);
+  background: var(--guide);
+  border-color: var(--guide);
 }
 
 .archive-row b {
@@ -1933,7 +1937,7 @@ button,
 .hint-note {
   margin-bottom: 14px;
   padding: 12px 14px;
-  border-left: 2px solid var(--numbers);
+  border-left: 2px solid var(--guide);
   border-radius: 0 10px 10px 0;
   background: #f1f6f2;
   color: var(--ash);
@@ -1943,7 +1947,7 @@ button,
 
 .hint-note span {
   margin-right: 8px;
-  color: var(--numbers);
+  color: var(--guide);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.1em;

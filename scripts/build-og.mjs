@@ -18,9 +18,7 @@ const HEIGHT = 630;
 
 const PALETTE = {
   sudoku: { accent: "#3F6FA8", pale: "#DCE8F7" },
-  word: { accent: "#6E5598", pale: "#E7DFF6" },
-  match: { accent: "#9B5C72", pale: "#F5E1E8" },
-  numbers: { accent: "#3F7652", pale: "#DFEDE4" },
+  dna: { accent: "#2F7D95", pale: "#DCEBF1" },
 };
 
 const INK = "#1A1A1A";
@@ -29,8 +27,6 @@ const INNER = 2;
 
 /** Mirrors SUDOKU_REGION_PALE in components/GameLogo.tsx. */
 const REGION_PALE = { coral: "#F1D9D4", mint: "#D8E8DE", gold: "#EFE3C8" };
-const NUMBERS_PANEL =
-  "M7 22C7 13.716 13.716 7 22 7H52C54.761 7 57 9.239 57 12V42C57 50.284 50.284 57 42 57H12C9.239 57 7 54.761 7 52Z";
 
 function mark(game, size) {
   const { accent, pale } = PALETTE[game];
@@ -51,45 +47,22 @@ function mark(game, size) {
     </svg>`;
   }
 
-  if (game === "word") {
-    const tile = (x, rotate, fill) =>
-      `<rect x="${x}" y="21" width="17" height="26" rx="4.5" fill="${fill}" stroke="${INK}" stroke-width="${OUTER}" stroke-linejoin="round" transform="rotate(${rotate} ${x + 8.5} 47)"/>`;
-    return `${open}
-      <rect x="6" y="47" width="52" height="8" rx="4" fill="${pale}" stroke="${INK}" stroke-width="${OUTER}" stroke-linejoin="round"/>
-      ${tile(7.5, -9, pale)}
-      ${tile(39.5, 9, pale)}
-      ${tile(23.5, 0, accent)}
-    </svg>`;
-  }
-
-  if (game === "match") {
-    const radius = 13;
-    const ring = (degrees) => {
-      const radians = (degrees * Math.PI) / 180;
-      const cx = 32 + Math.cos(radians) * radius;
-      const cy = 34 + Math.sin(radians) * radius;
-      return `<circle cx="${cx.toFixed(3)}" cy="${cy.toFixed(3)}" r="${radius}" fill="${pale}" fill-opacity="0.65" stroke="${INK}" stroke-width="${OUTER}"/>`;
-    };
-    return `${open}
-      ${[-90, 30, 150].map(ring).join("")}
-      <circle cx="32" cy="34" r="5" fill="${accent}" stroke="${INK}" stroke-width="${INNER}"/>
-    </svg>`;
-  }
+  const rung = (x, y, width, fill) =>
+    `<rect x="${x}" y="${y}" width="${width}" height="5" rx="2.5" fill="${fill}" stroke="${INK}" stroke-width="${INNER}" stroke-linejoin="round"/>`;
+  const strand = (d) =>
+    `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${OUTER}" stroke-linecap="round"/>`;
 
   return `${open}
-    <defs><clipPath id="c-numbers"><path d="${NUMBERS_PANEL}"/></clipPath></defs>
-    <path d="${NUMBERS_PANEL}" fill="#fff"/>
-    <g clip-path="url(#c-numbers)">
-      <rect x="7" y="7" width="25" height="25" fill="${pale}"/>
-      <rect x="32" y="32" width="25" height="25" fill="${pale}"/>
-    </g>
-    <path d="M19.5 14.5v11M14 20h11" stroke="${accent}" stroke-width="${INNER + 0.6}" stroke-linecap="round"/>
-    <path d="M39 41h11M39 47.5h11" stroke="${accent}" stroke-width="${INNER + 0.6}" stroke-linecap="round"/>
-    <path d="M32 7v50M7 32h50" stroke="${INK}" stroke-width="${INNER}" stroke-linecap="round"/>
-    <path d="${NUMBERS_PANEL}" fill="none" stroke="${INK}" stroke-width="${OUTER}" stroke-linejoin="round"/>
+    ${rung(18, 13.5, 28, pale)}
+    ${rung(23, 20.5, 18, pale)}
+    ${rung(23, 38.5, 18, accent)}
+    ${rung(18, 45.5, 28, pale)}
+    ${strand("M16 8C16 26 48 38 48 56")}
+    ${strand("M48 8C48 26 16 38 16 56")}
   </svg>`;
 }
 
+/** Inlines a font as base64 so the card renders identically anywhere. */
 async function fontFace(family, file, weight, style = "normal") {
   const data = await readFile(resolve(ROOT, "node_modules/@fontsource", file));
   return `@font-face{font-family:"${family}";font-weight:${weight};font-style:${style};src:url(data:font/woff2;base64,${data.toString("base64")}) format("woff2");}`;
@@ -106,8 +79,8 @@ async function buildHtml() {
   const logo = await readFile(resolve(ROOT, "public/onegames-logo.png"));
   const logoUrl = `data:image/png;base64,${logo.toString("base64")}`;
 
-  const labels = ["OneSudoku", "OneWord", "OneMatch", "OneNumbers"];
-  const games = ["sudoku", "word", "match", "numbers"];
+  const labels = ["OneSudoku", "OneDNA"];
+  const games = ["sudoku", "dna"];
 
   return `<!doctype html><html><head><meta charset="utf-8"><style>
     ${fonts}
@@ -120,7 +93,7 @@ async function buildHtml() {
     .tagline{margin-top:26px;font-family:Fraunces,serif;font-style:italic;
       font-weight:400;font-size:34px;color:#52525b;letter-spacing:-.01em;}
     .rule{width:180px;height:1px;background:#e4e4e7;margin:46px 0 42px;}
-    .row{display:flex;align-items:flex-start;justify-content:center;gap:74px;}
+    .row{display:flex;align-items:flex-start;justify-content:center;gap:118px;}
     .cell{display:flex;flex-direction:column;align-items:center;gap:16px;}
     .cell span{font-size:19px;font-weight:500;color:#71717a;letter-spacing:.01em;}
   </style></head><body>

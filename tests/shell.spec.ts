@@ -161,15 +161,20 @@ test.describe("Homepage", () => {
     await expect(page.locator(".opening-loader")).toHaveCount(0);
   });
 
-  test("introduces the four games and their state", async ({ page }) => {
+  test("introduces the family and its state", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Meet the OneGames family." })).toBeVisible();
 
+    // Two games, one playable today and one announced.
     await expect(page.getByRole("link", { name: "Play OneSudoku" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "OneDNA", exact: true })).toBeVisible();
+    await expect(page.locator(".game-card")).toHaveCount(2);
+    await expect(page.getByText("Coming soon")).toHaveCount(1);
+
+    // The retired placeholders must not linger anywhere on the page.
     for (const name of ["OneWord", "OneMatch", "OneNumbers"]) {
-      await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
+      await expect(page.getByText(name)).toHaveCount(0);
     }
-    await expect(page.getByText("Coming soon")).toHaveCount(3);
   });
 
   test("the primary call to action reaches the access flow", async ({ page }) => {

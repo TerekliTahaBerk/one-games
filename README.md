@@ -16,8 +16,8 @@ company:
 - the lockup — wordmark plus character — at one fixed height (28px / 34px),
   centred on **every** route
 - the same page padding on every route, verified by a test
-- a typewriter opening loader — OneGames → OneSudoku → OneWord → OneMatch →
-  OneNumbers — handing off to a staggered content reveal
+- a typewriter opening loader — OneGames → OneSudoku → OneDNA — handing off to
+  a staggered content reveal
 - calm black pill CTAs, restrained motion, no cards or dashboards
 - one centred footer: a Fraunces-italic tagline over
   Terms · Privacy · About · Pricing
@@ -58,7 +58,7 @@ strictly geometric — no faces anywhere in them.
 
 ## The identity system
 
-`components/GameLogo.tsx` draws all four marks in code on a shared 64×64 grid,
+`components/GameLogo.tsx` draws every mark in code on a shared 64×64 grid,
 so they are sharp at any size and there is no raster asset to regenerate. They
 share one construction language — a 3.2 outer stroke, a 2 inner stroke, a
 9-unit corner radius, a pale cell rhythm, and a single solid accent moment —
@@ -67,9 +67,7 @@ while staying individually recognisable at 16px:
 | Mark | Idea | Accent |
 | --- | --- | --- |
 | OneSudoku | Rounded logic grid, three colour families crossing it, one solid completion cell | Pale blue + region tints |
-| OneWord | Three tiles leaning on a shared base, the middle one solid | Pale lilac |
-| OneMatch | Three rings whose centres each sit one radius from a shared middle | Pale rose |
-| OneNumbers | Asymmetric-cornered 2×2 arithmetic panel | Pale green |
+| OneDNA | Free-standing twisted ladder, three rungs, the middle one solid | Pale teal |
 
 They are used large on the homepage, as a small family lockup on the access and
 pricing pages, and as the product mark in the game. There are no characters,

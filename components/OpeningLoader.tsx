@@ -14,9 +14,7 @@ import { GAME_PALETTE } from "@/components/GameLogo";
 const SEQUENCE = [
   { suffix: "Games", color: "#1A1A1A" },
   { suffix: "Sudoku", color: GAME_PALETTE.sudoku.accent },
-  { suffix: "Word", color: GAME_PALETTE.word.accent },
-  { suffix: "Match", color: GAME_PALETTE.match.accent },
-  { suffix: "Numbers", color: GAME_PALETTE.numbers.accent },
+  { suffix: "DNA", color: GAME_PALETTE.dna.accent },
 ] as const;
 
 /** Only the calm, top-of-funnel pages get the opening animation. */

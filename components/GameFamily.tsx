@@ -13,12 +13,10 @@ const GAMES: {
     description: "A clear grid for a clear mind",
     href: "/play",
   },
-  { key: "word", name: "OneWord", description: "One word, carefully found" },
-  { key: "match", name: "OneMatch", description: "Quiet connections" },
-  { key: "numbers", name: "OneNumbers", description: "A little arithmetic" },
+  { key: "dna", name: "OneDNA", description: "Pairs that belong together" },
 ];
 
-/** The four marks at homepage scale — the family, shown rather than described. */
+/** The family at homepage scale — shown rather than described. */
 export function GameFamily() {
   return (
     <section className="game-family reveal-item reveal-item-4" aria-labelledby="game-family-heading">

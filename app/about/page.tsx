@@ -50,9 +50,8 @@ export default function AboutPage() {
           </p>
           <p>
             OneSudoku brings a calm pastel number mosaic. OneDna turns four
-            colors into complementary pairs. Each publishes Easy, Medium, and
-            Hard chapters every day. Finish one, finish all six, or simply come
-            back tomorrow.
+            colors into complementary pairs. OneWord offers a single five-letter
+            ritual. Pick one, finish all three, or simply come back tomorrow.
           </p>
         </div>
 

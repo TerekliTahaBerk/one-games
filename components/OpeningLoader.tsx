@@ -15,6 +15,7 @@ const SEQUENCE = [
   { suffix: "Games", color: "#1A1A1A" },
   { suffix: "Sudoku", color: GAME_PALETTE.sudoku.accent },
   { suffix: "DNA", color: GAME_PALETTE.dna.accent },
+  { suffix: "Word", color: GAME_PALETTE.word.accent },
 ] as const;
 
 /** Only the calm, top-of-funnel pages get the opening animation. */

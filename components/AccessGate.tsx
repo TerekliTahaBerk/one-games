@@ -53,9 +53,10 @@ export function AccessGate({
   game = "sudoku",
 }: {
   checkoutReturn?: boolean;
-  game?: "sudoku" | "dna";
+  game?: "sudoku" | "dna" | "word";
 }) {
-  const destination = game === "dna" ? "/dna" : "/sudoku";
+  const destination =
+    game === "dna" ? "/dna" : game === "word" ? "/word" : "/sudoku";
   const [step, setStep] = useState<Step>(checkoutReturn ? "checking" : "email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -224,11 +225,10 @@ export function AccessGate({
               </div>
               <ul className="benefit-list">
                 <li>
-                  <i aria-hidden="true">✓</i> Six daily chapters across two
-                  games
+                  <i aria-hidden="true">✓</i> Three distinct daily games
                 </li>
                 <li>
-                  <i aria-hidden="true">✓</i> OneSudoku and OneDna included
+                  <i aria-hidden="true">✓</i> OneSudoku, OneDna, and OneWord
                 </li>
                 <li>
                   <i aria-hidden="true">✓</i> Cancel whenever you like

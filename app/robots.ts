@@ -5,7 +5,11 @@ export default function robots(): MetadataRoute.Robots {
   return {
     // The game itself is behind an access check, so keep crawlers on the
     // public marketing and legal surface.
-    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/sudoku"] },
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/api/", "/sudoku", "/dna", "/word"],
+    },
     sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

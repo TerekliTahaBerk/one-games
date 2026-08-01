@@ -11,13 +11,18 @@ const PRODUCTS = [
     name: "OneDna",
     description: "Four colors. Perfect pairs.",
   },
+  {
+    key: "word" as const,
+    name: "OneWord",
+    description: "A soft daily word ritual.",
+  },
 ] as const;
 
 export function ProductPair({ className = "" }: { className?: string }) {
   return (
     <section
       className={`product-pair ${className}`.trim()}
-      aria-label="OneSudoku and OneDna"
+      aria-label="OneSudoku, OneDna, and OneWord"
     >
       {PRODUCTS.map((product) => (
         <article
@@ -28,7 +33,11 @@ export function ProductPair({ className = "" }: { className?: string }) {
           <span>
             <strong>{product.name}</strong>
             <small>{product.description}</small>
-            <i>Easy · Medium · Hard</i>
+            <i>
+              {product.key === "word"
+                ? "One word · Six tries"
+                : "Easy · Medium · Hard"}
+            </i>
           </span>
         </article>
       ))}

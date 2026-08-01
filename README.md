@@ -1,8 +1,9 @@
 # OneGames
 
 OneGames is the daily-games member of the One family — sibling to OneRead, not
-a product beneath it. It ships with **OneSudoku** and **OneDna**, each with an
-Easy, Medium, and Hard chapter every day, behind email-code verification and a
+a product beneath it. It ships with **OneSudoku**, **OneDna**, and **OneWord**;
+the first two publish Easy, Medium, and Hard chapters while OneWord offers one
+five-letter puzzle every day, behind email-code verification and a
 $1/month Polar membership, plus an explicit no-payment test path.
 
 > One thoughtful game at a time.
@@ -16,7 +17,7 @@ company:
 - the lockup — wordmark plus character — at one fixed height (28px / 34px),
   centred on **every** route
 - the same page padding on every route, verified by a test
-- a typewriter opening loader — OneGames → OneSudoku → OneDna — handing off to
+- a typewriter opening loader — OneGames → OneSudoku → OneDna → OneWord — handing off to
   a staggered content reveal
 - calm black pill CTAs, restrained motion, no cards or dashboards
 - one centred footer: a Fraunces-italic tagline over
@@ -68,6 +69,7 @@ while staying individually recognisable at 16px:
 | --------- | -------------------------------------------------------------------------------- | ------------------------ |
 | OneSudoku | Rounded logic grid, three colour families crossing it, one solid completion cell | Pale blue + region tints |
 | OneDna    | Free-standing twisted ladder, three rungs, the middle one solid                  | Pale teal                |
+| OneWord   | Five rounded letter tiles, one marked completion position                        | Dusty plum + warm ivory  |
 
 They are used large on the homepage, as a small family lockup on the access and
 pricing pages, and as the product mark in the game. There are no characters,

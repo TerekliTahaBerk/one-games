@@ -9,6 +9,8 @@ const PATHS = [
   "/sudoku/archive",
   "/dna",
   "/dna/archive",
+  "/word",
+  "/word/archive",
   "/about",
   "/privacy",
   "/terms",
@@ -18,7 +20,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return PATHS.map((path) => ({
     url: absoluteUrl(path),
     changeFrequency:
-      path === "/sudoku" || path === "/dna" ? "daily" : "monthly",
+      path === "/sudoku" || path === "/dna" || path === "/word"
+        ? "daily"
+        : "monthly",
     priority: path === "/" ? 1 : 0.8,
   }));
 }

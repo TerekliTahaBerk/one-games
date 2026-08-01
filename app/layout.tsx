@@ -13,7 +13,7 @@ import "./globals.css";
 
 const TITLE = "OneGames — One thoughtful game at a time";
 const DESCRIPTION =
-  "One daily Easy, Medium, and Hard game. One $1 membership for the whole OneGames family.";
+  "OneSudoku, OneDna, and OneWord: calm daily games in one $1 membership.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();

@@ -19,6 +19,12 @@ const GAMES: {
     description: "Pairs that belong together",
     href: "/dna",
   },
+  {
+    key: "word",
+    name: "OneWord",
+    description: "Five letters. One calm daily word",
+    href: "/word",
+  },
 ];
 
 /** The family at homepage scale — shown rather than described. */

@@ -3,7 +3,14 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const form = await request.formData();
   const response = NextResponse.redirect(
-    new URL(form.get("game") === "dna" ? "/dna" : "/sudoku", request.url),
+    new URL(
+      form.get("game") === "dna"
+        ? "/dna"
+        : form.get("game") === "word"
+          ? "/word"
+          : "/sudoku",
+      request.url,
+    ),
     303,
   );
   response.cookies.set("onegames_test", "1", {

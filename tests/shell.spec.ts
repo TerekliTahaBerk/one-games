@@ -17,6 +17,8 @@ const PAGES = [
   { path: "/sudoku/archive", name: "archive" },
   { path: "/dna", name: "dna game" },
   { path: "/dna/archive", name: "dna archive" },
+  { path: "/word", name: "word game" },
+  { path: "/word/archive", name: "word archive" },
 ];
 
 const FOOTER_LINKS = ["Terms", "Privacy", "Pricing"];
@@ -197,16 +199,19 @@ test.describe("Homepage", () => {
       page.getByRole("heading", { name: "Meet the OneGames family." }),
     ).toBeVisible();
 
-    // Both games are playable today.
+    // Every game is playable today.
     await expect(
       page.getByRole("link", { name: "Play OneSudoku" }),
     ).toBeVisible();
     await expect(page.getByRole("link", { name: "Play OneDna" })).toBeVisible();
-    await expect(page.locator(".game-card")).toHaveCount(2);
+    await expect(
+      page.getByRole("link", { name: "Play OneWord" }),
+    ).toBeVisible();
+    await expect(page.locator(".game-card")).toHaveCount(3);
     await expect(page.getByText("Coming soon")).toHaveCount(0);
 
     // The retired placeholders must not linger anywhere on the page.
-    for (const name of ["OneWord", "OneMatch", "OneNumbers"]) {
+    for (const name of ["OneMatch", "OneNumbers"]) {
       await expect(page.getByText(name)).toHaveCount(0);
     }
   });

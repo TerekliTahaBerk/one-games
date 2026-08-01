@@ -16,6 +16,7 @@
     "validate:sudoku": "node scripts/validate-sudoku-puzzles.mjs",
     "generate:dna": "node scripts/generate-dna-puzzles.mjs",
     "validate:dna": "node scripts/validate-dna-puzzles.mjs",
+    "validate:word": "vitest run tests/word-data.test.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

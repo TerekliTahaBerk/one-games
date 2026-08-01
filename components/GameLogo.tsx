@@ -14,18 +14,20 @@ import type { CSSProperties } from "react";
  * The marks are purely geometric. There are no characters, faces, or mascots,
  * and none of them borrow another puzzle brand's silhouette or palette.
  */
-export type GameKey = "sudoku" | "dna";
+export type GameKey = "sudoku" | "dna" | "word";
 
 type Palette = { accent: string; pale: string; wash: string };
 
 export const GAME_PALETTE: Record<GameKey, Palette> = {
   sudoku: { accent: "#3F6FA8", pale: "#DCE8F7", wash: "#EFF5FC" },
   dna: { accent: "#477B72", pale: "#DDEBE6", wash: "#F4F7F3" },
+  word: { accent: "#84657E", pale: "#E9DCE7", wash: "#FBF6F0" },
 };
 
 export const GAME_LABEL: Record<GameKey, string> = {
   sudoku: "OneSudoku",
   dna: "OneDna",
+  word: "OneWord",
 };
 
 const INK = "#1A1A1A";
@@ -170,6 +172,38 @@ function DnaMark({ accent, pale, wash }: Palette) {
   );
 }
 
+/** Five quiet letter tiles with one completed position. */
+function WordMark({ accent, pale, wash }: Palette) {
+  return (
+    <>
+      <rect
+        x="4"
+        y="13"
+        width="56"
+        height="38"
+        rx="12"
+        fill={wash}
+        stroke={INK}
+        strokeWidth={OUTER}
+      />
+      {[0, 1, 2, 3, 4].map((index) => (
+        <rect
+          key={index}
+          x={8 + index * 10}
+          y="20"
+          width="8"
+          height="24"
+          rx="3"
+          fill={index === 2 ? accent : pale}
+          stroke={INK}
+          strokeWidth={INNER}
+        />
+      ))}
+      <circle cx="32" cy="32" r="2" fill="#fff" />
+    </>
+  );
+}
+
 interface Props {
   game: GameKey;
   /** Rendered size in px. The mark is vector, so any value stays sharp. */
@@ -212,6 +246,7 @@ export function GameLogo({
         </>
       )}
       {game === "dna" && <DnaMark {...palette} />}
+      {game === "word" && <WordMark {...palette} />}
     </svg>
   );
 }
@@ -227,7 +262,7 @@ export function GameLogoFamily({
   size?: number;
   className?: string;
 }) {
-  const games: GameKey[] = ["sudoku", "dna"];
+  const games: GameKey[] = ["sudoku", "dna", "word"];
   return (
     <span
       className={`logo-family ${className}`.trim()}

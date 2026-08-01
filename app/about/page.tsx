@@ -49,7 +49,7 @@ export default function AboutPage() {
             your time.
           </p>
           <p>
-            OneSudoku brings a calm pastel number mosaic. OneDNA turns four
+            OneSudoku brings a calm pastel number mosaic. OneDna turns four
             colors into complementary pairs. Each publishes Easy, Medium, and
             Hard chapters every day. Finish one, finish all six, or simply come
             back tomorrow.

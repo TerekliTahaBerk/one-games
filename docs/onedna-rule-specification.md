@@ -1,4 +1,4 @@
-# OneDNA — rule specification
+# OneDna — rule specification
 
 Status: **MVP implemented (August 2026).** This remains the rule contract for
 `lib/dna/rules.ts`, the exact and logical solvers, validation, and player UI.
@@ -287,7 +287,7 @@ with a looser rule set knows where to look.
 A _chain_ is a maximal run of deductions where each one's supporting cells
 include a cell placed by the previous one. Chain length is a difficulty input
 (see [difficulty model](./onedna-generator-design.md#8-difficulty-model)), and is
-the honest source of OneDNA's difficulty: Hard is not a harder technique, it is a
+the honest source of OneDna's difficulty: Hard is not a harder technique, it is a
 longer thread.
 
 ### The `Deduction` record

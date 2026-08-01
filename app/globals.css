@@ -69,7 +69,7 @@
   color-scheme: light;
 }
 
-/* OneDNA — a warm, playful bond system inside the quiet OneGames shell. */
+/* OneDna — a warm, playful bond system inside the quiet OneGames shell. */
 :root {
   --dna-accent: #477b72;
   --dna-accent-soft: #e5efeb;
@@ -3887,7 +3887,7 @@ body,
   background: #e7f0ee;
 }
 
-/* OneDNA maps the four bases to the four accent families in the reference:
+/* OneDna maps the four bases to the four accent families in the reference:
    A violet, T rose, C teal, G apricot. Shape cues remain alongside colour. */
 .dna-page {
   --dna-accent: var(--pastel-teal-ink);

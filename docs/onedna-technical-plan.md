@@ -1,7 +1,7 @@
-# OneDNA — technical plan
+# OneDna — technical plan
 
 Status: **MVP shipped in the repository.** The implemented save schema is
-`onegames:v1:dna:*`, record version 1. OneDNA stats remain isolated for launch;
+`onegames:v1:dna:*`, record version 1. OneDna stats remain isolated for launch;
 the proposed shared-stats v2 migration was deliberately deferred to protect
 existing Sudoku history. Candidate notes and optional sound feedback are not
 exposed in the launch UI. Hints use the structured tier-1/tier-2 taxonomy.
@@ -309,8 +309,8 @@ onegames:v1:stats                           OneGamesStats  (shared, v2)
   fold the existing flat fields into `perGame.sudoku`, preserve
   `completedDates`, `currentStreak` and `longestStreak` verbatim, and be
   idempotent. It needs its own test with a real v1 payload, and it must ship
-  _before or with_ OneDNA, never after.
-- Settings are per game. OneDNA's set: `checkMistakes`, `highlightRelated`,
+  _before or with_ OneDna, never after.
+- Settings are per game. OneDna's set: `checkMistakes`, `highlightRelated`,
   `highlightMatching`, `showBondBadges`, `autoRemoveNotes`, `sound`,
   `reducedMotion`. `showBondBadges` defaults **on** — it is an accessibility
   affordance, not a power-user toggle, and the setting exists only to let people
@@ -326,7 +326,7 @@ onegames:v1:stats                           OneGamesStats  (shared, v2)
 | Archive           | `app/dna/archive/page.tsx`                        | mirrors the Sudoku archive                                                      |
 | Sitemap           | `app/sitemap.ts`                                  | add `/dna` (`daily`) and `/dna/archive`                                         |
 | Shell test        | `tests/shell.spec.ts`                             | add both paths to `PAGES` — **this test fails until you do**                    |
-| Family lineup     | `components/GameFamily.tsx`                       | OneDNA takes an active slot                                                     |
+| Family lineup     | `components/GameFamily.tsx`                       | OneDna takes an active slot                                                     |
 | Logo              | `components/GameLogo.tsx`, `scripts/build-og.mjs` | new `"dna"` key, mark, palette entry; regenerate `public/og.png`                |
 | Access copy       | `components/AccessGate.tsx`, `app/play/page.tsx`  | currently says "OneSudoku"; becomes game-aware                                  |
 | Shared keypad CSS | `app/globals.css`                                 | rename `.number-row`/`.number-key` → `.key-pad`/`.key`, keep Sudoku modifiers   |

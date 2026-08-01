@@ -15,7 +15,7 @@ const GAMES: {
   },
   {
     key: "dna",
-    name: "OneDNA",
+    name: "OneDna",
     description: "Pairs that belong together",
     href: "/dna",
   },

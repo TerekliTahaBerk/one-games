@@ -12,11 +12,11 @@ test.beforeEach(async ({ page, context }) => {
   await page.goto("/dna");
 });
 
-test.describe("OneDNA game", () => {
+test.describe("OneDna game", () => {
   test("renders the 6x6 board and accessible bonds", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: "OneDNA" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "OneDna" })).toBeVisible();
     await expect(
-      page.getByRole("grid", { name: "6 by 6 OneDNA board" }),
+      page.getByRole("grid", { name: "6 by 6 OneDna board" }),
     ).toBeVisible();
     await expect(page.locator("[data-cell]")).toHaveCount(36);
     await expect(page.locator(".dna-bonds path")).toHaveCount(5);
@@ -30,7 +30,7 @@ test.describe("OneDNA game", () => {
   test("renders Hard at 8x8 without horizontal overflow", async ({ page }) => {
     await page.getByRole("button", { name: "hard", exact: true }).click();
     await expect(
-      page.getByRole("grid", { name: "8 by 8 OneDNA board" }),
+      page.getByRole("grid", { name: "8 by 8 OneDna board" }),
     ).toBeVisible();
     await expect(page.locator("[data-cell]")).toHaveCount(64);
     expect(
@@ -121,7 +121,7 @@ test.describe("OneDNA game", () => {
     const index = Number(await empty.getAttribute("data-cell"));
     await empty.click();
     await page.keyboard.press("A");
-    await page.getByRole("button", { name: "Open OneDNA settings" }).click();
+    await page.getByRole("button", { name: "Open OneDna settings" }).click();
     await page.getByRole("switch", { name: "Reduce motion" }).click();
     await page.getByRole("button", { name: "Close settings" }).click();
     await page.reload();
@@ -194,8 +194,8 @@ test("the DNA access path returns to DNA", async ({ page, context }) => {
   await expect(page).toHaveURL(/\/dna$/);
 });
 
-test("homepage links directly to OneDNA", async ({ page }) => {
+test("homepage links directly to OneDna", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Play OneDNA" }).click();
+  await page.getByRole("link", { name: "Play OneDna" }).click();
   await expect(page).toHaveURL(/\/dna/);
 });

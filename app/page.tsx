@@ -42,7 +42,7 @@ export default function HomePage() {
 
           <p className="lede reveal-item reveal-item-3">
             A calm pastel number mosaic and a colorful pairing puzzle. Six daily
-            chapters across OneSudoku and OneDNA — then you&rsquo;re done.
+            chapters across OneSudoku and OneDna — then you&rsquo;re done.
           </p>
 
           <div className="cta-row reveal-item reveal-item-4">
@@ -51,7 +51,7 @@ export default function HomePage() {
               className="pill-primary"
               aria-label="Play OneGames"
             >
-              Play OneSudoku + OneDNA
+              Play OneSudoku + OneDna
             </Link>
             <p className="note">
               $1 / month · Every game included · Cancel anytime

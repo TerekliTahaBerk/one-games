@@ -21,7 +21,7 @@ export function DnaCompletionPanel({
 }) {
   const modalRef = useModalFocus(open, onClose);
   if (!open) return null;
-  const share = `OneDNA ${game.date}\n${game.difficulty[0].toUpperCase()}${game.difficulty.slice(1)} · ${game.size}×${game.size} · ${time(game.elapsed)}\n${"◇".repeat(bondCount)} · ${game.mistakes} mistake${game.mistakes === 1 ? "" : "s"} · ${game.hints} hint${game.hints === 1 ? "" : "s"}`;
+  const share = `OneDna ${game.date}\n${game.difficulty[0].toUpperCase()}${game.difficulty.slice(1)} · ${game.size}×${game.size} · ${time(game.elapsed)}\n${"◇".repeat(bondCount)} · ${game.mistakes} mistake${game.mistakes === 1 ? "" : "s"} · ${game.hints} hint${game.hints === 1 ? "" : "s"}`;
   return (
     <div className="modal-backdrop">
       <section

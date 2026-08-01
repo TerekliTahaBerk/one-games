@@ -7,7 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "One $1 monthly membership for OneSudoku, OneDNA, and every game in the OneGames family.",
+    "One $1 monthly membership for OneSudoku, OneDna, and every game in the OneGames family.",
 };
 
 export default function PricingPage() {
@@ -20,7 +20,7 @@ export default function PricingPage() {
           <ProductPair />
           <h1 className="display display-sm">One membership. Every game.</h1>
           <p className="lede">
-            OneSudoku and OneDNA, together every day. No ads, bundles, or
+            OneSudoku and OneDna, together every day. No ads, bundles, or
             complicated plans.
           </p>
 

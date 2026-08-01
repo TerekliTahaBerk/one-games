@@ -25,7 +25,7 @@ export const GAME_PALETTE: Record<GameKey, Palette> = {
 
 export const GAME_LABEL: Record<GameKey, string> = {
   sudoku: "OneSudoku",
-  dna: "OneDNA",
+  dna: "OneDna",
 };
 
 const INK = "#1A1A1A";
@@ -98,7 +98,7 @@ function SudokuMark({ accent }: Palette) {
 }
 
 /**
- * The OneDNA bond seal.
+ * The OneDna bond seal.
  *
  * Four soft endpoints form two complementary pairs. Their mirrored paths meet
  * in the middle without becoming a literal laboratory helix: the mark now

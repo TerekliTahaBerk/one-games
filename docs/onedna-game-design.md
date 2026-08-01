@@ -1,4 +1,4 @@
-# OneDNA — game design
+# OneDna — game design
 
 Status: **design phase, pre-implementation.** Nothing in this document has shipped.
 The production MVP is implemented at `/dna` with a 28-day archive at
@@ -20,13 +20,13 @@ test this design before committing to it. Its results are reproduced in the
 
 ## 1. The one-paragraph game
 
-**OneDNA is a 6×6 grid of four bases — A, T, C and G — that you complete by
+**OneDna is a 6×6 grid of four bases — A, T, C and G — that you complete by
 balancing pairs and following bonds** (8×8 at Hard). A and T belong to one pair; C and G to
 the other. Every row and column is half A–T and half C–G, uses all four bases,
 and never lets two identical bases touch. A handful of cells are joined by
 curved _bonds_ that reach across the board; bonded cells always hold a
 complementary pair — A with T, C with G. Four one-line rules, no exceptions, no
-guessing. The bonds are what makes it OneDNA rather than another balance grid:
+guessing. The bonds are what makes it OneDna rather than another balance grid:
 a deduction in the top-left corner lands, through a bond, in the bottom-right.
 
 ---
@@ -37,11 +37,11 @@ a deduction in the top-left corner lands, through a bond, in the bottom-right.
 
 | System                                  | Where                                                                                                 | Notes                                                                                                                                                |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Page shell                              | `components/SiteHeader.tsx`, `SiteFooter.tsx`, `BrandLogo.tsx`                                        | Fixed-size centred wordmark, back arrow, trailing slot. `tests/shell.spec.ts` asserts every route matches; OneDNA must join `PAGES` there.           |
+| Page shell                              | `components/SiteHeader.tsx`, `SiteFooter.tsx`, `BrandLogo.tsx`                                        | Fixed-size centred wordmark, back arrow, trailing slot. `tests/shell.spec.ts` asserts every route matches; OneDna must join `PAGES` there.           |
 | Access gate                             | `lib/access/*`, `app/play/page.tsx`                                                                   | `getAccessState()` already gates `/sudoku`; `/dna` does the same with two lines. The `onegames_test` cookie path works unchanged.                    |
-| Design tokens                           | `app/globals.css` `:root`                                                                             | Surfaces, ink ramp, hairlines, `--region-*` colour families, Fraunces/Inter, page padding. OneDNA needs one new game accent and zero new primitives. |
+| Design tokens                           | `app/globals.css` `:root`                                                                             | Surfaces, ink ramp, hairlines, `--region-*` colour families, Fraunces/Inter, page padding. OneDna needs one new game accent and zero new primitives. |
 | Date + daily selection                  | `lib/date.ts`, the `hashDate` pattern in `lib/sudoku/puzzles.ts`                                      | A stable string hash over `${date}-${difficulty}` indexing a curated bank. Port the pattern, not the module.                                         |
-| Archive shape                           | `app/sudoku/archive/page.tsx`                                                                         | 28-day list reading local saves. Structurally identical for OneDNA.                                                                                  |
+| Archive shape                           | `app/sudoku/archive/page.tsx`                                                                         | 28-day list reading local saves. Structurally identical for OneDna.                                                                                  |
 | Puzzle-bank tooling convention          | `scripts/generate-puzzles.mjs`, `scripts/validate-sudoku-puzzles.mjs`, `scripts/lib/sudoku-rules.mjs` | JSON bank + a plain-Node rules mirror for build tooling + a `validate:*` package script. Proven; copy the shape.                                     |
 | Control-surface CSS                     | `.control-surface`, `.tool-row`, `.number-row`, `.number-key`, `.game-header`, `.difficulty-tabs`     | Already generic in everything but the class names. See §2.3.                                                                                         |
 | Modal, settings and completion patterns | `components/sudoku/SettingsPanel.tsx`, `CompletionPanel.tsx`                                          | Toggle rows, danger zone, stats grid, share flow — all game-agnostic in behaviour.                                                                   |
@@ -51,36 +51,36 @@ a deduction in the top-left corner lands, through a bond, in the bottom-right.
 ### 2.2 Sudoku-specific — do **not** reuse
 
 - `lib/sudoku/constraints.ts` — the peer model is row/column/box/colored-group.
-  OneDNA's constraint units are _lines with a composition budget_, _orthogonal
+  OneDna's constraint units are _lines with a composition budget_, _orthogonal
   adjacency_, and _bonds_. Sharing this type would be a false abstraction.
 - `lib/sudoku/solver.ts` — a min-remaining-values backtracker over 9 symbols.
-  OneDNA's production solver is a **human-technique engine first** and a
+  OneDna's production solver is a **human-technique engine first** and a
   brute-force verifier second; different shape, different output.
 - `lib/sudoku/types.ts` — `Board = number[]` of 0–9, `Notes`, `GameSave` with a
-  Sudoku `puzzleId`. OneDNA gets its own types under `lib/dna/`.
+  Sudoku `puzzleId`. OneDna gets its own types under `lib/dna/`.
 - `hooks/useSudokuGame.ts` — the state machine is close but not identical
   (bases instead of digits, bonds, a different hint model). Copy the _shape_,
   not the file.
-- The `--region-*` colour system belongs to Sudoku's colored groups. OneDNA
+- The `--region-*` colour system belongs to Sudoku's colored groups. OneDna
   borrows two of the same hues for its pair families but under its own names.
 
 ### 2.3 Shared components that need generalising
 
 Three things are currently Sudoku-shaped only by naming, and should be lifted
-**when OneDNA needs them, not before**:
+**when OneDna needs them, not before**:
 
 1. **`components/GameLogo.tsx`** must gain a `"dna"` key: the `GameKey` union,
    `GAME_PALETTE`, `GAME_LABEL`, a `DnaMark`, and the mirror in
    `scripts/build-og.mjs`. `components/GameFamily.tsx` currently lists OneWord,
-   OneMatch and OneNumbers as "Coming soon" — OneDNA takes one of those slots.
+   OneMatch and OneNumbers as "Coming soon" — OneDna takes one of those slots.
    **This is a product decision, not a technical one, and needs a call before
    implementation** (see [roadmap](./onedna-roadmap.md#open-product-questions)).
 2. **CSS class names.** `.number-row`/`.number-key` are a 3×3 or 9-across key
-   pad; OneDNA wants a 4-across base pad with identical ergonomics. Rename the
+   pad; OneDna wants a 4-across base pad with identical ergonomics. Rename the
    shared block to `.key-pad`/`.key`, keep `.number-*` as the Sudoku-specific
-   modifier. Low risk, one commit, done before OneDNA CSS lands.
+   modifier. Low risk, one commit, done before OneDna CSS lands.
 3. **Stats and streaks.** `lib/sudoku/persistence.ts` owns `Stats` with
-   `completedDates`/`currentStreak`. A player finishing OneDNA should extend
+   `completedDates`/`currentStreak`. A player finishing OneDna should extend
    the same OneGames streak. Extract `lib/stats.ts` with a game-keyed schema —
    see [technical plan](./onedna-technical-plan.md#persistence).
 
@@ -268,7 +268,7 @@ like one product:
 
 ```
 SiteHeader   [back]        OneGames wordmark        [settings]
-game-header  logo + "OneDNA" + date            timer + pause chip
+game-header  logo + "OneDna" + date            timer + pause chip
 difficulty   ( Easy | Medium | Hard )              fill counter
 play-layout  ┌ board (hero, square, bonds drawn over it) ┐ ┌ control surface ┐
              │ 6×6 or 8×8                               │ │ tools           │
@@ -336,7 +336,7 @@ because cycling requires the cell to already be selected.
 ### 5.5 Feedback and states
 
 - **Correct entry:** the one-off `cell-settle` flash already in `globals.css`.
-- **Rule conflict:** the offending cells take an alert ring. Because OneDNA has
+- **Rule conflict:** the offending cells take an alert ring. Because OneDna has
   four rules, the conflict record carries _which_ rule broke — the same
   precedence system as Sudoku's colored groups, and the same "no banner" policy.
   A bond conflict additionally tints the bond arc and its badges.
@@ -361,7 +361,7 @@ the same explainer the tutorial uses. Identical pattern to
 
 Beats 2 to 5 teach on a **single 6-cell strip** — one row, lifted out of a real
 board — so each rule can be demonstrated in isolation with no other rule able to
-explain the same move. Beat 6 is a full **4×4 board**, which under OneDNA's rules
+explain the same move. Beat 6 is a full **4×4 board**, which under OneDna's rules
 is exactly "one of each base in every row and column". That is worth knowing:
 at 4×4 the no-twins rule is _implied_ by the other two composition rules, so a
 player who has just met it cannot get the tiny puzzle wrong by forgetting it.
@@ -432,7 +432,7 @@ configuration, **no puzzle ever required a tier-3 technique.** Naked subsets and
 spacing squeezes were implemented in the prototype and never fired as
 _necessary_ steps. The consequence is a deliberate cut: **ship a two-tier
 technique library.** Building subset machinery for the hint engine would be
-dead code with a maintenance cost. This also means OneDNA's difficulty is
+dead code with a maintenance cost. This also means OneDna's difficulty is
 carried by chain length and board size rather than by exotic techniques — the
 same as Tango and Queens, and stated plainly rather than dressed up.
 
@@ -442,7 +442,7 @@ same as Tango and Queens, and stated plainly rather than dressed up.
 
 ### 8.1 Is a score worth having?
 
-Yes, but only if it is legible. An opaque score is worse than none. OneDNA's
+Yes, but only if it is legible. An opaque score is worse than none. OneDna's
 Logic Score is a published formula the player can reason about, shown with its
 own deductions itemised on the completion panel.
 
@@ -493,7 +493,7 @@ The share payload contains **no board data at all** — not even pair families,
 which would leak half the solution.
 
 ```
-OneDNA · Aug 1, 2026
+OneDna · Aug 1, 2026
 Medium · 04:51 · 5 bonds
 Mistakes 1 · Hints 0
 Logic Score 94
@@ -504,7 +504,7 @@ onegames.app
 
 ## 9. Visual direction
 
-OneDNA inherits the OneGames shell unchanged: white paper, graphite ink,
+OneDna inherits the OneGames shell unchanged: white paper, graphite ink,
 Fraunces headings, Inter interface type, hairline rules, black pill buttons, one
 quiet centred footer.
 

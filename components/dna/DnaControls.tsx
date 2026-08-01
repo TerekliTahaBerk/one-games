@@ -31,7 +31,7 @@ export function DnaControls({
   onHint(): void;
 }) {
   return (
-    <div className="dna-controls" aria-label="OneDNA controls">
+    <div className="dna-controls" aria-label="OneDna controls">
       <div className="dna-keypad">
         {FAMILIES.map((family) => (
           <div

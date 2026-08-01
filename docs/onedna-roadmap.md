@@ -1,4 +1,4 @@
-# OneDNA — roadmap, risks and recommendation
+# OneDna — roadmap, risks and recommendation
 
 Status: **launch scope implemented in the repository.** Deferred mechanics in
 this document remain roadmap items and are not exposed by the MVP.
@@ -39,7 +39,7 @@ Companion: [game design](./onedna-game-design.md) · [rules](./onedna-rule-speci
 - Any leaderboard, season, unlockable, XP, badge or reward loop.
 - Speed challenge.
 - A cross-game "play all today's games" hub.
-- Server-side anything. OneDNA ships entirely on `localStorage`.
+- Server-side anything. OneDna ships entirely on `localStorage`.
 
 The MVP is deliberately one game done completely, not a platform.
 
@@ -103,10 +103,10 @@ distribution.
 | 3   | **Session length at Hard.** ~42 fills at 8×8 may run past 10 minutes and past a daily player's patience.                                            | Medium   | Time 5 internal solvers on generated Hard boards. If the median exceeds 11 minutes, move Hard to 6×6 with a lower clue floor and reserve 8×8 for the Lab.                                             |
 | 4   | **"This is just Sudoku."** R1+R2 read as a composition rule, and the first impression may be "four-letter Sudoku".                                  | Medium   | Show the four-rule card plus a screenshot to 10 people who have not seen it. Ask what it reminds them of. If Sudoku dominates, lead the marketing and the tutorial with **bonds**, not with balance.  |
 | 5   | **Tap cost.** 25 fills × (select + choose) ≈ 50 taps at Medium.                                                                                     | Medium   | Instrument the prototype board with a tap counter; compare cycle-on-tap against pad entry for the same solve. Cycling should cut it to ~30.                                                           |
-| 6   | **Stats migration breaking Sudoku streaks.** The `OneGamesStats` v2 migration touches live player data.                                             | Medium   | Unit-test with a real captured v1 payload; verify idempotency; ship the migration in its own commit _ahead_ of OneDNA so a rollback does not need to unpick two things.                               |
+| 6   | **Stats migration breaking Sudoku streaks.** The `OneGamesStats` v2 migration touches live player data.                                             | Medium   | Unit-test with a real captured v1 payload; verify idempotency; ship the migration in its own commit _ahead_ of OneDna so a rollback does not need to unpick two things.                               |
 | 7   | **Bank exhaustion / repetition.** A short bank repeats within weeks.                                                                                | Low      | Generation runs at ~1 400/second, so 400 per difficulty is free; add a CI check asserting the bank covers at least 12 months of daily selection from the current date.                                |
 | 8   | **Par calibration.** The Logic Score's `par` values are estimates, and a wrong par makes every score feel unfair.                                   | Low      | Ship time logging on day one; recalibrate at 2 weeks. Until then, cap the time penalty at 20 points so a bad par cannot dominate a score.                                                             |
-| 9   | **`GameFamily` slot.** Adding OneDNA changes the advertised lineup.                                                                                 | Low      | Product decision, not technical. See §4.                                                                                                                                                              |
+| 9   | **`GameFamily` slot.** Adding OneDna changes the advertised lineup.                                                                                 | Low      | Product decision, not technical. See §4.                                                                                                                                                              |
 
 ---
 
@@ -114,10 +114,10 @@ distribution.
 
 These need a human decision before implementation starts:
 
-1. **Does OneDNA replace one of OneWord / OneMatch / OneNumbers on the homepage,
+1. **Does OneDna replace one of OneWord / OneMatch / OneNumbers on the homepage,
    or become a fifth mark?** The family grid is currently a 4-up. A fifth
    changes the layout; a replacement changes a public promise.
-2. **Is OneDNA included in the existing $1 membership at launch?** The pricing
+2. **Is OneDna included in the existing $1 membership at launch?** The pricing
    copy already says "every game included", so the default answer is yes — worth
    confirming it is intentional.
 3. **Route name.** `/dna` is short and clean. `/onedna` matches the product
@@ -231,7 +231,7 @@ The two conditions:
    phone. It is one afternoon of static HTML, and it is the only risk that could
    force a rule change rather than a tuning change.
 2. **Accept the depth ceiling honestly, and plan repeat bonds as a
-   near-term follow-up rather than a someday.** OneDNA at launch is a
+   near-term follow-up rather than a someday.** OneDna at launch is a
    Tango-class game: quick to learn, pleasant daily, deep enough for months, not
    deep enough for years. That is a good product. It stops being one if
    the roadmap pretends otherwise.

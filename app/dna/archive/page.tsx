@@ -51,7 +51,7 @@ export default function DnaArchivePage() {
       <SiteHeader back="/dna" backLabel="Game" />
       <main className="page-main is-reading">
         <div className="access-copy rise">
-          <h1 className="display display-sm">OneDNA archive.</h1>
+          <h1 className="display display-sm">OneDna archive.</h1>
           <p className="lede">
             Revisit the last 28 daily sequences. Each date keeps its own
             progress in this browser.

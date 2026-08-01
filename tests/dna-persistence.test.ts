@@ -46,7 +46,7 @@ function game(): DnaGameSave {
     future: [],
   };
 }
-describe("OneDNA persistence", () => {
+describe("OneDna persistence", () => {
   let store: Map<string, string>;
   beforeEach(() => {
     store = storage();
@@ -73,7 +73,7 @@ describe("OneDNA persistence", () => {
     clearDnaGame(date, "easy");
     expect(store.get("onegames:v1:game:sudoku")).toBe("keep");
   });
-  it("reset all OneDNA data preserves Sudoku", () => {
+  it("reset all OneDna data preserves Sudoku", () => {
     store.set("onegames:v1:dna:test", "remove");
     store.set("onegames:v1:stats", "keep");
     clearAllDnaData();

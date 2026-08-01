@@ -6,7 +6,7 @@ import { getTodayKey } from "@/lib/date";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Play OneDNA",
+  title: "Play OneDna",
   description: "Solve today’s calm daily DNA pairing puzzle.",
   alternates: { canonical: "/dna" },
 };

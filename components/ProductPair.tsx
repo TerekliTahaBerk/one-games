@@ -8,7 +8,7 @@ const PRODUCTS = [
   },
   {
     key: "dna" as const,
-    name: "OneDNA",
+    name: "OneDna",
     description: "Four colors. Perfect pairs.",
   },
 ] as const;
@@ -17,7 +17,7 @@ export function ProductPair({ className = "" }: { className?: string }) {
   return (
     <section
       className={`product-pair ${className}`.trim()}
-      aria-label="OneSudoku and OneDNA"
+      aria-label="OneSudoku and OneDna"
     >
       {PRODUCTS.map((product) => (
         <article

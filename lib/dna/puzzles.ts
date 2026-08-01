@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== "production") {
     ),
   );
   if (issues.length)
-    throw new Error(`Malformed OneDNA puzzle data —\n${issues.join("\n")}`);
+    throw new Error(`Malformed OneDna puzzle data —\n${issues.join("\n")}`);
 }
 
 function hash(value: string): number {

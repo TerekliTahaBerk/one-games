@@ -79,7 +79,7 @@ async function buildHtml() {
   const logo = await readFile(resolve(ROOT, "public/onegames-logo.png"));
   const logoUrl = `data:image/png;base64,${logo.toString("base64")}`;
 
-  const labels = ["OneSudoku", "OneDNA"];
+  const labels = ["OneSudoku", "OneDna"];
   const games = ["sudoku", "dna"];
 
   return `<!doctype html><html><head><meta charset="utf-8"><style>

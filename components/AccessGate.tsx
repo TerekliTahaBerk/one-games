@@ -228,7 +228,7 @@ export function AccessGate({
                   games
                 </li>
                 <li>
-                  <i aria-hidden="true">✓</i> OneSudoku and OneDNA included
+                  <i aria-hidden="true">✓</i> OneSudoku and OneDna included
                 </li>
                 <li>
                   <i aria-hidden="true">✓</i> Cancel whenever you like

@@ -31,7 +31,7 @@ export function DnaSettingsPanel({
         className="dna-modal settings-modal"
         role="dialog"
         aria-modal="true"
-        aria-label="OneDNA settings"
+        aria-label="OneDna settings"
       >
         <button
           className="modal-close"
@@ -70,7 +70,7 @@ export function DnaSettingsPanel({
           className="setting-action"
           type="button"
           onClick={() => {
-            if (confirm("Reset this OneDNA puzzle?")) {
+            if (confirm("Reset this OneDna puzzle?")) {
               onReset();
               onClose();
             }
@@ -84,7 +84,7 @@ export function DnaSettingsPanel({
           onClick={() => {
             if (
               confirm(
-                "Reset all OneDNA saves, settings, and statistics on this device? Sudoku data will stay untouched.",
+                "Reset all OneDna saves, settings, and statistics on this device? Sudoku data will stay untouched.",
               )
             ) {
               onResetAll();
@@ -92,7 +92,7 @@ export function DnaSettingsPanel({
             }
           }}
         >
-          Reset all OneDNA data
+          Reset all OneDna data
         </button>
       </section>
     </div>

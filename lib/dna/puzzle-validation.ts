@@ -92,7 +92,7 @@ function parsePuzzle(value: unknown, difficulty: DnaDifficulty): DnaPuzzle {
 export function parsePuzzleBank(
   value: unknown,
 ): Record<DnaDifficulty, DnaPuzzle[]> {
-  if (!record(value)) throw new Error("OneDNA bank must be an object");
+  if (!record(value)) throw new Error("OneDna bank must be an object");
   const result = Object.fromEntries(
     DIFFICULTIES.map((difficulty) => {
       const entries = value[difficulty];

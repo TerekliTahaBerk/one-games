@@ -63,7 +63,7 @@ export function DnaBoard({
       <div
         className={`dna-board size-${size}`}
         role="grid"
-        aria-label={`${size} by ${size} OneDNA board`}
+        aria-label={`${size} by ${size} OneDna board`}
         style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
       >
         <svg

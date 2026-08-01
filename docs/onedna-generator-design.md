@@ -1,4 +1,4 @@
-# OneDNA — generator, solver and difficulty design
+# OneDna — generator, solver and difficulty design
 
 Status: **implemented.** `npm run generate:dna` deterministically creates the
 shipped 400-puzzle bank per difficulty; `npm run validate:dna` independently
@@ -193,7 +193,7 @@ A logically perfect puzzle can still look bad. Reject and re-roll when:
 - Clues cluster: split the board into quadrants; reject if any quadrant holds
   more than 45% or fewer than 8% of the clues.
 - The clue layout is accidentally symmetric (rotational or mirror) unless the
-  spec asked for it. Sudoku convention likes symmetry; OneDNA's identity is the
+  spec asked for it. Sudoku convention likes symmetry; OneDna's identity is the
   organic bond tangle, and an accidentally symmetric clue set fights it.
 - More than two bond arcs cross.
 - Two bonds are visually parallel and adjacent (same delta, endpoints within one
@@ -321,7 +321,7 @@ Consequences, all acted on:
 2. **The hint engine only needs eight techniques.**
 3. **Difficulty comes from chain length and board size, not technique exotica.**
    This is stated plainly in the [game design](./onedna-game-design.md#7-phase-12--the-hint-engine)
-   rather than papered over, because it sets the ceiling on how deep OneDNA can
+   rather than papered over, because it sets the ceiling on how deep OneDna can
    go without a new mechanic — which is precisely the argument for shipping
    repeat bonds in phase 2.
 

@@ -59,7 +59,7 @@ export function DnaGame({
   if (!game.hydrated)
     return (
       <main className="game-loading">
-        <span>OneDNA</span>
+        <span>OneDna</span>
         <p>Preparing today’s sequence…</p>
       </main>
     );
@@ -75,7 +75,7 @@ export function DnaGame({
             className="quiet-icon-link"
             type="button"
             onClick={() => setSettingsOpen(true)}
-            aria-label="Open OneDNA settings"
+            aria-label="Open OneDna settings"
           >
             <svg
               width="18"
@@ -107,7 +107,7 @@ export function DnaGame({
             <GameLogo game="dna" size={52} decorative />
             <div>
               <p className="caption">Daily puzzle · {formatLongDate(date)}</p>
-              <h1>OneDNA</h1>
+              <h1>OneDna</h1>
               <p className="dna-title-note">Find every perfect pair.</p>
             </div>
           </div>
@@ -145,7 +145,7 @@ export function DnaGame({
             {game.game.board.filter(Boolean).length}/{game.puzzle.size ** 2}
           </span>
         </div>
-        <section className="dna-rule-legend" aria-label="OneDNA rules">
+        <section className="dna-rule-legend" aria-label="OneDna rules">
           <span className="dna-rule-pairs">
             <i className="family-at" /> A–T <b>+</b> <i className="family-cg" />{" "}
             C–G balance
@@ -205,7 +205,7 @@ export function DnaGame({
         <p className="sr-only" aria-live="polite">
           {game.announcement}
         </p>
-        <nav className="game-subnav" aria-label="OneDNA navigation">
+        <nav className="game-subnav" aria-label="OneDna navigation">
           <Link href="/dna/archive">Archive</Link>
           <button type="button" onClick={() => setTutorialOpen(true)}>
             Rules

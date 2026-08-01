@@ -18,7 +18,7 @@ import type { DnaBoard, DnaPuzzle } from "../lib/dna/types";
 
 const easy = getDailyDnaPuzzle("2026-08-01", "easy");
 
-describe("OneDNA rules", () => {
+describe("OneDna rules", () => {
   it("maps complements and pair families", () => {
     expect([
       complement("A"),
@@ -80,7 +80,7 @@ describe("OneDNA rules", () => {
   });
 });
 
-describe("OneDNA solvers and bank", () => {
+describe("OneDna solvers and bank", () => {
   it("finds exactly one exact solution for a production puzzle", () => {
     const result = countSolutions([...easy.clues], easy, 2);
     expect(result.count).toBe(1);

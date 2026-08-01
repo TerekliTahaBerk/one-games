@@ -201,7 +201,7 @@ test.describe("Homepage", () => {
     await expect(
       page.getByRole("link", { name: "Play OneSudoku" }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: "Play OneDNA" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Play OneDna" })).toBeVisible();
     await expect(page.locator(".game-card")).toHaveCount(2);
     await expect(page.getByText("Coming soon")).toHaveCount(0);
 

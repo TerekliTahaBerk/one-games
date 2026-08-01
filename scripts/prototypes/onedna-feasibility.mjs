@@ -1,5 +1,5 @@
 /**
- * OneDNA design-phase feasibility prototype — NOT production code.
+ * OneDna design-phase feasibility prototype — NOT production code.
  *
  * Exists so the design documents in docs/ can make verified claims instead of
  * hopeful ones. It sweeps a matrix of candidate rule systems and reports, for
@@ -721,7 +721,7 @@ const TRIALS = [
   { group: "ladder", label: "LAB     10x10 tier3  9 bonds   ", n: 10, mode: "familyAll", adjacency: true, bonds: 9, tier: 3, samples: 8 },
 ];
 
-console.log(`OneDNA feasibility — seed ${seed}, ${samples} samples per row\n`);
+console.log(`OneDna feasibility — seed ${seed}, ${samples} samples per row\n`);
 console.log(
   "configuration                     gen    unique   clues   fills  score   ms   required tier         technique uses per puzzle",
 );

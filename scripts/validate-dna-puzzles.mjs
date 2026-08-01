@@ -35,5 +35,5 @@ if (issues.length) {
   process.exitCode = 1;
 } else
   console.log(
-    `Validated ${ids.size} OneDNA puzzles: unique, rule-valid, uniquely solvable, and logic-only.`,
+    `Validated ${ids.size} OneDna puzzles: unique, rule-valid, uniquely solvable, and logic-only.`,
   );
